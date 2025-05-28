@@ -1,12 +1,19 @@
+require('dotenv').config();
+
+
 console.log('🚨 El servidor está arrancando...');
 
-require('dotenv').config();
+const PORT = process.env.PORT || 3000;
+
+
+const mongoURI = process.env.MONGODB_URI;
 
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const path = require('path');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const passport = require('passport');
@@ -14,24 +21,28 @@ const cors = require('cors');  // <---- IMPORTAR CORS AQUÍ
 require('./passport');
 const { isAuthenticated, isAdmin } = require('./middlewares/auth');
 
+const mongoStore = MongoStore.create({
+  mongoUrl: process.env.MONGODB_URI,
+  ttl: 14 * 24 * 60 * 60 // 14 días
+});
 
 const User = require('./models/User');
 
 const app = express();
 
 const corsOptions = {
-  origin: 'http://localhost:3000',  // Cambia esto si tu frontend corre en otro puerto o dominio
+  origin: 'https://vampipcs.onrender.com',  // Cambia esto si tu frontend corre en otro puerto o dominio
   credentials: true,                 // Necesario para enviar cookies y sesiones
 };
 
 // --- Configurar CORS ---
-app.use(cors({
-  origin: 'http://localhost:3000',  // Cambia al URL de tu frontend si es diferente
-  credentials: true
-}));
+app.use(cors(corsOptions));
 
 // --- Conexión a MongoDB ---
-mongoose.connect('mongodb://localhost:27017/loginApp')
+mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
   .then(() => console.log('✅ MongoDB conectado'))
   .catch(err => console.log('❌ Error de conexión:', err));
 
@@ -39,16 +50,16 @@ mongoose.connect('mongodb://localhost:27017/loginApp')
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+console.log('🗄️ MongoStore configurado:', mongoStore);
 app.use(session({
-  secret: 'un-secreto-muy-seguro',
+  secret: process.env.SESSION_SECRET || 'secretosecreto',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    maxAge: 3600000,
-    sameSite: 'lax',  // <-- ayuda a mantener sesión en SPA
-    secure: false     // <-- solo en producción con HTTPS va true
+    secure: process.env.NODE_ENV === 'production', // true si usas HTTPS
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24 * 14 // 14 días
   }
-
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -95,8 +106,8 @@ app.use('/api', apiRoutes);
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
   auth: {
-    user: 'apolinarioelman@gmail.com',
-    pass: 'ndiy jtum omwf ikxj'
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
   }
 });
 
@@ -138,7 +149,7 @@ app.post('/register', async (req, res) => {
 
     await newUser.save();
 
-    const verificationUrl = `http://localhost:3000/verify/${token}`;
+    const verificationUrl = `https://vampipcs.onrender.com/verify/${token}`;
     const mailOptions = {
       to: newUser.email,
       subject: 'Verificación de cuenta',
@@ -208,7 +219,10 @@ app.post('/login', async (req, res, next) => {
 
       req.session.userId = user._id;
 
-      const redirectTo = req.session.returnTo || '/index.html';
+      const redirectTo = req.session.returnTo 
+      ? `${process.env.CLIENT_URL}${req.session.returnTo}` 
+      : `${process.env.CLIENT_URL}/index.html`;
+
       delete req.session.returnTo;
 
       return res.status(200).json({
@@ -273,7 +287,7 @@ app.post('/forgot-password', async (req, res) => {
     user.resetPasswordExpires = Date.now() + 3600000;
     await user.save();
 
-    const resetUrl = `http://localhost:3000/reset-password/${token}`;
+    const resetUrl = `https://vampipcs.onrender.com/reset-password/${token}`;
 
     const mailOptions = {
       to: user.email,
@@ -356,12 +370,6 @@ app.get('/change-password', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'change-password.html'));
 });
 
-// GET change-password (formulario)
-app.get('/change-password', (req, res) => {
-  if (!req.session.userId) return res.redirect('/');
-  res.sendFile(path.join(__dirname, 'public', 'change-password.html'));
-});
-
 app.post('/admin/make-admin', isAuthenticated, isAdmin, async (req, res) => {
   if (!req.isAuthenticated() || !req.user.isAdmin) {
     return res.status(403).send('No autorizado');
@@ -385,7 +393,9 @@ app.post('/admin/make-admin', isAuthenticated, isAdmin, async (req, res) => {
 
 
 
-const PORT = 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor escuchando en http://localhost:${PORT}`);
+  console.log(`🚀 Servidor escuchando en el puerto ${PORT}`);
 });
+
+console.log('🔧 Conectando a MongoDB...');
+console.log('📦 Cargando variables:', process.env.MONGODB_URI);

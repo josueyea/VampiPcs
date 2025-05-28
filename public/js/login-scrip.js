@@ -2,6 +2,7 @@
 const container = document.querySelector('.container');
 const registerBtn = document.querySelector('.register-btn');
 const loginBtn = document.querySelector('.login-btn');
+const API_BASE = 'https://vampipcs-api.onrender.com';
 
 registerBtn.addEventListener('click', () => {
     container.classList.add('active');
@@ -30,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const password = passwordInput.value;
 
             try {
-                const response = await fetch('/login', {
+                const response = await fetch(`${API_BASE}/login`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -42,9 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await response.json();
 
                 if (response.ok) {
-                    const redirectTo = localStorage.getItem('redirectAfterLogin') || '/index.html';
-                    localStorage.removeItem('redirectAfterLogin');
-                    window.location.href = redirectTo;
+                    window.location.href = `${window.location.origin}/index.html`; // ← usa lo que te envió el backend
                 } else {
                     alert(result.message || 'Error en login');
                 }
@@ -92,7 +91,7 @@ if (registerForm) {
         confirmPassword: registerForm.confirmPassword.value,
       };
 
-      const response = await fetch('/register', {
+      const response = await fetch(`${API_BASE}/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(formData),
