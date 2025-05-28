@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VampiPCs</title>
+    <link rel="shortcut icon" href="img/toji.jpg" type="image/x-icon">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="plugins/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/swiper@8/swiper-bundle.min.css" />
+</head>
+
+<body>
+    <main>
+    <header class="header">
+        <div class="header-content container">
+            <nav class="navigation">
+                <a href="index.html" class="logo"><img src="img/toji.jpg" style="border-radius: 50px;" width="100px"></a>
+
+            <ul class="navbar">
+                <li><a href="presupuesto.html" class="active">Servicios</a></li>
+                <li><a href="tienda.html">Tienda</a></li>
+                <!--<li><a href="#">Videos</a></li>-->
+            </ul>
+
+
+               <div class="search-bar">
+                <input type="checkbox" id="check">
+                <div class="box">
+                    <input type="text" placeholder="Que buscas?">
+                    <label for="check">
+                        <i class='bx bx-search'></i>
+                    </label>
+                </div>
+               </div>
+                <div class="btn-cart">
+                    <button type="button"><i class="fa-solid fa-cart-shopping icon-cart"></i></button>  
+                    <span id="cartCount">0</span>
+
+                    <div class="cart">
+                        <div class="cart-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Image</th>
+                                        <th>Description</th>
+                                        <th>Price</th>
+                                        <th>Quantity</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="contentProducts">
+                                    
+                                </tbody>
+                    
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="5" class="total">
+                                            <h4 class="heading-total">Total: <span id="total"></span></h4>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="5">
+                                            <button type="button" id="emptyCart">Empty Cart</button>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+
+                </div> 
+
+                
+
+            </nav>
+        </div>
+
+
+        <div id="menu-session">
+            <div id="menu-session">
+                <div class="main">
+                    <a href="profile.html" class="user" id="profileLink" style="display: none;">
+                        <i class='bx bxs-id-card'></i>Mi Perfil
+                    </a>
+                    <a href="login.html" class="user" id="loginLink" style="display: none;">
+                        <i id="login-btn" class='bx bxs-user'></i>Iniciar Sesión
+                    </a>
+                    <a href="admin.html" class="user" id="adminLink" style="display: none;">
+                        <i class="fa-solid fa-shield-halved"></i>Panel Admin
+                    </a>
+                    <div class="bx bx-menu" id="menu-icon"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+        
+    <hr>
+
+    <section>
+        <div class="slider">
+        <div class="slides" id="slide-container">
+            <div class="slide"><img src="img/accesorios.jpeg" alt="Imagen 1"></div>
+            <div class="slide"><img src="img/case.webp" alt="Imagen 2"></div>
+            <div class="slide"><img src="img/laptop.jpg" alt="Imagen 3"></div>
+        </div>
+
+        <button class="prev" onclick="moverSlide(-1)">❮</button>
+        <button class="next" onclick="moverSlide(1)">❯</button>
+
+        <div class="dots" id="dots-container"></div>
+        </div>
+
+        <script>
+        let slideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const dotsContainer = document.getElementById('dots-container');
+
+        // Crear puntos indicadores
+        slides.forEach((_, i) => {
+            const dot = document.createElement('span');
+            dot.classList.add('dot');
+            dot.onclick = () => mostrarSlide(i);
+            dotsContainer.appendChild(dot);
+        });
+
+        function actualizarDots() {
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach(dot => dot.classList.remove('active-dot'));
+            if (dots[slideIndex]) dots[slideIndex].classList.add('active-dot');
+        }
+
+        function mostrarSlide(index) {
+            if (index >= slides.length) slideIndex = 0;
+            else if (index < 0) slideIndex = slides.length - 1;
+            else slideIndex = index;
+
+            document.getElementById('slide-container').style.transform = 
+            `translateX(${-slideIndex * 100}%)`;
+
+            actualizarDots();
+        }
+
+        function moverSlide(n) {
+            mostrarSlide(slideIndex + n);
+        }
+
+        // Auto-play
+        setInterval(() => moverSlide(1), 5000); // Cambia cada 5 segundos
+
+        // Inicializar
+        mostrarSlide(slideIndex);
+        </script>
+    </section>
+
+    <section class="banner">
+            <div class="banner-grid container">
+                <div class="banner-item">
+                    <i class="fa-regular fa-lightbulb icon-banner"></i>
+                    <h3>La mejor asesoria con los mejores conocimientos </h3>
+                </div>
+                <div class="banner-item">
+                    <i class="fa-solid fa-bullseye icon-banner"></i>
+                    <h3>Tenemos los ultimos productos del mundo tecnologico</h3>
+                </div>
+                <div class="banner-item">
+                    <i class="fa-regular fa-clock icon-banner"></i>
+                    <h3>Compra, Asesorate y presupuesta tu PC en segundos</h3>
+                </div>
+            </div>
+    </section>
+
+    <footer>
+            <aside>
+                <img src="img/toji.jpg" width="100px" style="border-radius: 70px;">
+                <p>
+                    Av. La Molina - La Molina, Lima  <br>
+                    (01) 205-2370 <br><br><br>
+                    VampiPCs
+                </p>
+            </aside>
+            <aside>
+                <h2>
+                    Empresa
+                </h2>
+                <ul>
+                    <li type="none">Nosotros</li>
+                    <li type="none">Terminales</li>
+                    <li type="none">Puntos de Venta</li>
+                    <li type="none">Servicios</li>
+                    <li type="none">Contáctanos</li>
+                </ul>
+            </aside>
+            <aside>
+                <h2>
+                    Servicios
+                </h2>
+                <ul>
+                    <li type="none">Asesoramiento Técnico</li>
+                    <li type="none">Mantenimiento</li>
+                    <li type="none">Cotizaciones</li>
+                    <li type="none">Armado de Pc</li>
+                    <li type="none">Venta de Perifericos</li>
+                </ul>
+            </aside>
+            
+            <div class="right-men">
+                <div class="rs">
+                    <a class="ig" href="https://www.instagram.com/josue_yea/" target="_blank">
+                        <img src="img/ig.png" width="25px">
+                    </a>
+                    <a class="fb" href="https://www.facebook.com/elman.apolinario" target="_blank">
+                        <img src="img/fb.png" width="25px" style="border-radius: 7px;">
+                    </a>
+                </div>
+            </div>
+    </footer>
+    </main>
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
+    <script src="js/index-scrip.js"></script>
+    <script src="plugins/fontawesome/js/all.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Generador de Presupuesto</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/css/presupuesto-style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="shortcut icon" href="img/toji.jpg" type="image/x-icon">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link rel="stylesheet" href="plugins/fontawesome/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/swiper@8/swiper-bundle.min.css" />
+</head>
+<body>
+
+  <!--<header class="header">
+    <div class="header-content container">
+    <nav class="navigation">
+      <a href="index.html" class="logo">
+        <img src="img/toji.jpg" style="border-radius: 50px;" width="100px" />
+      </a>
+
+      <ul class="navbar">
+        <li><a href="presupuesto.html" class="active">Servicios</a></li>
+        <li><a href="tienda.html">Tienda</a></li>
+        <li><a href="#">Videos</a></li>
+      </ul>
+
+      <div class="search-bar">
+        <input type="checkbox" id="check" />
+        <div class="box">
+          <input type="text" placeholder="Que buscas?" />
+          <label for="check">
+            <i class='bx bx-search'></i>
+          </label>
+        </div>
+      </div>
+
+      <div class="btn-cart">
+        <button type="button">
+          <i class="fa-solid fa-cart-shopping icon-cart"></i>
+        </button>
+        <span id="cartCount">0</span>
+
+        <div class="cart">
+          <div class="cart-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Image</th>
+                  <th>Description</th>
+                  <th>Price</th>
+                  <th>Quantity</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="contentProducts"></tbody>
+
+              <tfoot>
+                <tr>
+                  <td colspan="5" class="total">
+                    <h4 class="heading-total">Total: <span id="total"></span></h4>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="5">
+                    <button type="button" id="emptyCart">Empty Cart</button>
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+      <button id="toggleMode" class="toggle-btn" aria-label="Toggle Dark Mode" title="Cambiar modo oscuro/claro">🌙</button>
+    </nav>
+  </div>
+
+  <div id="menu-session">
+    <div id="menu-session">
+      <div class="main">
+        <a href="profile.html" class="user" id="profileLink" style="display: none;">
+          <i class='bx bxs-id-card'></i>Mi Perfil
+        </a>
+        <a href="login.html" class="user" id="loginLink" style="display: none;">
+          <i id="login-btn" class='bx bxs-user'></i>Iniciar Sesión
+        </a>
+        <a href="admin.html" class="user" id="adminLink" style="display: none;">
+          <i class="fa-solid fa-shield-halved"></i>Panel Admin
+        </a>
+        <div class="bx bx-menu" id="menu-icon"></div>
+      </div>
+    </div>
+  </div>
+  </header>-->
+
+
+    <button id="toggleMode" class="toggle-btn" aria-label="Toggle Dark Mode" title="Cambiar modo oscuro/claro">🌙</button>
+
+    <form id="formPresupuesto">
+    <div id="selectors-productos">
+      <!-- Aquí cargaremos los selects de cada categoría -->
+    </div>
+
+    <div>
+      <label for="montaje">¿Incluir servicio de armado? (+ S/ 50)</label>
+      <select id="montaje" name="montaje">
+        <option value="no" selected>No</option>
+        <option value="si">Sí</option>
+      </select>
+    </div>
+
+    <p>Total: S/ <span id="total">0.00</span></p>
+    <button type="submit">Calcular y Guardar</button>
+  </form>
+
+  <p id="mensaje"></p>
+
+  <button id="btnDescargarPDF" type="button">Descargar PDF</button>
+  <button id="btnEnviarCorreo">📧 Enviar presupuesto por correo</button>
+
+  <div id="resumen"></div>
+
+
+  <script src="js/presupuestoscript.js" defer></script>
+</body>
+
+</html>

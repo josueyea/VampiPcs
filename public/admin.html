@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Panel de Administrador</title>
+</head>
+
+<body>
+  <h1>Presupuestos registrados</h1>
+  <div id="contenedor-presupuestos"></div>
+
+  <script>
+    async function cargarPresupuestos() {
+      try {
+        const res = await fetch('/presupuesto/admin', { credentials: 'include' });
+
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.message || 'Error desconocido');
+        }
+
+        const presupuestos = await res.json();
+
+        const contenedor = document.getElementById('contenedor-presupuestos');
+        presupuestos.forEach(p => {
+          const div = document.createElement('div');
+          div.innerHTML = `
+            <p><strong>Usuario:</strong> ${p.usuarioId ? p.usuarioId.username : 'Desconocido'} (${p.usuarioId ? p.usuarioId.email : 'Sin email'})</p>
+            <ul>
+              ${p.componentes.map(c => `<li>${c.categoria}: ${c.nombre} - S/ ${c.precio}</li>`).join('')}
+            </ul>
+            <p><strong>Montaje:</strong> ${p.incluyeMontaje ? 'Sí' : 'No'}</p>
+            <p><strong>Total:</strong> S/ ${p.total.toFixed(2)}</p>
+            <hr>
+          `;
+          contenedor.appendChild(div);
+        });
+
+      } catch (err) {
+        alert('Acceso denegado o error al obtener presupuestos');
+        console.error(err);
+      }
+    }
+
+    window.onload = cargarPresupuestos;
+  </script>
+</body>
+
+</html>

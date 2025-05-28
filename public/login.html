@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VampiPCs</title>
+    <link rel="shortcut icon" href="img/toji.jpg" type="image/x-icon">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="css/login-style.css ">
+</head>
+<body>
+    
+    <main>
+        <section class="container">
+            <div class="form-box login">
+  <form action="/login" >
+    <h1>Iniciar Sesión</h1>
+    <div class="input-box">
+      <input name="email" type="text" placeholder="Username o Email" required>
+      <i class='bx bxs-user'></i>
+    </div>
+    <div class="input-box">
+      <input name="password" type="password" placeholder="Password" required>
+      <i class='bx bxs-lock-alt'></i>
+    </div>
+    <div class="forgot-link">
+      <a href="forgot-password.html">Olvidaste tu contraseña?</a>
+    </div>
+    <button type="submit" class="btn">Iniciar Sesión</button>
+
+    <p>o inicia sesión con otro método</p>
+    <div class="social-icons">
+      <a href="/auth/google"><i class='bx bxl-google'></i></a>
+      <a href="#"><i class='bx bxl-facebook'></i></a>
+      <a href="#"><i class='bx bxl-github'></i></a>
+      <a href="#"><i class='bx bxl-twitter'></i></a>
+    </div>
+  </form>
+</div>
+            <div class="form-box register">
+                <form action="/register">
+                    <h1>Registrar</h1>
+
+                    <div id="error-message" style="color: red; margin-bottom: 10px;"></div>
+
+                    <div class="input-box">
+                        <input name="username" type="text" placeholder="Username" required>
+                        <i class='bx bxs-user'></i>
+                    </div>
+                    <div class="input-box">
+                        <input name="email" type="email" placeholder="Email" required>
+                        <i class='bx bxs-envelope' ></i>
+                    </div>
+                    <div class="input-box">
+                        <input name="password" type="password" placeholder="Password" required>
+                        <i class='bx bxs-lock-alt' ></i>
+                    </div>
+                    <div class="input-box">
+                        <input name="confirmPassword" id="confirmPassword" type="password" placeholder="Confirmar Password" required>
+                        <i class='bx bxs-lock-alt'></i>
+                    </div>
+                    <div class="forgot-link">
+                        <a href="#">Olvidaste tu contraseña?</a>
+                    </div>
+                    <button type="submit" class="btn">Registrar</button>
+                    <p>o registrate de otro método</p>
+                    <div class="social-icons">
+                        <a href="/auth/google"><i class='bx bxl-google' ></i></a>
+                        <a href="#"><i class='bx bxl-facebook' ></i></a>
+                        <a href="#"><i class='bx bxl-github' ></i></a>
+                        <a href="#"><i class='bx bxl-github' ></i></a>
+                    </div>
+                </form>
+            </div>
+
+            <div class="toggle-box">
+                <div class="toggle-panel toggle-left">
+                    <h1>Hola, Bienvenido</h1>
+                    <p>No tienes una cuenta?</p>
+                    <button class="btn register-btn">Registrate</button>
+                </div>
+                <div class="toggle-panel toggle-right">
+                    <h1>Bienvenido de vuelta!</h1>
+                    <p>Ya tienes una cuenta?</p>
+                    <button class="btn login-btn">Inicia Sesión</button>
+                </div>
+            </div>
+        </section>     
+    </main>
+
+
+    <script src="js/login-scrip.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Perfil de Usuario</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 500px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background: #f9f9f9;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1, h2, #welcome {
+      text-align: center;
+      color: #333;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    label {
+      font-weight: bold;
+      color: #555;
+    }
+    input {
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    input[readonly] {
+      background: #eee;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      padding: 0.7rem;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button[disabled] {
+      background-color: #aaa;
+      cursor: not-allowed;
+    }
+    .logout {
+      margin-top: 2rem;
+      text-align: center;
+    }
+    .logout a {
+      color: #888;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    .logout a:hover {
+      text-decoration: underline;
+    }
+    #status, #pw-status {
+      text-align: center;
+      font-weight: bold;
+      margin-top: 0.5rem;
+    }
+    .success {
+      color: green;
+    }
+    .error {
+      color: red;
+    }
+    #loader {
+      text-align: center;
+      margin-bottom: 1rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <h1>Perfil de Usuario</h1>
+  <div id="loader">Cargando perfil...</div>
+  <div id="welcome" style="display: none;"></div>
+
+  <!-- Actualización de usuario -->
+  <form id="profile-form" style="display: none;">
+    <label for="username">Nombre de usuario:</label>
+    <input type="text" id="username" name="username" required />
+
+    <label for="email">Correo electrónico (no editable):</label>
+    <input type="email" id="email" name="email" readonly />
+
+    <button type="submit" id="submit-btn">Actualizar perfil</button>
+    <div id="status"></div>
+  </form>
+
+  <!-- Cambio de contraseña -->
+  <h2 style="margin-top: 2rem;">Cambiar Contraseña</h2>
+  <form id="password-form" style="display: none;">
+    <label for="newPassword">Nueva contraseña:</label>
+    <input type="password" id="newPassword" required minlength="6" />
+
+    <label for="confirmPassword">Confirmar nueva contraseña:</label>
+    <input type="password" id="confirmPassword" required minlength="6" />
+
+    <button type="submit" id="pw-btn">Cambiar contraseña</button>
+    <div id="pw-status"></div>
+  </form>
+
+  <div class="logout">
+    <a href="/logout">Cerrar sesión</a>
+  </div>
+
+  <script>
+    async function loadProfile() {
+      try {
+        const res = await fetch('/api/user');
+        if (!res.ok) throw new Error('No autorizado');
+
+        const data = await res.json();
+        document.getElementById('username').value = data.username;
+        document.getElementById('email').value = data.email;
+        document.getElementById('welcome').textContent = `Hola, ${data.username}!`;
+
+        document.getElementById('loader').style.display = 'none';
+        document.getElementById('welcome').style.display = 'block';
+        document.getElementById('profile-form').style.display = 'flex';
+        document.getElementById('password-form').style.display = 'flex';
+      } catch (err) {
+        window.location.href = '/';
+      }
+
+      const res = await fetch('/api/user', {
+        credentials: 'include' // ← Esto es crucial
+      });
+
+    }
+
+    async function updateUsername(event) {
+      event.preventDefault();
+      const newUsername = document.getElementById('username').value.trim();
+      const status = document.getElementById('status');
+      const button = document.getElementById('submit-btn');
+
+      if (!newUsername) {
+        status.textContent = 'El nombre no puede estar vacío.';
+        status.className = 'error';
+        return;
+      }
+
+      button.disabled = true;
+      status.textContent = 'Actualizando...';
+      status.className = '';
+
+      try {
+        const res = await fetch('/update-username', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ newUsername })
+        });
+
+        const msg = await res.text();
+        if (!res.ok) {
+          status.textContent = msg;
+          status.className = 'error';
+        } else {
+          status.textContent = '✅ Username actualizado.';
+          status.className = 'success';
+          document.getElementById('welcome').textContent = `Hola, ${newUsername}!`;
+        }
+      } catch (err) {
+        status.textContent = '❌ Error al actualizar.';
+        status.className = 'error';
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    async function changePassword(event) {
+  event.preventDefault();
+  const newPw = document.getElementById('newPassword').value;
+  const confirmPw = document.getElementById('confirmPassword').value;
+  const status = document.getElementById('pw-status');
+  const button = document.getElementById('pw-btn');
+
+  if (newPw.length < 6) {
+    status.textContent = 'La contraseña debe tener al menos 6 caracteres.';
+    status.className = 'error';
+    return;
+  }
+  if (newPw !== confirmPw) {
+    status.textContent = 'Las contraseñas no coinciden.';
+    status.className = 'error';
+    return;
+  }
+
+  button.disabled = true;
+  status.textContent = 'Cambiando contraseña...';
+  status.className = '';
+
+  try {
+    const res = await fetch('/reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ newPassword: newPw })
+    });
+
+    const msg = await res.text();
+    if (!res.ok) {
+      status.textContent = msg;
+      status.className = 'error';
+    } else {
+      status.textContent = '✅ Contraseña cambiada con éxito.';
+      status.className = 'success';
+    }
+  } catch (err) {
+    status.textContent = '❌ Error al cambiar la contraseña.';
+    status.className = 'error';
+  } finally {
+    button.disabled = false;
+  }
+}
+
+    document.getElementById('profile-form').addEventListener('submit', updateUsername);
+    document.getElementById('password-form').addEventListener('submit', changePassword);
+
+    loadProfile();
+  </script>
+  <script src="js/profile.js"></script>
+</body>
+</html>

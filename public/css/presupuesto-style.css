@@ -1,0 +1,270 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+body {
+  font-family: 'Poppins', Arial, sans-serif;
+  max-width: 600px;
+  margin: 30px auto;
+  background-color: #f0f4f8;
+  padding: 20px;
+  color: #333;
+
+  /* Animación de fade-in para todo */
+  animation: fadeInBody 0.8s ease forwards;
+}
+
+@keyframes fadeInBody {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+h1 {
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 30px;
+  color: #2c3e50;
+  opacity: 0;
+  animation: fadeInUp 0.6s ease forwards;
+  animation-delay: 0.2s;
+}
+
+form {
+  background: #fff;
+  padding: 25px 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  animation: fadeInUp 0.6s ease forwards;
+  animation-delay: 0.4s;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+div {
+  margin-bottom: 18px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #34495e;
+}
+
+select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1.5px solid #ccc;
+  font-size: 15px;
+  transition: border-color 0.3s ease;
+  cursor: pointer;
+}
+
+select:focus {
+  border-color: #2980b9;
+  outline: none;
+}
+
+p {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-top: 10px;
+  text-align: right;
+
+  /* transición suave para el total */
+  transition: color 0.3s ease;
+}
+
+button {
+  padding: 14px 20px;
+  background-color: #27ae60;
+  border: none;
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 15px;
+  box-shadow: 0 6px 12px rgba(39, 174, 96, 0.4);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+  background-color: #219150;
+  transform: scale(1.05);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1.05);
+    box-shadow: 0 6px 15px rgba(33, 145, 80, 0.6);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 8px 20px rgba(33, 145, 80, 0.8);
+  }
+}
+
+#mensaje {
+  color: #27ae60;
+  font-weight: 600;
+  margin: 20px 0 15px 0;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+/* Mostrar mensaje con fade-in */
+#mensaje.visible {
+  opacity: 1;
+}
+
+/* Botones secundarios */
+#btnDescargarPDF,
+#btnEnviarCorreo {
+  background-color: #2980b9;
+  margin-top: 12px;
+  box-shadow: 0 6px 12px rgba(41, 128, 185, 0.4);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+#btnDescargarPDF:hover,
+#btnEnviarCorreo:hover {
+  background-color: #1f5f8b;
+  transform: scale(1.05);
+  animation: pulseBlue 1.5s infinite;
+}
+
+@keyframes pulseBlue {
+  0%, 100% {
+    transform: scale(1.05);
+    box-shadow: 0 6px 15px rgba(31, 95, 139, 0.6);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 8px 20px rgba(31, 95, 139, 0.8);
+  }
+}
+
+/* Contenedor resumen */
+#resumen {
+  background: #fff;
+  margin-top: 30px;
+  padding: 20px 25px;
+  border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+  font-size: 16px;
+  color: #34495e;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+/* Cuando mostramos resumen, añadimos esta clase en JS */
+#resumen.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#resumen h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-weight: 700;
+  color: #2c3e50;
+  text-align: center;
+}
+
+#resumen ul {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 10px;
+}
+
+#resumen li {
+  padding: 6px 0;
+  border-bottom: 1px solid #e1e8ed;
+}
+
+#resumen li:last-child {
+  border-bottom: none;
+}
+
+/* Estilo para modo oscuro */
+body.dark-mode {
+  background: #000;
+  color: #f0f0f0;
+}
+
+body.dark-mode form,
+body.dark-mode #resumen {
+  background: #111;
+  color: #ccc;
+}
+
+body.dark-mode h1,
+body.dark-mode label,
+body.dark-mode p,
+body.dark-mode #resumen h2 {
+  color: #22b455;
+}
+
+body.dark-mode select {
+  background-color: #222;
+  color: #fff;
+  border-color: #22b455;
+}
+
+body.dark-mode button,
+body.dark-mode #btnDescargarPDF,
+body.dark-mode #btnEnviarCorreo {
+  background-color: #22b455;
+  box-shadow: 0 6px 12px rgba(34, 180, 85, 0.4);
+}
+
+body.dark-mode button:hover,
+body.dark-mode #btnDescargarPDF:hover,
+body.dark-mode #btnEnviarCorreo:hover {
+  background-color: #1a9b49;
+}
+
+body.dark-mode #mensaje {
+  color: #22b455;
+}
+
+body.dark-mode #resumen li {
+  border-bottom: 1px solid #333;
+}
+
+.darkmode{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.toggle-btn {
+  background-color: transparent !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  color: #333;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 10px;
+  line-height: 1;
+  user-select: none;
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.toggle-btn:hover {
+  color: #22b455;
+  transform: scale(1.2);
+}

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VampiPCs</title>
+    <link rel="shortcut icon" href="img/toji.jpg" type="image/x-icon">
+    <link rel="stylesheet" href="fontawesome-free-6.5.2-web/css/all.min.css">
+    <link rel="stylesheet" href="css/style-tienda.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content container">
+            <nav class="navigation">
+                <a href="index.html" class="logo"><img src="img/toji.jpg" style="border-radius: 50px;" width="100px"></a>
+
+            <ul class="navbar">
+                <li><a href="presupuesto.html" class="active">Servicios</a></li>
+                <li><a href="#">Tienda</a></li>
+                <!--<li><a href="#">Videos</a></li>-->
+            </ul>
+
+
+               <div class="search-bar">
+                <input type="checkbox" id="check">
+                <div class="box">
+                    <input type="text" placeholder="Que buscas?">
+                    <label for="check">
+                        <i class='bx bx-search'></i>
+                    </label>
+                </div>
+               </div>
+                <div class="btn-cart">
+                    <button type="button"><i class="fa-solid fa-cart-shopping icon-cart"></i></button>  
+                    <span id="cartCount">0</span>
+
+                    <div class="cart">
+                        <div class="cart-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Image</th>
+                                        <th>Description</th>
+                                        <th>Price</th>
+                                        <th>Quantity</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="contentProducts">
+                                    
+                                </tbody>
+                    
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="5" class="total">
+                                            <h4 class="heading-total">Total: <span id="total"></span></h4>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="5">
+                                            <button type="button" id="emptyCart">Empty Cart</button>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+
+                </div> 
+
+                
+
+            </nav>
+        </div>
+
+
+        <div id="menu-session">
+                <div class="main">
+            <a href="login.html" class="user"><i class='bx bxs-user'></i>Iniciar Sesión</a>
+            <div class="bx bx-menu" id="menu-icon"></div>
+        </div>
+        </div>
+    </header>
+
+
+        <main>
+            <section class="products" id="listProducts">
+                <h2>Productos</h2>
+                <div class="products-grid container">
+                    <div class="product">
+                        <img src="img/razer.avif" style="border-radius: 10px;">
+                        <div class="product-info">
+                            <h4>Procesador</h4>
+                            <p class="product-text">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Necessitatibus enim magnam aperiam? Cum, atque tempore quos consequatur, unde dolorem est nulla delectus nobis neque eaque iste eligendi magni tempora ipsa!</p>
+                            <div class="price">
+                                <span>$35.00</span>
+                                <p id="currentPrice">$18.00</p>
+                            </div>
+                            <button class="btn-add" type="button" data-id="1">Add Cart</button>
+                        </div>
+                    </div>
+                    <div class="product">
+                        <img src="img/intel.avif" style="border-radius: 10px;">
+                        <div class="product-info">
+                            <h4>Procesador</h4>
+                            <p class="product-text">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Necessitatibus enim magnam aperiam? Cum, atque tempore quos consequatur, unde dolorem est nulla delectus nobis neque eaque iste eligendi magni tempora ipsa!</p>
+
+                            <div class="price">
+                                <span>$75.00</span>
+                                <p id="currentPrice">$26.00</p>
+                            </div>
+                            <button class="btn-add" type="button" data-id="2">Add Cart</button>
+                        </div>
+                    </div>
+                    <div class="product">
+                        <img src="img/ram.jpg" style="border-radius: 10px;">
+                        <div class="product-info">
+                            <h4>Ram Memory</h4>
+                            <p class="product-text">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Necessitatibus enim magnam aperiam? Cum, atque tempore quos consequatur, unde dolorem est nulla delectus nobis neque eaque iste eligendi magni tempora ipsa!</p>
+
+                            <div class="price">
+                                <span>$45.00</span>
+                                <p id="currentPrice">$14.00</p>
+                            </div>
+                            <button class="btn-add" type="button" data-id="3">Add Cart</button>
+                        </div>
+                    </div>
+                    <div class="product">
+                        <img src="img/disco-durossd.avif" style="border-radius: 10px;">
+                        <div class="product-info">
+                            <h4>SSD Memory</h4>
+                            <p class="product-text">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Necessitatibus enim magnam aperiam? Cum, atque tempore quos consequatur, unde dolorem est nulla delectus nobis neque eaque iste eligendi magni tempora ipsa!</p>
+
+                            <div class="price">
+                                <span>$25.00</span>
+                                <p id="currentPrice">$12.00</p>
+                            </div>
+                            <button class="btn-add" type="button" data-id="4">Add Cart</button>
+                        </div>
+                    </div>
+                    <div class="product">
+                        <img src="img/discodurosolido.jpg" style="border-radius: 10px;">
+                        <div class="product-info">
+                            <h4>Hard Drive</h4>
+                            <p class="product-text">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Necessitatibus enim magnam aperiam? Cum, atque tempore quos consequatur, unde dolorem est nulla delectus nobis neque eaque iste eligendi magni tempora ipsa!</p>
+
+                            <div class="price">
+                                <span>$65.00</span>
+                                <p id="currentPrice">$25.00</p>
+                            </div>
+                            <button class="btn-add" type="button" data-id="5">Add Cart</button>
+                        </div>
+                    </div>
+                    <div class="product">
+                        <img src="img/case.webp" style="border-radius: 10px;">
+                        <div class="product-info">
+                            <h4>Case</h4>
+                            <p class="product-text">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Necessitatibus enim magnam aperiam? Cum, atque tempore quos consequatur, unde dolorem est nulla delectus nobis neque eaque iste eligendi magni tempora ipsa!</p>
+
+                            <div class="price">
+                                <span>$95.00</span>
+                                <p id="currentPrice">$55.00</p>
+                            </div>
+                            <button class="btn-add" type="button" data-id="6">Add Cart</button>
+                        </div>
+                    </div>
+                    <div class="product">
+                        <img src="img/fuentepoder.webp" style="border-radius: 10px;">
+                        <div class="product-info">
+                            <h4>Power Source</h4>
+                            <p class="product-text">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Necessitatibus enim magnam aperiam? Cum, atque tempore quos consequatur, unde dolorem est nulla delectus nobis neque eaque iste eligendi magni tempora ipsa!</p>
+
+                            <div class="price">
+                                <span>$45.00</span>
+                                <p id="currentPrice">$22.00</p>
+                            </div>
+                            <button class="btn-add" type="button" data-id="7">Add Cart</button>
+                        </div>
+                    </div>
+                    <div class="product">
+                        <img src="img/placa-madre.webp" style="border-radius: 10px;">
+                        <div class="product-info">
+                            <h4>Mother Board</h4>
+                            <p class="product-text">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Necessitatibus enim magnam aperiam? Cum, atque tempore quos consequatur, unde dolorem est nulla delectus nobis neque eaque iste eligendi magni tempora ipsa!</p>
+
+                            <div class="price">
+                                <span>$145.00</span>
+                                <p id="currentPrice">$65.00</p>
+                            </div>
+                            <button class="btn-add" type="button" data-id="8">Add Cart</button>
+                        </div>
+                    </div>
+                    <div class="product">
+                        <img src="img/refrigeracion-liquida-pc.webp"  style="border-radius: 10px;">
+                        <div class="product-info">
+                            <h4>Liquid Cooling</h4>
+                            <p class="product-text">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Necessitatibus enim magnam aperiam? Cum, atque tempore quos consequatur, unde dolorem est nulla delectus nobis neque eaque iste eligendi magni tempora ipsa!</p>
+
+                            <div class="price">
+                                <span>$175.00</span>
+                                <p id="currentPrice">$113.00</p>
+                            </div>
+                            <button class="btn-add" type="button" data-id="9">Add Cart</button>
+                        </div>
+                    </div>
+                    <div class="product">
+                        <img src="img/accesorios.jpeg"  style="border-radius: 10px;">
+                        <div class="product-info">
+                            <h4>Peripherals</h4>
+                            <p class="product-text">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Necessitatibus enim magnam aperiam? Cum, atque tempore quos consequatur, unde dolorem est nulla delectus nobis neque eaque iste eligendi magni tempora ipsa!</p>
+
+                            <div class="price">
+                                <span>$245.00</span>
+                                <p id="currentPrice">$165.00</p>
+                            </div>
+                            <button class="btn-add" type="button" data-id="10">Add Cart</button>
+                        </div>
+                    </div>
+                    <div class="product">
+                        <img src="img/monitor.avif" style="border-radius: 10px;">
+                        <div class="product-info">
+                            <h4>Monitor</h4>
+                            <p class="product-text">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Necessitatibus enim magnam aperiam? Cum, atque tempore quos consequatur, unde dolorem est nulla delectus nobis neque eaque iste eligendi magni tempora ipsa!</p>
+
+                            <div class="price">
+                                <span>$355.00</span>
+                                <p id="currentPrice">$280.00</p>
+                            </div>
+                            <button class="btn-add" type="button" data-id="11">Add Cart</button>
+                        </div>
+                    </div>
+                    <div class="product">
+                        <img src="img/laptop.jpg" style="border-radius: 10px;">
+                        <div class="product-info">
+                            <h4>Laptop</h4>
+                            <p class="product-text">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Necessitatibus enim magnam aperiam? Cum, atque tempore quos consequatur, unde dolorem est nulla delectus nobis neque eaque iste eligendi magni tempora ipsa!</p>
+
+                            <div class="price">
+                                <span>$1235.00</span>
+                                <p id="currentPrice">$923.00</p>
+                            </div>
+                            <button class="btn-add" type="button" data-id="12">Add Cart</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <section class="banner">
+            <div class="banner-grid container">
+                <div class="banner-item">
+                    <i class="fa-regular fa-lightbulb icon-banner"></i>
+                    <h3>La mejor asesoria con los mejores conocimientos </h3>
+                </div>
+                <div class="banner-item">
+                    <i class="fa-solid fa-bullseye icon-banner"></i>
+                    <h3>Tenemos los ultimos productos del mundo tecnologico</h3>
+                </div>
+                <div class="banner-item">
+                    <i class="fa-regular fa-clock icon-banner"></i>
+                    <h3>Compra, Asesorate y presupuesta tu PC en segundos</h3>
+                </div>
+            </div>
+        </section>
+
+        <hr>
+       
+        <footer>
+            <aside>
+                <img src="img/toji.jpg" width="100px" style="border-radius: 70px;">
+                <p>
+                    Av. La Molina - La Molina, Lima  <br>
+                    (01) 205-2370 <br><br><br>
+                    VampiPCs
+                </p>
+            </aside>
+            <aside>
+                <h2>
+                    Empresa
+                </h2>
+                <hr>
+                <ul>
+                    <li type="none">Nosotros</li>
+                    <li type="none">Terminales</li>
+                    <li type="none">Puntos de Venta</li>
+                    <li type="none">Servicios</li>
+                    <li type="none">Contáctanos</li>
+                </ul>
+            </aside>
+            <aside>
+                <h2>
+                    Servicios
+                </h2>
+                <hr>
+                <ul>
+                    <li type="none">Asesoramiento Técnico</li>
+                    <li type="none">Mantenimiento</li>
+                    <li type="none">Cotizaciones</li>
+                    <li type="none">Armado de Pc</li>
+                    <li type="none">Venta de Perifericos</li>
+                </ul>
+            </aside>
+            
+            <div class="right-men">
+                <div class="rs">
+                    <a class="ig" href="https://www.instagram.com/josue_yea/" target="_blank">
+                        <img src="img/ig.png" width="25px">
+                    </a>
+                    <a class="fb" href="https://www.facebook.com/elman.apolinario" target="_blank">
+                        <img src="img/fb.png" width="25px" style="border-radius: 7px;">
+                    </a>
+                </div>
+            </div>
+        </footer>
+
+        <script src="/plugins/fontawesome/js/all.min.js"></script>
+        <script src="js/script.js"></script>
+</body>
+</html>
