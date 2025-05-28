@@ -39,10 +39,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // --- Conexión a MongoDB ---
-mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
+mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✅ MongoDB conectado'))
   .catch(err => console.log('❌ Error de conexión:', err));
 
@@ -55,12 +52,20 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'secretosecreto',
   resave: false,
   saveUninitialized: false,
+  store: mongoStore,
   cookie: {
     secure: process.env.NODE_ENV === 'production', // true si usas HTTPS
     httpOnly: true,
     maxAge: 1000 * 60 * 60 * 24 * 14 // 14 días
   }
 }));
+app.get('/test-mongo-store', (req, res) => {
+  if (req.session) {
+    res.send('✅ MongoStore está funcionando y la sesión está activa');
+  } else {
+    res.send('❌ La sesión no está funcionando');
+  }
+});
 app.use(passport.initialize());
 app.use(passport.session());
 app.use((req, res, next) => {
