@@ -136,13 +136,6 @@ app.get('/api/user', async (req, res) => {
   }
 });
 
-app.get('/logout', (req, res, next) => {
-  req.logout(function (err) {
-    if (err) return next(err);
-    res.redirect('/');
-  });
-});
-
 // --- Contraseña: Olvido y Cambio ---
 app.get('/forgot-password', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'forgot-password.html'));
