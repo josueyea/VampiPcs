@@ -216,7 +216,7 @@ var TrandingSlider = new Swiper('.tranding-slider', {
 // --- NUEVO: Mostrar u ocultar el usuario logueado y botón login según sesión en backend ---
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-    const response = await fetch('/api/user');
+    const response = await fetch('https://vampipcs.onrender.com/api/user', { credentials: 'include' });
     const profileLink = document.getElementById('profileLink'); // si tienes link perfil
     const loginLink = document.getElementById('loginLink');     // botón o link de login
     const userInfoDiv = document.getElementById('user-info');   // contenedor para mostrar usuario
@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function checkUserSession() {
   try {
-    const res = await fetch('/api/user'); // Cambia la ruta si tienes otra para obtener el usuario logueado
+    const res = await fetch('https://vampipcs.onrender/api/user', { credentials: 'include' }); // Cambia la ruta si tienes otra para obtener el usuario logueado
     if (!res.ok) throw new Error('No autenticado');
 
     const data = await res.json();
@@ -268,7 +268,7 @@ async function checkUserSession() {
 
 async function verificarUsuario() {
   try {
-    const res = await fetch('/api/user', { credentials: 'include' });
+    const res = await fetch('https://vampipcs.onrender/api/user', { credentials: 'include' });
     if (!res.ok) throw new Error('No autorizado');
 
     const user = await res.json();

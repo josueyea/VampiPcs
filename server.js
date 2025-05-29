@@ -45,6 +45,7 @@ app.use(session({
   store: mongoStore,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
+    sameSite: 'none',
     httpOnly: true,
     maxAge: 1000 * 60 * 60 * 24 * 14
   }
