@@ -1,80 +1,62 @@
 require('dotenv').config();
 
-
 console.log('🚨 El servidor está arrancando...');
-
-const PORT = process.env.PORT || 3000;
-
-
-const mongoURI = process.env.MONGODB_URI;
 
 const express = require('express');
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const path = require('path');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
-const crypto = require('crypto');
-const nodemailer = require('nodemailer');
 const passport = require('passport');
-const cors = require('cors');  // <---- IMPORTAR CORS AQUÍ
+const bodyParser = require('body-parser');
+const path = require('path');
+const cors = require('cors');
+const nodemailer = require('nodemailer');
+
 require('./passport');
 const { isAuthenticated, isAdmin } = require('./middlewares/auth');
-
 const User = require('./models/User');
 
 const app = express();
+const PORT = process.env.PORT || 3000;
+const mongoURI = process.env.MONGODB_URI;
 
+// --- CORS ---
 const corsOptions = {
-  origin: 'https://vampipcs.onrender.com',  // Cambia esto si tu frontend corre en otro puerto o dominio
-  credentials: true,                 // Necesario para enviar cookies y sesiones
+  origin: 'https://vampipcs.onrender.com',
+  credentials: true,
 };
-
-// --- Configurar CORS ---
 app.use(cors(corsOptions));
 
 // --- Conexión a MongoDB ---
 mongoose.connect(mongoURI)
-  .then(() => {
-    console.log('✅ MongoDB conectado');
+  .then(() => console.log('✅ MongoDB conectado'))
+  .catch(err => console.error('❌ Error conectando a MongoDB:', err));
 
-    const mongoStore = MongoStore.create({
-      client: mongoose.connection.getClient(),
-      ttl: 14 * 24 * 60 * 60
-    });
+// --- Session y Passport ---
+const mongoStore = MongoStore.create({
+  mongoUrl: mongoURI,
+  ttl: 14 * 24 * 60 * 60
+});
 
-    // Middleware que depende de la base de datos
-    app.use(session({
-      secret: process.env.SESSION_SECRET || 'secretosecreto',
-      resave: false,
-      saveUninitialized: false,
-      store: mongoStore,
-      cookie: {
-        secure: process.env.NODE_ENV === 'production',
-        httpOnly: true,
-        maxAge: 1000 * 60 * 60 * 24 * 14
-      }
-    }));
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'secretosecreto',
+  resave: false,
+  saveUninitialized: false,
+  store: mongoStore,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24 * 14
+  }
+}));
 
-    // Iniciar servidor solo después de que todo esté listo
-    app.listen(PORT, () => {
-      console.log(`🚀 Servidor escuchando en el puerto ${PORT}`);
-    });
-  })
-  .catch(err => {
-    console.error('❌ Error conectando a MongoDB:', err);
-  });
+app.use(passport.initialize());
+app.use(passport.session());
 
-// --- Middleware ---
+// --- Middleware adicional ---
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(passport.initialize());
-app.use(passport.session());
-app.use((req, res, next) => {
-  console.log('👤 Usuario autenticado:', req.user);
-  next();
-});
 
 app.use((req, res, next) => {
   console.log(`➡️ ${req.method} ${req.url}`);
@@ -83,7 +65,7 @@ app.use((req, res, next) => {
 
 app.use((req, res, next) => {
   const isAuthRoute = req.path.startsWith('/auth') || req.path === '/login' || req.path === '/register';
-  const isApiRoute = req.path.startsWith('/api'); // ← Agregado
+  const isApiRoute = req.path.startsWith('/api');
 
   if (
     !req.isAuthenticated() &&
@@ -99,18 +81,17 @@ app.use((req, res, next) => {
   next();
 });
 
-
-// --- Rutas de autenticación (login, registro, logout) ---
+// --- Rutas de autenticación ---
 const authRoutes = require('./routes/auth');
 app.use('/auth', authRoutes);
 
-// --- NUEVAS RUTAS DE PRESUPUESTO Y API ---
+// --- Rutas de presupuesto y API ---
 const presupuestoRoutes = require('./routes/presupuesto');
 const apiRoutes = require('./routes/api');
 app.use('/presupuesto', presupuestoRoutes);
 app.use('/api', apiRoutes);
 
-// --- Nodemailer configuración ---
+// --- Nodemailer ---
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
   auth: {
@@ -119,6 +100,7 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+// --- Rutas específicas ---
 app.get('/verify/:token', async (req, res) => {
   try {
     const user = await User.findOne({ emailVerificationToken: req.params.token });
@@ -134,11 +116,9 @@ app.get('/verify/:token', async (req, res) => {
     res.status(500).send('Error en la verificación');
   }
 });
-// --- Rutas protegidas ---
+
 app.get('/profile', (req, res) => {
-  if (!req.isAuthenticated()) {
-    return res.redirect('/');
-  }
+  if (!req.isAuthenticated()) return res.redirect('/');
   res.sendFile(path.join(__dirname, 'public', 'profile.html'));
 });
 
@@ -153,28 +133,22 @@ app.get('/api/user', async (req, res) => {
   }
 });
 
-
-// --- Logout ---
 app.get('/logout', (req, res, next) => {
   req.logout(function (err) {
-    if (err) { return next(err); }
+    if (err) return next(err);
     res.redirect('/');
   });
 });
 
-// --- Resto de rutas: olvido y cambio de contraseña (sin cambios) ---
-
-// GET formulario forgot-password
+// --- Contraseña: Olvido y Cambio ---
 app.get('/forgot-password', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'forgot-password.html'));
 });
-// GET reset-password con token
-app.get('/reset-password/:token', async (req, res) => {
-  const { token } = req.params;
 
+app.get('/reset-password/:token', async (req, res) => {
   try {
     const user = await User.findOne({
-      resetPasswordToken: token,
+      resetPasswordToken: req.params.token,
       resetPasswordExpires: { $gt: Date.now() }
     });
     if (!user) return res.send('Token inválido o expirado');
@@ -185,17 +159,14 @@ app.get('/reset-password/:token', async (req, res) => {
   }
 });
 
-// POST cambio de contraseña para usuarios logueados
 app.post('/reset-password', async (req, res) => {
   if (!req.isAuthenticated() || !req.user) return res.status(401).send('No autorizado');
-
-  const { newPassword } = req.body;
 
   try {
     const user = await User.findById(req.user._id);
     if (!user) return res.status(404).send('Usuario no encontrado');
 
-    user.password = newPassword;
+    user.password = req.body.newPassword;
     await user.save();
 
     res.send('Contraseña actualizada correctamente');
@@ -205,17 +176,12 @@ app.post('/reset-password', async (req, res) => {
   }
 });
 
-// GET change-password (formulario protegido con Passport)
 app.get('/change-password', (req, res) => {
   if (!req.isAuthenticated()) return res.redirect('/');
   res.sendFile(path.join(__dirname, 'public', 'change-password.html'));
 });
 
 app.post('/admin/make-admin', isAuthenticated, isAdmin, async (req, res) => {
-  if (!req.isAuthenticated() || !req.user.isAdmin) {
-    return res.status(403).send('No autorizado');
-  }
-
   const { email } = req.body;
 
   try {
@@ -230,4 +196,9 @@ app.post('/admin/make-admin', isAuthenticated, isAdmin, async (req, res) => {
     console.error(error);
     res.status(500).send('Error en el servidor');
   }
+});
+
+// --- Iniciar servidor ---
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor escuchando en el puerto ${PORT}`);
 });
