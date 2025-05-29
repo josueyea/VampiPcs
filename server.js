@@ -38,6 +38,8 @@ const mongoStore = MongoStore.create({
   ttl: 14 * 24 * 60 * 60
 });
 
+app.set('trust proxy', 1); // 🔒 Requerido para cookies secure detrás de proxy (como Render)
+
 app.use(session({
   secret: process.env.SESSION_SECRET || 'secretosecreto',
   resave: false,
