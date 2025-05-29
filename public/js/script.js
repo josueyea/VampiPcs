@@ -1,3 +1,4 @@
+const BACKEND_URL = 'https://vampipcs.onrender.com'; // cambia esto por tu backend real
 let menu = document.querySelector('#menu-icon');
 let navbar = document.querySelector('.navbar');
 
@@ -26,7 +27,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 async function checkAuth() {
     try {
-        const res = await fetch('/api/user', {
+        const res = await fetch(`${BACKEND_URL}/api/user`, {
             credentials: 'include'
         });
 

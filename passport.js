@@ -2,14 +2,17 @@ require('dotenv').config();
 
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const crypto = require('crypto'); // <-- agregar para generar contraseña random
+const crypto = require('crypto');
 const User = require('./models/User');
 
+console.log("🧪 Probando sin process.env en callbackURL");
+
 passport.use(new GoogleStrategy({
-  clientID: process.env.GOOGLE_CLIENT_ID,
+  clientID: process.env.GOOGLE_CLIENT_ID, // Puedes dejarlo así si sí está leyendo bien el CLIENT_ID
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: "http://localhost:3000/auth/google/callback"
+  callbackURL: "https://vampipcs.onrender.com/auth/google/callback" // 🔥 Aquí va directo
 },
+
 async (accessToken, refreshToken, profile, done) => {
   try {
     const email = profile.emails[0].value.toLowerCase();
@@ -17,7 +20,6 @@ async (accessToken, refreshToken, profile, done) => {
 
     if (!user) {
       const userCount = await User.countDocuments();
-
       const rawUsername = profile.displayName;
       const safeUsername = rawUsername
         .toLowerCase()

@@ -21,11 +21,6 @@ const cors = require('cors');  // <---- IMPORTAR CORS AQUÍ
 require('./passport');
 const { isAuthenticated, isAdmin } = require('./middlewares/auth');
 
-const mongoStore = MongoStore.create({
-  mongoUrl: process.env.MONGODB_URI,
-  ttl: 14 * 24 * 60 * 60 // 14 días
-});
-
 const User = require('./models/User');
 
 const app = express();
@@ -39,33 +34,41 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // --- Conexión a MongoDB ---
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('✅ MongoDB conectado'))
-  .catch(err => console.log('❌ Error de conexión:', err));
+mongoose.connect(mongoURI)
+  .then(() => {
+    console.log('✅ MongoDB conectado');
+
+    const mongoStore = MongoStore.create({
+      client: mongoose.connection.getClient(),
+      ttl: 14 * 24 * 60 * 60
+    });
+
+    // Middleware que depende de la base de datos
+    app.use(session({
+      secret: process.env.SESSION_SECRET || 'secretosecreto',
+      resave: false,
+      saveUninitialized: false,
+      store: mongoStore,
+      cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24 * 14
+      }
+    }));
+
+    // Iniciar servidor solo después de que todo esté listo
+    app.listen(PORT, () => {
+      console.log(`🚀 Servidor escuchando en el puerto ${PORT}`);
+    });
+  })
+  .catch(err => {
+    console.error('❌ Error conectando a MongoDB:', err);
+  });
 
 // --- Middleware ---
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
-console.log('🗄️ MongoStore configurado:', mongoStore);
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'secretosecreto',
-  resave: false,
-  saveUninitialized: false,
-  store: mongoStore,
-  cookie: {
-    secure: process.env.NODE_ENV === 'production', // true si usas HTTPS
-    httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 24 * 14 // 14 días
-  }
-}));
-app.get('/test-mongo-store', (req, res) => {
-  if (req.session) {
-    res.send('✅ MongoStore está funcionando y la sesión está activa');
-  } else {
-    res.send('❌ La sesión no está funcionando');
-  }
-});
 app.use(passport.initialize());
 app.use(passport.session());
 app.use((req, res, next) => {
@@ -116,67 +119,6 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-app.post('/register', async (req, res) => {
-
-  console.log('Datos recibidos:', req.body);
-
-  const { username, email, password, confirmPassword } = req.body;
-
-  if (!username || !email || !password || !confirmPassword) {
-    return res.status(400).json({ message: '⚠️ Todos los campos son obligatorios' });
-  }
-
-  if (password !== confirmPassword) {
-    return res.status(400).json({ message: '⚠️ Las contraseñas no coinciden' });
-  }
-
-  try {
-    const existingUser = await User.findOne({
-      $or: [
-        { email: email.toLowerCase() },
-        { username }
-      ]
-    });
-
-    if (existingUser) {
-      return res.status(400).json({ message: '⚠️ Ya existe un usuario con ese email o username' });
-    }
-
-    const token = crypto.randomBytes(20).toString('hex');
-
-    const newUser = new User({
-      username,
-      email: email.toLowerCase(),
-      password,
-      emailVerificationToken: token,
-      isVerified: false
-    });
-
-    await newUser.save();
-
-    const verificationUrl = `https://vampipcs.onrender.com/verify/${token}`;
-    const mailOptions = {
-      to: newUser.email,
-      subject: 'Verificación de cuenta',
-      text: `Hola ${newUser.username},\n\nPor favor verifica tu cuenta haciendo clic en el siguiente enlace:\n\n${verificationUrl}`
-    };
-
-    await transporter.sendMail(mailOptions);
-
-    return res.status(200).json({ message: '✅ Registro exitoso. Verifica tu correo electrónico.' });
-  } catch (err) {
-    console.error('Error en registro:', err);
-
-    // Captura errores de validación de Mongoose para que el cliente los vea
-    if (err.name === 'ValidationError') {
-      const errors = Object.values(err.errors).map(e => e.message);
-      return res.status(400).json({ message: errors.join(', ') });
-    }
-
-    return res.status(500).json({ message: 'Error en el servidor' });
-  }
-});
-
 app.get('/verify/:token', async (req, res) => {
   try {
     const user = await User.findOne({ emailVerificationToken: req.params.token });
@@ -192,59 +134,6 @@ app.get('/verify/:token', async (req, res) => {
     res.status(500).send('Error en la verificación');
   }
 });
-
-// --- Login tradicional usando Passport ---
-app.post('/login', async (req, res, next) => {
-  const loginInput = req.body.email.trim().toLowerCase();
-  const password = req.body.password;
-
-  try {
-    const user = await User.findOne({
-      $or: [
-        { email: loginInput },
-        { username: loginInput }
-      ]
-    });
-
-    if (!user) {
-      return res.status(401).json({ message: 'Usuario no encontrado' });
-    }
-
-    if (!user.isVerified) {
-      return res.status(403).json({ message: 'Debes verificar tu email antes de iniciar sesión.' });
-    }
-
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Contraseña incorrecta' });
-    }
-
-    req.login(user, (err) => {
-      if (err) return next(err);
-
-      req.session.userId = user._id;
-
-      const redirectTo = req.session.returnTo 
-      ? `${process.env.CLIENT_URL}${req.session.returnTo}` 
-      : `${process.env.CLIENT_URL}/index.html`;
-
-      delete req.session.returnTo;
-
-      return res.status(200).json({
-        message: 'Inicio de sesión exitoso',
-        redirectTo,
-        user: {
-          username: user.username,
-          email: user.email
-        }
-      });
-    });
-  } catch (error) {
-    console.error(error);
-    next(error);
-  }
-});
-
 // --- Rutas protegidas ---
 app.get('/profile', (req, res) => {
   if (!req.isAuthenticated()) {
@@ -279,36 +168,6 @@ app.get('/logout', (req, res, next) => {
 app.get('/forgot-password', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'forgot-password.html'));
 });
-
-// POST para enviar correo de recuperación
-app.post('/forgot-password', async (req, res) => {
-  const { email } = req.body;
-  try {
-    const user = await User.findOne({ email: email.toLowerCase() });
-    if (!user) return res.status(404).send('Usuario no encontrado');
-
-    const token = crypto.randomBytes(20).toString('hex');
-    user.resetPasswordToken = token;
-    user.resetPasswordExpires = Date.now() + 3600000;
-    await user.save();
-
-    const resetUrl = `https://vampipcs.onrender.com/reset-password/${token}`;
-
-    const mailOptions = {
-      to: user.email,
-      from: 'no-reply@tusitio.com',
-      subject: 'Recuperación de contraseña',
-      text: `Hola,\n\nPara restablecer tu contraseña haz clic en este enlace:\n\n${resetUrl}\n\nSi no solicitaste esto, ignora este mensaje.`
-    };
-
-    await transporter.sendMail(mailOptions);
-    res.redirect('/email-enviado.html');
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Error en el servidor');
-  }
-});
-
 // GET reset-password con token
 app.get('/reset-password/:token', async (req, res) => {
   const { token } = req.params;
@@ -321,29 +180,6 @@ app.get('/reset-password/:token', async (req, res) => {
     if (!user) return res.send('Token inválido o expirado');
 
     res.sendFile(path.join(__dirname, 'public', 'reset-password.html'));
-  } catch (error) {
-    res.status(500).send('Error en el servidor');
-  }
-});
-
-// POST reset-password con token
-app.post('/reset-password/:token', async (req, res) => {
-  const { token } = req.params;
-  const { password } = req.body;
-
-  try {
-    const user = await User.findOne({
-      resetPasswordToken: token,
-      resetPasswordExpires: { $gt: Date.now() }
-    });
-    if (!user) return res.send('Token inválido o expirado');
-
-    user.password = password;
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpires = undefined;
-    await user.save();
-
-    res.send('Contraseña actualizada correctamente');
   } catch (error) {
     res.status(500).send('Error en el servidor');
   }
@@ -395,12 +231,3 @@ app.post('/admin/make-admin', isAuthenticated, isAdmin, async (req, res) => {
     res.status(500).send('Error en el servidor');
   }
 });
-
-
-
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor escuchando en el puerto ${PORT}`);
-});
-
-console.log('🔧 Conectando a MongoDB...');
-console.log('📦 Cargando variables:', process.env.MONGODB_URI);
