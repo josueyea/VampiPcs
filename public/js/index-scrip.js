@@ -217,7 +217,8 @@ var TrandingSlider = new Swiper('.tranding-slider', {
 document.addEventListener('DOMContentLoaded', async () => {
   try {
     const response = await fetch('https://vampipcs.onrender.com/api/user', {
-                                credentials: 'include'
+                                    method: 'GET',
+                                    credentials: 'include'
                                 });
     const profileLink = document.getElementById('profileLink'); // si tienes link perfil
     const loginLink = document.getElementById('loginLink');     // botón o link de login
@@ -248,6 +249,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function checkUserSession() {
   try {
     const res = await fetch('https://vampipcs.onrender.com/api/user', {
+                            method: 'GET',
                             credentials: 'include'
                             }); // Cambia la ruta si tienes otra para obtener el usuario logueado
     if (!res.ok) throw new Error('No autenticado');
@@ -273,6 +275,7 @@ async function checkUserSession() {
 async function verificarUsuario() {
   try {
     const res = await fetch('https://vampipcs.onrender.com/api/user', {
+                        method: 'GET',
                         credentials: 'include'
                         });
     if (!res.ok) throw new Error('No autorizado');
