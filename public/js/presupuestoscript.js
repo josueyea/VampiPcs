@@ -33,7 +33,12 @@ async function cargarProductos() {
       credentials: 'include'
     });
 
+    console.log('Respuesta fetch:', res);
+
     const productos = await res.json();
+
+    console.log('Productos recibidos:', productos);
+
 
     const contenedor = document.getElementById('selectors-productos');
     contenedor.innerHTML = '';
