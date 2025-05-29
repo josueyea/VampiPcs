@@ -29,7 +29,10 @@ toggleBtn.addEventListener('click', () => {
 
 async function cargarProductos() {
   try {
-    const res = await fetch('/presupuesto/productos');
+    const res = await fetch('/presupuesto/productos', {
+      credentials: 'include'
+    });
+
     const productos = await res.json();
 
     const contenedor = document.getElementById('selectors-productos');
@@ -90,8 +93,10 @@ document.getElementById('formPresupuesto').addEventListener('submit', async (e) 
     const res = await fetch('/presupuesto/guardar', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ componentes, incluyeMontaje, total })
     });
+
 
     const data = await res.json();
 
@@ -177,8 +182,10 @@ document.getElementById('btnDescargarPDF').addEventListener('click', async () =>
     const response = await fetch('/presupuesto/generar-pdf', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ componentes, incluyeMontaje, total })
     });
+
 
     if (!response.ok) {
       alert('❌ Error al generar el PDF');

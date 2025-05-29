@@ -43,7 +43,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await response.json();
 
                 if (response.ok) {
-                    window.location.href = `${window.location.origin}/index.html`; // ← usa lo que te envió el backend
+                    localStorage.setItem('user', JSON.stringify(result.user)); // <--- Guarda los datos del usuario
+                    window.location.href = `${window.location.origin}/index.html`;
                 } else {
                     alert(result.message || 'Error en login');
                 }
