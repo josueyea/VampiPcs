@@ -72,7 +72,8 @@ body {
 }
 
 .container {
-    width: min(95%, 128rem);
+    width: 90%;
+    max-width: 1200px;
     margin: 0 auto;
 }
 
@@ -686,3 +687,63 @@ footer p {
   }
 }
 
+
+nav ul {
+  display: flex;
+  justify-content: space-around;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+nav ul li {
+  margin: 0 15px;
+}
+
+button {
+  background-color: #22b455;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+/* =====================
+   Responsividad móvil
+===================== */
+
+@media (max-width: 600px) {
+  nav ul {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  nav ul li {
+    margin: 10px 0;
+  }
+
+  h1, h2, p {
+    font-size: 90%;
+    padding: 0 10px;
+    text-align: center;
+  }
+
+  button {
+    width: 100%;
+    padding: 14px;
+    font-size: 1.1rem;
+  }
+
+  .container {
+    width: 95%;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+  }
+}
