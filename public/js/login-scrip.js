@@ -2,6 +2,7 @@
 const container = document.querySelector('.container');
 const registerBtn = document.querySelector('.register-btn');
 const loginBtn = document.querySelector('.login-btn');
+const toggleBtns = document.querySelectorAll('.toggle-panel .btn');
 const API_BASE = 'https://vampipcs-api.onrender.com';
 
 registerBtn.addEventListener('click', () => {
@@ -11,6 +12,7 @@ registerBtn.addEventListener('click', () => {
 loginBtn.addEventListener('click', () => {
     container.classList.remove('active');
 });
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.querySelector('.form-box.login form');

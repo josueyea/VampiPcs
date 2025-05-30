@@ -1,18 +1,29 @@
 const BACKEND_URL = 'https://vampipcs.onrender.com'; // cambia esto por tu backend real
-let menu = document.querySelector('#menu-icon');
-let navbar = document.querySelector('.navbar');
+
+const menuBtn = document.getElementById('menuBtn');
+const sidePanel = document.getElementById('sidePanel');
+const closeBtn = document.getElementById('closeBtn');
+const overlay = document.getElementById('overlay');
+
+menuBtn.addEventListener('click', () => {
+  sidePanel.classList.add('open');
+  overlay.classList.add('show');
+});
+
+closeBtn.addEventListener('click', () => {
+  sidePanel.classList.remove('open');
+  overlay.classList.remove('show');
+});
+
+overlay.addEventListener('click', () => {
+  sidePanel.classList.remove('open');
+  overlay.classList.remove('show');
+});
 
 menu.onclick = () => {
     menu.classList.toggle('bx-x');
     navbar.classList.toggle('open');
 }
-
-
-
-
-
-
-
 
 const listProducts = document.querySelector('#listProducts');
 const contentProducts = document.querySelector('#contentProducts');

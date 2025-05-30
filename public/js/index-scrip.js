@@ -1,10 +1,23 @@
+const menuBtn = document.getElementById('menuBtn');
+const sidePanel = document.getElementById('sidePanel');
+const closeBtn = document.getElementById('closeBtn');
+const overlay = document.getElementById('overlay');
 
+menuBtn.addEventListener('click', () => {
+  sidePanel.classList.add('open');
+  overlay.classList.add('show');
+});
 
+closeBtn.addEventListener('click', () => {
+  sidePanel.classList.remove('open');
+  overlay.classList.remove('show');
+});
 
+overlay.addEventListener('click', () => {
+  sidePanel.classList.remove('open');
+  overlay.classList.remove('show');
+});
 
-
-let menu = document.querySelector('#menu-icon');
-let navbar = document.querySelector('.navbar');
 
 
 menu.onclick = () => {
@@ -29,13 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     eventListeners(); // Mueve el llamado aquí para asegurar que el DOM esté listo
 });
-
-// --- CARRITO DE COMPRAS ---
-const listProducts = document.querySelector('#listProducts');
-const contentProducts = document.querySelector('#contentProducts');
-const emptyCart = document.querySelector('#emptyCart');
-let productsArray = [];
-
 function eventListeners() {
     if (listProducts) {
         listProducts.addEventListener('click', getDataElements);

@@ -13,78 +13,51 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header class="header">
-        <div class="header-content container">
-            <nav class="navigation">
-                <a href="index.html" class="logo"><img src="img/toji.jpg" style="border-radius: 50px;" width="100px"></a>
-
-            <ul class="navbar">
-                <li><a href="presupuesto.html" class="active">Servicios</a></li>
-                <li><a href="#">Tienda</a></li>
-                <!--<li><a href="#">Videos</a></li>-->
-            </ul>
-
-
-               <div class="search-bar">
-                <input type="checkbox" id="check">
-                <div class="box">
-                    <input type="text" placeholder="Que buscas?">
-                    <label for="check">
-                        <i class='bx bx-search'></i>
-                    </label>
-                </div>
-               </div>
-                <div class="btn-cart">
-                    <button type="button"><i class="fa-solid fa-cart-shopping icon-cart"></i></button>  
-                    <span id="cartCount">0</span>
-
-                    <div class="cart">
-                        <div class="cart-responsive">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Image</th>
-                                        <th>Description</th>
-                                        <th>Price</th>
-                                        <th>Quantity</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="contentProducts">
-                                    
-                                </tbody>
-                    
-                                <tfoot>
-                                    <tr>
-                                        <td colspan="5" class="total">
-                                            <h4 class="heading-total">Total: <span id="total"></span></h4>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="5">
-                                            <button type="button" id="emptyCart">Empty Cart</button>
-                                        </td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    </div>
-
-                </div> 
-
-                
-
-            </nav>
+    <header>
+        <div class="header-main">
+        <div class="logo">
+        <a href="index.html"><img src="img/toji.jpg"/></a>
         </div>
 
+        <form class="search-bar" onsubmit="event.preventDefault(); alert('Buscar: ' + this.querySelector('input').value);">
+        <input type="text" placeholder="Buscar productos, marcas y más..." style="font-size: 16px; font-weight: 600;" />
+        <button type="submit"><i class="fas fa-search"></i></button>
+        </form>
 
-        <div id="menu-session">
-                <div class="main">
-            <a href="login.html" class="user"><i class='bx bxs-user'></i>Iniciar Sesión</a>
-            <div class="bx bx-menu" id="menu-icon"></div>
+        <div class="icons-group">
+        <a href="login.html" title="Usuario"><i class="fas fa-user"></i></a>
+        <a href="#" title="Favoritos"><i class="fas fa-heart"></i></a>
+        <a href="#" title="Carrito" class="cart-icon">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-count">3</span>
+        </a>
+        <a href="admin.html" class="user" id="adminLink" style="display: none;">
+        <i class="fa-solid fa-shield-halved"></i>Panel Admin
+        </a>
+        <a href="#" class="menu-btn" id="menuBtn" title="Menú"><i class="fas fa-bars"></i></a>
         </div>
         </div>
     </header>
+
+    <!-- Panel lateral -->
+    <div id="sidePanel" class="side-panel">
+    <button id="closeBtn" class="close-btn" aria-label="Cerrar menú">&times;</button>
+    <nav class="side-nav">
+        <a href="tienda.html">Tienda</a>
+        <a href="presupuesto.html">Presupuesto</a>
+        <a href="#">Componentes</a>
+        <a href="#">Ordenadores</a>
+        <a href="#">Gaming</a>
+        <a href="#">Periféricos</a>
+        <a href="#">Smartphones</a>
+        <a href="#">TV</a>
+        <a href="#">Electrodomésticos</a>
+        <a href="#">Más</a>
+    </nav>
+    </div>
+
+    <!-- Fondo oscuro detrás del panel -->
+    <div id="overlay" class="overlay"></div>
 
 
         <main>
@@ -319,5 +292,9 @@
 
         <script src="/plugins/fontawesome/js/all.min.js"></script>
         <script src="js/script.js"></script>
+        <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+        <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+        <script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
+        <script src="plugins/fontawesome/js/all.min.js"></script>
 </body>
 </html>
