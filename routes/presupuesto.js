@@ -136,7 +136,7 @@ router.get('/productos', async (req, res) => {
 });
 
 // Ruta para insertar productos de prueba
-router.post('/insertar-productos-prueba', async (req, res) => {
+router.get('/insertar-productos-prueba', async (req, res) => {
   try {
     const productosPrueba = [
       { nombre: 'Intel Core i7', precio: 1200, categoria: 'Procesador', descripcion: 'Intel 10ª Gen' },
