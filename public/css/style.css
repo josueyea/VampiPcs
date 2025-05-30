@@ -85,51 +85,61 @@ header{
     top: 0;
     z-index: 1000;
     background: linear-gradient(to right, #22b455 0%, #80ce87 100%);
-    height: 120px;
+    height: 80px;
     width: 100%;
-    right: 0;
     z-index: 1000;
-    padding: 28px 12%;
+    padding: 0 5%;
     transition: all .50s ease;
 }
 #menu{
+    flex-grow: 1;
     display: flex;
-    align-items: center;
-    position: relative;
-    right: 40px;
+    justify-content: center;
 }
 .logo{
-    margin:40px;
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
+
+.logo img {
+    height: 40px;
+    width: auto;
+}
+
 #menu ul{
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
+    gap: 30px;
 }
 #menu a{
-    padding: 20px;
     text-decoration: solid;
     color: black;
-    font-size: 15px;
     font-family: "Noto Sans", sans-serif;
-    font-weight: 700;
+    font-weight: 600;
+    font-size: 1.1rem;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
-#menu a:hover{
-    color: rgb(0, 0, 0);
+#menu a:hover,
+#menu a.active {
+    background-color: #1b8039;
+    color: #000000;
 }
 i{
     margin: 10px;
     font-size: 30px;
 }
-
-
-.logo{
-    display: flex;
-    align-items: center;
-}
-
 .navbar{
     display: flex;
 }
@@ -164,12 +174,19 @@ i{
 .user{
     display: flex;
     align-items: center;
+    gap:10px;
 }
 
 .user i{
     color: #000000;
     font-size: 28px;
     margin-right: 7px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.user i:hover {
+    color: #d4f1be;
 }
 
 .main a:hover{
@@ -177,7 +194,7 @@ i{
 }
 
 #menu-icon{
-    font-size: 35px;
+    font-size: 28px;
     color: white;
     cursor: pointer;
     z-index: 10001;
@@ -746,4 +763,40 @@ button {
     display: block;
     margin: 0 auto;
   }
+}
+
+/* Responsive menu toggle */
+@media (max-width: 900px) {
+    #menu {
+        position: fixed;
+        top: 80px;
+        right: -100%;
+        background-color: rgba(34, 180, 85, 0.95);
+        height: calc(100vh - 80px);
+        width: 220px;
+        flex-direction: column;
+        gap: 20px;
+        padding: 30px 15px;
+        transition: right 0.3s ease;
+        border-radius: 0 0 0 15px;
+        box-shadow: -3px 0 15px rgba(0,0,0,0.15);
+    }
+
+    #menu.open {
+        right: 0;
+    }
+
+    #menu ul {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    #menu a {
+        font-size: 1.3rem;
+        padding: 12px 10px;
+    }
+
+    #menu-icon {
+        display: block;
+    }
 }
