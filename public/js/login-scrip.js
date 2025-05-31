@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      const email = emailInput.value.trim();
+      const email = emailInput.value.trim().toLowerCase();
       const password = passwordInput.value;
 
       try {
@@ -119,36 +119,4 @@ if (registerForm) {
     }
   });
 }
-
-document.querySelector('.form-box.login form').addEventListener('submit', async function (e) {
-  e.preventDefault(); // evitar que recargue la página
-
-  const form = e.target;
-  const formData = new FormData(form);
-  const data = {
-    email: formData.get('email'),
-    password: formData.get('password')
-  };
-
-  try {
-    const response = await fetch(`${API_BASE}/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include', // 🔐 Esto es clave para que la cookie se guarde
-      body: JSON.stringify(data)
-    });
-
-    if (response.ok) {
-      const result = await response.text(); // o JSON si tu backend responde JSON
-      console.log('✅ Login exitoso:', result);
-      // Redirige o actualiza la UI
-    } else {
-      console.error('❌ Error en login:', response.status);
-    }
-  } catch (error) {
-    console.error('⚠️ Error en fetch login:', error);
-  }
-});
 
