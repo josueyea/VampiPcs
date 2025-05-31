@@ -122,6 +122,11 @@ router.post('/login', async (req, res) => {
   }
 
   try {
+
+    console.log('📩 Email recibido:', email);
+    console.log('🔍 Buscando usuario...');
+
+
     const user = await User.findOne({ email: email.toLowerCase() });
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
