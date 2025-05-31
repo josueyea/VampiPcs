@@ -116,20 +116,27 @@ router.get('/verify/:token', async (req, res) => {
 // --- Login ---
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
+  console.log('📥 Email recibido:', email);
+  console.log('🔐 Password recibido:', password);
 
   if (!email || !password) {
+    console.log('⛔ Campos faltantes');
     return res.status(400).json({ message: '⚠️ Todos los campos son obligatorios' });
   }
 
   try {
 
-    console.log('📩 Email recibido:', email);
-    console.log('🔍 Buscando usuario...');
-
-
     const user = await User.findOne({ email: email.toLowerCase() });
+    console.log('👤 Usuario encontrado:', user ? user.email : 'No encontrado');
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(400).json({ message: '⚠️ Credenciales incorrectas' });
+    }
+
+    const match = await bcrypt.compare(password, user.password);
+    console.log('🔑 Contraseña válida:', match);
+
+    if (!match) {
       return res.status(400).json({ message: '⚠️ Credenciales incorrectas' });
     }
 
@@ -144,7 +151,7 @@ router.post('/login', async (req, res) => {
     email: user.email
   } });
   } catch (err) {
-    console.error('Error en login:', err);
+    console.error('💥 Error en login:', err);
     return res.status(500).json({ message: 'Error del servidor' });
   }
 });
