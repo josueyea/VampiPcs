@@ -125,18 +125,18 @@ router.post('/login', async (req, res) => {
   }
 
   try {
-
     const user = await User.findOne({ email: email.toLowerCase() });
     console.log('👤 Usuario encontrado:', user ? user.email : 'No encontrado');
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!user) {
+      console.log('❌ Usuario no encontrado');
       return res.status(400).json({ message: '⚠️ Credenciales incorrectas' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
-  console.log('🔍 Comparación bcrypt:', isMatch);
+    console.log('🔍 Comparación bcrypt:', isMatch);
 
-    if (!match) {
+    if (!isMatch) {
       console.log('❌ Contraseña incorrecta');
       return res.status(400).json({ message: '⚠️ Credenciales incorrectas' });
     }
@@ -145,12 +145,14 @@ router.post('/login', async (req, res) => {
       return res.status(403).json({ message: '⚠️ Verifica tu correo electrónico primero' });
     }
 
-    // Aquí podrías generar un token JWT o crear una sesión
-    return res.status(200).json({ message: '✅ Inicio de sesión exitoso', user: {
-    id: user._id,
-    username: user.username,
-    email: user.email
-  } });
+    return res.status(200).json({
+      message: '✅ Inicio de sesión exitoso',
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email
+      }
+    });
   } catch (err) {
     console.error('💥 Error en login:', err);
     return res.status(500).json({ message: 'Error del servidor' });
