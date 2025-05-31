@@ -48,14 +48,6 @@
         </div>
     </header>
 
-    <div class="user-menu-container" id="userMenuBtn" title="Usuario" style="cursor:pointer; position: relative; display:none;">
-        <i class="fas fa-user"></i>
-
-        <div id="userDropdown" class="user-dropdown" style="display:none; position: absolute; right: 0; background: white; border: 1px solid #ccc; border-radius: 5px; min-width: 150px; z-index: 1000;">
-            <a href="/profile.html" class="dropdown-item" style="display:block; padding: 10px; text-decoration:none; color: #333;">Perfil</a>
-            <a href="#" id="logoutBtn" class="dropdown-item" style="display:block; padding: 10px; text-decoration:none; color: #333;">Cerrar sesión</a>
-        </div>
-    </div>
 
     <!-- Panel lateral -->
     <div id="sidePanel" class="side-panel">
@@ -73,6 +65,16 @@
         <a href="#">Más</a>
     </nav>
     </div>
+
+    <!-- Panel lateral del usuario -->
+    <div id="userPanel" class="side-panel user-panel">
+    <button class="close-btn" id="closeUserPanel" aria-label="Cerrar usuario">&times;</button>
+    <nav class="side-nav">
+        <a href="profile.html">Perfil</a>
+        <a href="#" id="logoutBtn">Cerrar sesión</a>
+    </nav>
+    </div>
+
 
     <!-- Fondo oscuro detrás del panel -->
     <div id="overlay" class="overlay"></div>
