@@ -62,18 +62,15 @@ router.post('/register', async (req, res) => {
 
     const token = crypto.randomBytes(20).toString('hex');
 
-    const hashedPassword = await bcrypt.hash(password, 10); // 10 rounds de sal
-
     const newUser = new User({
       username,
       email: email.toLowerCase(),
-      password: hashedPassword,  // guardar la contraseña hasheada
+      password, // 👈 NO se hashea aquí
       emailVerificationToken: token,
       isVerified: false
     });
 
-
-    await newUser.save();
+    await newUser.save(); // 🔐 Aquí se hashea automáticamente
 
     const verificationUrl = `https://vampipcs.onrender.com/auth/verify/${token}`;
     const mailOptions = {
@@ -90,6 +87,7 @@ router.post('/register', async (req, res) => {
     return res.status(500).json({ message: 'Error en el servidor' });
   }
 });
+
 
 // --- Verificar cuenta ---
 router.get('/verify/:token', async (req, res) => {
@@ -116,6 +114,7 @@ router.get('/verify/:token', async (req, res) => {
 // --- Login ---
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
+  console.log('Password en DB:', user.password);
   console.log('📥 Email recibido:', email);
   console.log('🔐 Password recibido:', password);
 
