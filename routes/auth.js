@@ -150,25 +150,31 @@ router.post('/login', async (req, res) => {
     console.log("¿Coinciden?:", isMatch);
 
     if (!isMatch) {
-      console.log('❌ Contraseña incorrecta');
-      return res.status(400).json({ message: '⚠️ Credenciales incorrectas' });
-    }
+  return res.status(400).json({ message: '⚠️ Credenciales incorrectas' });
+}
 
-    if (!user.isVerified) {
-      return res.status(403).json({ message: '⚠️ Verifica tu correo electrónico primero' });
-    }
+if (!user.isVerified) {
+  return res.status(403).json({ message: '⚠️ Verifica tu correo electrónico primero' });
+}
 
-    // Aquí podrías generar un token JWT o crear una sesión
-    return res.status(200).json({ 
-      message: '✅ Inicio de sesión exitoso', 
-      user: {
-        id: user._id,
-        username: user.username,
-        email: user.email
+// Aquí uso req.login para iniciar sesión y crear cookie
+    req.login(user, (err) => {
+      if (err) {
+        console.error('Error en req.login:', err);
+        return res.status(500).json({ message: 'Error iniciando sesión' });
       }
+      return res.status(200).json({
+        message: '✅ Inicio de sesión exitoso',
+        user: {
+          id: user._id,
+          username: user.username,
+          email: user.email
+        }
+      });
     });
+
   } catch (err) {
-    console.error('💥 Error en login:', err);
+    console.error('Error en login:', err);
     return res.status(500).json({ message: 'Error del servidor' });
   }
 });
