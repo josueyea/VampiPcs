@@ -129,7 +129,6 @@ router.post('/login', async (req, res) => {
     console.log('👤 Usuario encontrado:', user ? user.email : 'No encontrado');
 
     if (!user) {
-      console.log('❌ Usuario no encontrado');
       return res.status(400).json({ message: '⚠️ Credenciales incorrectas' });
     }
 
@@ -145,8 +144,9 @@ router.post('/login', async (req, res) => {
       return res.status(403).json({ message: '⚠️ Verifica tu correo electrónico primero' });
     }
 
-    return res.status(200).json({
-      message: '✅ Inicio de sesión exitoso',
+    // Aquí podrías generar un token JWT o crear una sesión
+    return res.status(200).json({ 
+      message: '✅ Inicio de sesión exitoso', 
       user: {
         id: user._id,
         username: user.username,
@@ -158,6 +158,7 @@ router.post('/login', async (req, res) => {
     return res.status(500).json({ message: 'Error del servidor' });
   }
 });
+
 
 // --- Enviar correo para restablecer contraseña ---
 router.post('/forgot-password', async (req, res) => {

@@ -33,13 +33,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const password = passwordInput.value;
 
       try {
+        console.log('📤 Enviando datos:', { email, password });
         const response = await fetch(`${API_BASE}/auth/login`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           credentials: 'include',
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ email: email.trim(), password }),
         });
 
         const result = await response.json();
