@@ -44,6 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const result = await response.json();
 
+        console.log('🧾 Resultado del login:', result);
+
         if (response.ok) {
           localStorage.setItem('user', JSON.stringify(result.user));
           window.location.href = `${window.location.origin}/index.html`;

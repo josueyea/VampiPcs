@@ -133,7 +133,11 @@ router.post('/login', async (req, res) => {
     }
 
     // Aquí podrías generar un token JWT o crear una sesión
-    return res.status(200).json({ message: '✅ Inicio de sesión exitoso' });
+    return res.status(200).json({ message: '✅ Inicio de sesión exitoso', user: {
+    id: user._id,
+    username: user.username,
+    email: user.email
+  } });
   } catch (err) {
     console.error('Error en login:', err);
     return res.status(500).json({ message: 'Error del servidor' });
