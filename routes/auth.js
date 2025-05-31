@@ -114,7 +114,6 @@ router.get('/verify/:token', async (req, res) => {
 // --- Login ---
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
-  console.log('Password en DB:', user.password);
   console.log('📥 Email recibido:', email);
   console.log('🔐 Password recibido:', password);
 
@@ -131,6 +130,8 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: '⚠️ Credenciales incorrectas' });
     }
 
+    console.log('Password en DB:', user.password);
+
     console.log("Password ingresado:", password);
     console.log("Password en DB:", user.password);
 
@@ -144,7 +145,7 @@ router.post('/login', async (req, res) => {
     console.log('En base de datos:', user.password);
 
     // Prueba forzada (solo para test)
-    const isMatch = user.password === password;  // <- SOLO PRUEBA
+    const isMatch = await bcrypt.compare(password, user.password);
 
     console.log("¿Coinciden?:", isMatch);
 
