@@ -311,31 +311,30 @@ async function verificarUsuario() {
 
 // ===== Event listener para icono usuario =====
 if (userIcon) {
-  userIcon.addEventListener('click', (e) => {
+  userIcon.addEventListener('click', async (e) => {
     e.stopPropagation();
+
+    // Asegurar que se haya verificado la sesión
+    await verificarUsuario();
+
     if (usuarioLogueado) {
-      sidePanel.classList.add('open');
-      overlay.classList.add('show');
+      // Cerrar panel lateral si está abierto
+      if (sidePanel && sidePanel.classList.contains('open')) {
+        sidePanel.classList.remove('open');
+      }
+
+      // Abrir panel de usuario
+      if (userPanel) userPanel.classList.add('open');
+
+      // Mostrar overlay
+      if (overlay) overlay.classList.add('show');
     } else {
+      // Redirigir al login si no hay sesión
       window.location.href = 'login.html';
     }
   });
 }
 
-userIcon.addEventListener('click', (e) => {
-  e.stopPropagation();
-
-  // Si el panel general está abierto, cerrarlo
-  if (sidePanel.classList.contains('open')) {
-    sidePanel.classList.remove('open');
-  }
-
-  // Abrir panel de usuario
-  userPanel.classList.add('open');
-
-  // Mostrar overlay
-  overlay.classList.add('show');
-});
 
 // Cerrar panel lateral usuario
 closeUserPanelBtn.addEventListener('click', () => {
