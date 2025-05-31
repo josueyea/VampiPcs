@@ -18,13 +18,13 @@ const User = require('./models/User');
 
 const app = express();
 
+
 // --- CORS ---
 const corsOptions = {
   origin: 'https://vampipcs.onrender.com',
   credentials: true,
 };
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
 
 
 const PORT = process.env.PORT || 3000;

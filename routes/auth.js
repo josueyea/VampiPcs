@@ -1,3 +1,6 @@
+console.log('🚦 Cargando rutas de autenticación...');
+
+
 const express = require('express');
 const User = require('../models/User');
 const passport = require('passport');
