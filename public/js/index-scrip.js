@@ -320,7 +320,7 @@ if (userIcon) {
         method: 'GET',
         credentials: 'include'
       });
-
+      console.log('Status:', res.status);
       if (!res.ok) throw new Error();
 
       const user = await res.json();
@@ -334,6 +334,7 @@ if (userIcon) {
       if (overlay) overlay.classList.add('show');
 
     } catch (error) {
+      console.error('Error:', error);
       // No está logueado, redirige a login
       window.location.href = 'login.html';
     }

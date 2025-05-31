@@ -135,6 +135,9 @@ app.get('/profile', (req, res) => {
 });
 
 app.get('/api/user', async (req, res) => {
+  console.log('🧠 req.isAuthenticated():', req.isAuthenticated());
+  console.log('🧠 req.user:', req.user);
+  console.log('🧠 req.session:', req.session);
   if (!req.isAuthenticated()) return res.status(401).send('No autorizado');
 
   try {
