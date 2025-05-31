@@ -13,10 +13,11 @@ router.get('/google',
 
 // Callback de Google
 router.get('/google/callback',
-  passport.authenticate('google', {
-    failureRedirect: '/',
-    successRedirect: '/index.html' // ✅ URL absoluta
-  })
+  passport.authenticate('google', { failureRedirect: '/' }),
+  (req, res) => {
+    console.log('✅ Autenticación exitosa con Google:', req.user);
+    res.redirect('https://vampipcs.onrender.com/index.html');
+  }
 );
 
 // Logout
