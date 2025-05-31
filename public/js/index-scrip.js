@@ -314,22 +314,27 @@ if (userIcon) {
   userIcon.addEventListener('click', async (e) => {
     e.stopPropagation();
 
-    // Asegurar que se haya verificado la sesión
-    await verificarUsuario();
+    // Verificar si hay usuario
+    try {
+      const res = await fetch('https://vampipcs.onrender.com/api/user', {
+        method: 'GET',
+        credentials: 'include'
+      });
 
-    if (usuarioLogueado) {
-      // Cerrar panel lateral si está abierto
+      if (!res.ok) throw new Error();
+
+      const user = await res.json();
+
+      // Mostrar panel de usuario
       if (sidePanel && sidePanel.classList.contains('open')) {
         sidePanel.classList.remove('open');
       }
 
-      // Abrir panel de usuario
       if (userPanel) userPanel.classList.add('open');
-
-      // Mostrar overlay
       if (overlay) overlay.classList.add('show');
-    } else {
-      // Redirigir al login si no hay sesión
+
+    } catch (error) {
+      // No está logueado, redirige a login
       window.location.href = 'login.html';
     }
   });
