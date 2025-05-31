@@ -1,4 +1,4 @@
-// DECLARACIÓN DE ELEMENTOS (asegúrate que existan en tu HTML)
+// ===== DECLARACIÓN DE ELEMENTOS (asegúrate que existan en tu HTML) =====
 const menuBtn = document.getElementById('menuBtn');
 const sidePanel = document.getElementById('sidePanel');
 const closeBtn = document.getElementById('closeBtn');
@@ -7,21 +7,27 @@ const loginLink = document.getElementById('loginLink');
 const userMenuBtn = document.getElementById('userMenuBtn');
 const userDropdown = document.getElementById('userDropdown');
 const logoutBtn = document.getElementById('logoutBtn');
-
-const menu = document.getElementById('menu');      // para menú hamburguesa
+const menu = document.getElementById('menu');      // menú hamburguesa
 const navbar = document.getElementById('navbar');  // barra de navegación
-
 const listProducts = document.getElementById('listProducts');
 const emptyCart = document.getElementById('emptyCart');
 const contentProducts = document.getElementById('contentProducts');
+const userIcon = document.getElementById('userIcon');
+const profileLink = document.getElementById('profileLink');
+const adminLink = document.getElementById('adminLink');
+const cartCount = document.querySelector('#cartCount');
+const total = document.querySelector('#total');
 
-// VARIABLE GLOBAL PARA CARRITO
+// ===== VARIABLE GLOBAL PARA CARRITO =====
 let productsArray = [];
 
-// Manejo visibilidad login / usuario en base a localStorage (estado simulado)
-const user = localStorage.getItem('user');
+// ===== VARIABLE GLOBAL PARA CONTROL DE SESIÓN =====
+let usuarioLogueado = false;
 
-if (user) {
+// ===== Manejo visibilidad login / usuario basado en localStorage (estado simulado) =====
+const localUser = localStorage.getItem('user');
+
+if (localUser) {
   if (loginLink) loginLink.style.display = 'none';
   if (userMenuBtn) userMenuBtn.style.display = 'inline-block';
 } else {
@@ -29,7 +35,7 @@ if (user) {
   if (userMenuBtn) userMenuBtn.style.display = 'none';
 }
 
-// Mostrar/ocultar dropdown menú usuario
+// ===== Mostrar/ocultar dropdown menú usuario =====
 if (userMenuBtn) {
   userMenuBtn.addEventListener('click', e => {
     e.stopPropagation();
@@ -39,21 +45,30 @@ if (userMenuBtn) {
   });
 }
 
-// Cerrar dropdown si clic fuera de él
+// ===== Cerrar dropdown si clic fuera de él =====
 document.addEventListener('click', () => {
   if (userDropdown) userDropdown.style.display = 'none';
 });
 
-// Logout
+// ===== Logout =====
 if (logoutBtn) {
-  logoutBtn.addEventListener('click', e => {
+  logoutBtn.addEventListener('click', async e => {
     e.preventDefault();
-    localStorage.removeItem('user');
+    try {
+      await fetch('https://vampipcs.onrender.com/api/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+    } catch (err) {
+      console.error('Error cerrando sesión');
+    }
+    usuarioLogueado = false;
+    localStorage.removeItem('user'); // limpiar también localStorage
     window.location.href = 'login.html';
   });
 }
 
-// Panel lateral y overlay
+// ===== Panel lateral y overlay =====
 if (menuBtn && sidePanel && overlay) {
   menuBtn.addEventListener('click', () => {
     sidePanel.classList.add('open');
@@ -73,7 +88,7 @@ if (overlay && sidePanel) {
   });
 }
 
-// Menú hamburguesa toggle
+// ===== Menú hamburguesa toggle =====
 if (menu && navbar) {
   menu.addEventListener('click', () => {
     menu.classList.toggle('bx-x');
@@ -81,11 +96,13 @@ if (menu && navbar) {
   });
 }
 
-// DOMContentLoaded para manejar elementos que dependen del DOM y carrito
+// ===== DOMContentLoaded para manejar elementos que dependen del DOM y carrito =====
 document.addEventListener('DOMContentLoaded', () => {
-  const userLoggedIn = localStorage.getItem('user');
+  verificarUsuario();
 
-  const profileLink = document.getElementById('profileLink');
+  // Mostrar u ocultar link perfil y login según usuario logueado
+  const userLoggedIn = usuarioLogueado;
+
   if (userLoggedIn) {
     if (profileLink) profileLink.style.display = 'inline-block';
     if (loginLink) loginLink.style.display = 'none';
@@ -95,11 +112,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   eventListeners();
-  // Llamar verificación de usuario en backend si usas sesión en servidor
-  verificarUsuario();
 });
 
-// Funciones para carrito y eventos
+// ===== Funciones para carrito y eventos =====
 function eventListeners() {
   if (listProducts) {
     listProducts.addEventListener('click', getDataElements);
@@ -124,12 +139,10 @@ function eventListeners() {
 }
 
 function updateCartCount() {
-  const cartCount = document.querySelector('#cartCount');
   if (cartCount) cartCount.textContent = productsArray.length;
 }
 
 function updateTotal() {
-  const total = document.querySelector('#total');
   if (total) {
     const totalProduct = productsArray.reduce((sum, prod) => sum + prod.price * prod.quantity, 0);
     total.textContent = `$${totalProduct.toFixed(2)}`;
@@ -259,7 +272,7 @@ function showAlert(message, type) {
   setTimeout(() => div.remove(), 5000);
 }
 
-// Función para verificar usuario con backend y mostrar enlaces según rol y sesión
+// ===== Función para verificar usuario con backend y actualizar UI =====
 async function verificarUsuario() {
   try {
     const res = await fetch('https://vampipcs.onrender.com/api/user', {
@@ -269,88 +282,48 @@ async function verificarUsuario() {
     if (!res.ok) throw new Error('No autorizado');
 
     const user = await res.json();
+    usuarioLogueado = true;
 
-    if (user) {
-      const profileLink = document.getElementById('profileLink');
-      const loginLink = document.getElementById('loginLink');
-      const adminLink = document.getElementById('adminLink');
+    if (profileLink) {
+      profileLink.style.display = 'inline-block';
+      profileLink.textContent = user.username || 'Perfil';
+    }
+    if (loginLink) loginLink.style.display = 'none';
+    if (userMenuBtn) userMenuBtn.style.display = 'inline-block';
 
-      if (profileLink) {
-        profileLink.style.display = 'inline-block';
-        profileLink.textContent = user.username || 'Perfil';
-      }
-      if (loginLink) loginLink.style.display = 'none';
-
-      if (user.isAdmin && adminLink) {
-        adminLink.style.display = 'inline-block';
-      } else if (adminLink) {
-        adminLink.style.display = 'none';
-      }
+    if (user.isAdmin && adminLink) {
+      adminLink.style.display = 'inline-block';
+    } else if (adminLink) {
+      adminLink.style.display = 'none';
     }
   } catch (error) {
-    const profileLink = document.getElementById('profileLink');
-    const loginLink = document.getElementById('loginLink');
-    const adminLink = document.getElementById('adminLink');
+    usuarioLogueado = false;
 
     if (profileLink) profileLink.style.display = 'none';
     if (loginLink) loginLink.style.display = 'inline-block';
     if (adminLink) adminLink.style.display = 'none';
+    if (userMenuBtn) userMenuBtn.style.display = 'none';
   }
 }
 
-
-window.addEventListener('load', verificarUsuario);
-
-const userIcon = document.getElementById('userIcon');
-
-let usuarioLogueado = false; // bandera para saber si hay sesión
-
-async function verificarUsuario() {
-  try {
-    const res = await fetch('https://vampipcs.onrender.com/api/user', {
-      method: 'GET',
-      credentials: 'include'
-    });
-
-    if (!res.ok) throw new Error('No autorizado');
-    const user = await res.json();
-
-    usuarioLogueado = true;
-    if (user.isAdmin) {
-      document.getElementById('adminLink').style.display = 'inline-block';
+// ===== Event listener para icono usuario =====
+if (userIcon) {
+  userIcon.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (usuarioLogueado) {
+      if (userDropdown) {
+        userDropdown.style.display = (userDropdown.style.display === 'block') ? 'none' : 'block';
+      }
+    } else {
+      window.location.href = 'login.html';
     }
-  } catch (error) {
-    usuarioLogueado = false;
-    document.getElementById('adminLink').style.display = 'none';
-  }
+  });
 }
 
-// Manejar clic en el ícono
-userIcon.addEventListener('click', (e) => {
-  e.stopPropagation();
-  if (usuarioLogueado) {
-    userDropdown.style.display = (userDropdown.style.display === 'block') ? 'none' : 'block';
-  } else {
-    window.location.href = 'login.html';
-  }
-});
-
-// Cerrar el menú al hacer clic fuera
+// ===== Cerrar dropdown si clic fuera (otra vez por seguridad) =====
 document.addEventListener('click', () => {
-  userDropdown.style.display = 'none';
+  if (userDropdown) userDropdown.style.display = 'none';
 });
 
-// Logout
-logoutBtn?.addEventListener('click', async (e) => {
-  e.preventDefault();
-  try {
-    await fetch('https://vampipcs.onrender.com/api/logout', {
-      method: 'POST',
-      credentials: 'include'
-    });
-  } catch (err) {
-    console.error('Error cerrando sesión');
-  }
-  usuarioLogueado = false;
-  window.location.href = 'login.html';
-});
+// ===== Cargar estado usuario al cargar la ventana =====
+window.addEventListener('load', verificarUsuario);
