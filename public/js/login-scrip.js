@@ -15,47 +15,47 @@ loginBtn.addEventListener('click', () => {
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    const loginForm = document.querySelector('.form-box.login form');
+  const loginForm = document.querySelector('.form-box.login form');
 
-    if (loginForm) {
-        loginForm.addEventListener('submit', async function (e) {
-            e.preventDefault();
+  if (loginForm) {
+    loginForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
 
-            const emailInput = loginForm.querySelector('input[name="email"]');
-            const passwordInput = loginForm.querySelector('input[name="password"]');
+      const emailInput = loginForm.querySelector('input[name="email"]');
+      const passwordInput = loginForm.querySelector('input[name="password"]');
 
-            if (!emailInput || !passwordInput) {
-                console.error('Campos no encontrados');
-                return;
-            }
+      if (!emailInput || !passwordInput) {
+        console.error('Campos no encontrados');
+        return;
+      }
 
-            const email = emailInput.value.trim();
-            const password = passwordInput.value;
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
 
-            try {
-                const response = await fetch(`${API_BASE}/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify({ email, password }),
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    localStorage.setItem('user', JSON.stringify(result.user)); // <--- Guarda los datos del usuario
-                    window.location.href = `${window.location.origin}/index.html`;
-                } else {
-                    alert(result.message || 'Error en login');
-                }
-            } catch (error) {
-                console.error('Error en login:', error);
-                alert('Error en login');
-            }
+      try {
+        const response = await fetch(`${API_BASE}/auth/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({ email, password }),
         });
-    }
+
+        const result = await response.json();
+
+        if (response.ok) {
+          localStorage.setItem('user', JSON.stringify(result.user));
+          window.location.href = `${window.location.origin}/index.html`;
+        } else {
+          alert(result.message || 'Error en login');
+        }
+      } catch (error) {
+        console.error('Error en login:', error);
+        alert('Error en login');
+      }
+    });
+  }
 });
 
 // Validar confirmación de password y feedback para registro
@@ -131,7 +131,7 @@ document.querySelector('.form-box.login form').addEventListener('submit', async 
   };
 
   try {
-    const response = await fetch('${API_BASE}/auth/login', {
+    const response = await fetch(`${API_BASE}/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -151,7 +151,4 @@ document.querySelector('.form-box.login form').addEventListener('submit', async 
     console.error('⚠️ Error en fetch login:', error);
   }
 });
-
-
-console.log('Body recibido:', req.body);
 
