@@ -23,6 +23,10 @@ const app = express();
 const corsOptions = {
   origin: 'https://vampipcs.onrender.com',
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],  // métodos permitidos
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  preflightContinue: false,  // importantísimo que sea false
+  optionsSuccessStatus: 204  // para que OPTIONS responda con 204 sin problema
 };
 app.use(cors(corsOptions));
 
