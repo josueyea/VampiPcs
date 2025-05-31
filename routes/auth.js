@@ -132,8 +132,11 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: '⚠️ Credenciales incorrectas' });
     }
 
+    console.log("Password ingresado:", password);
+    console.log("Password en DB:", user.password);
+
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log('🔍 Comparación bcrypt:', isMatch);
+    console.log("¿Coinciden?:", isMatch);
 
     if (!isMatch) {
       console.log('❌ Contraseña incorrecta');
