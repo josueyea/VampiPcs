@@ -302,8 +302,6 @@ async function verificarUsuario() {
 window.addEventListener('load', verificarUsuario);
 
 const userIcon = document.getElementById('userIcon');
-const userDropdown = document.getElementById('userDropdown');
-const logoutBtn = document.getElementById('logoutBtn');
 
 let usuarioLogueado = false; // bandera para saber si hay sesión
 
