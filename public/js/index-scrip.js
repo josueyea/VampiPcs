@@ -311,19 +311,13 @@ if (userIcon) {
   userIcon.addEventListener('click', (e) => {
     e.stopPropagation();
     if (usuarioLogueado) {
-      if (userDropdown) {
-        userDropdown.style.display = (userDropdown.style.display === 'block') ? 'none' : 'block';
-      }
+      sidePanel.classList.add('open');
+      overlay.classList.add('show');
     } else {
       window.location.href = 'login.html';
     }
   });
 }
-
-// ===== Cerrar dropdown si clic fuera (otra vez por seguridad) =====
-document.addEventListener('click', () => {
-  if (userDropdown) userDropdown.style.display = 'none';
-});
 
 // ===== Cargar estado usuario al cargar la ventana =====
 window.addEventListener('load', verificarUsuario);
