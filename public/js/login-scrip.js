@@ -131,7 +131,7 @@ document.querySelector('.form-box.login form').addEventListener('submit', async 
   };
 
   try {
-    const response = await fetch('https://vampipcs.onrender.com/auth/login', {
+    const response = await fetch('${API_BASE}/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
