@@ -17,8 +17,6 @@ const { isAuthenticated, isAdmin } = require('./middlewares/auth');
 const User = require('./models/User');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-const mongoURI = process.env.MONGODB_URI;
 
 // --- CORS ---
 const corsOptions = {
@@ -26,6 +24,13 @@ const corsOptions = {
   credentials: true,
 };
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
+
+const PORT = process.env.PORT || 3000;
+const mongoURI = process.env.MONGODB_URI;
+
+
 
 // --- Conexión a MongoDB ---
 mongoose.connect(mongoURI)
