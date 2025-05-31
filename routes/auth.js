@@ -62,13 +62,16 @@ router.post('/register', async (req, res) => {
 
     const token = crypto.randomBytes(20).toString('hex');
 
+    const hashedPassword = await bcrypt.hash(password, 10); // 10 rounds de sal
+
     const newUser = new User({
       username,
       email: email.toLowerCase(),
-      password,
+      password: hashedPassword,  // guardar la contraseña hasheada
       emailVerificationToken: token,
       isVerified: false
     });
+
 
     await newUser.save();
 
@@ -185,7 +188,7 @@ router.post('/reset-password/:token', async (req, res) => {
       return res.status(400).json({ message: '⚠️ Token inválido o expirado' });
     }
 
-    user.password = password;
+    user.password = await bcrypt.hash(password, 10);
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
 
