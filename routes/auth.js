@@ -15,7 +15,7 @@ router.get('/google',
 router.get('/google/callback',
   passport.authenticate('google', {
     failureRedirect: '/',
-    successRedirect: 'https://vampipcs.onrender.com/index.html' // ✅ URL absoluta
+    successRedirect: '/index.html' // ✅ URL absoluta
   })
 );
 
