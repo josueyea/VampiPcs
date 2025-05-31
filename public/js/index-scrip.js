@@ -17,6 +17,9 @@ const profileLink = document.getElementById('profileLink');
 const adminLink = document.getElementById('adminLink');
 const cartCount = document.querySelector('#cartCount');
 const total = document.querySelector('#total');
+const userPanel = document.getElementById('userPanel');
+
+const closeUserPanelBtn = document.getElementById('closeUserPanel');
 
 // ===== VARIABLE GLOBAL PARA CARRITO =====
 let productsArray = [];
@@ -318,6 +321,44 @@ if (userIcon) {
     }
   });
 }
+
+userIcon.addEventListener('click', (e) => {
+  e.stopPropagation();
+
+  // Si el panel general está abierto, cerrarlo
+  if (sidePanel.classList.contains('open')) {
+    sidePanel.classList.remove('open');
+  }
+
+  // Abrir panel de usuario
+  userPanel.classList.add('open');
+
+  // Mostrar overlay
+  overlay.classList.add('show');
+});
+
+// Cerrar panel lateral usuario
+closeUserPanelBtn.addEventListener('click', () => {
+  userPanel.classList.remove('open');
+  overlay.classList.remove('show');
+});
+
+// Cerrar panel lateral general
+closeBtn.addEventListener('click', () => {
+  sidePanel.classList.remove('open');
+  overlay.classList.remove('show');
+});
+
+// Cerrar cualquier panel al hacer clic fuera
+overlay.addEventListener('click', () => {
+  if (userPanel.classList.contains('open')) {
+    userPanel.classList.remove('open');
+  }
+  if (sidePanel.classList.contains('open')) {
+    sidePanel.classList.remove('open');
+  }
+  overlay.classList.remove('show');
+});
 
 // ===== Cargar estado usuario al cargar la ventana =====
 window.addEventListener('load', verificarUsuario);
