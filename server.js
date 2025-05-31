@@ -169,9 +169,10 @@ app.post('/reset-password', async (req, res) => {
 
   try {
     const user = await User.findById(req.user._id);
+    const bcrypt = require('bcrypt');
     if (!user) return res.status(404).send('Usuario no encontrado');
 
-    user.password = req.body.newPassword;
+    user.password = await bcrypt.hash(req.body.newPassword, 10);
     await user.save();
 
     res.send('Contraseña actualizada correctamente');

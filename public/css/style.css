@@ -256,6 +256,13 @@ header {
   visibility: visible;
 }
 
+.user-dropdown a:hover {
+  background-color: #22b455;
+  color: white;
+  cursor: pointer;
+}
+
+
 
 /* Responsive */
 @media (max-width: 600px) {

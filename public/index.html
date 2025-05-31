@@ -25,7 +25,16 @@
         </form>
 
         <div class="icons-group">
-        <a href="login.html" title="Usuario"><i class="fas fa-user"></i></a>
+        <!-- Ícono de usuario (siempre visible) -->
+            <div id="userIcon" style="cursor:pointer; position: relative;">
+            <i class="fas fa-user"></i>
+
+            <!-- Dropdown solo para usuarios logueados -->
+            <div id="userDropdown" style="display:none; position:absolute; top:35px; right:0; background:white; border:1px solid #ccc; border-radius:5px; min-width:150px; z-index:1000;">
+                <a href="profile.html" style="display:block; padding:10px; text-decoration:none; color:#333;">Perfil</a>
+                <a href="#" id="logoutBtn" style="display:block; padding:10px; text-decoration:none; color:#333;">Cerrar sesión</a>
+            </div>
+            </div>
         <a href="#" title="Favoritos"><i class="fas fa-heart"></i></a>
         <a href="#" title="Carrito" class="cart-icon">
         <i class="fas fa-shopping-cart"></i>
@@ -38,6 +47,15 @@
         </div>
         </div>
     </header>
+
+    <div class="user-menu-container" id="userMenuBtn" title="Usuario" style="cursor:pointer; position: relative; display:none;">
+        <i class="fas fa-user"></i>
+
+        <div id="userDropdown" class="user-dropdown" style="display:none; position: absolute; right: 0; background: white; border: 1px solid #ccc; border-radius: 5px; min-width: 150px; z-index: 1000;">
+            <a href="/profile.html" class="dropdown-item" style="display:block; padding: 10px; text-decoration:none; color: #333;">Perfil</a>
+            <a href="#" id="logoutBtn" class="dropdown-item" style="display:block; padding: 10px; text-decoration:none; color: #333;">Cerrar sesión</a>
+        </div>
+    </div>
 
     <!-- Panel lateral -->
     <div id="sidePanel" class="side-panel">
