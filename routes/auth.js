@@ -135,7 +135,18 @@ router.post('/login', async (req, res) => {
     console.log("Password ingresado:", password);
     console.log("Password en DB:", user.password);
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    console.log("⚠️ typeof password:", typeof password);
+    console.log("⚠️ typeof user.password:", typeof user.password);
+    console.log("⚠️ Longitud del password recibido:", password.length);
+
+
+    console.log('🔬 Comparando manualmente...');
+    console.log('Ingresado:', password);
+    console.log('En base de datos:', user.password);
+
+    // Prueba forzada (solo para test)
+    const isMatch = user.password === password;  // <- SOLO PRUEBA
+
     console.log("¿Coinciden?:", isMatch);
 
     if (!isMatch) {
