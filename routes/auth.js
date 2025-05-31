@@ -133,10 +133,11 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: '⚠️ Credenciales incorrectas' });
     }
 
-    const match = await bcrypt.compare(password, user.password);
-    console.log('🔑 Contraseña válida:', match);
+    const isMatch = await bcrypt.compare(password, user.password);
+  console.log('🔍 Comparación bcrypt:', isMatch);
 
     if (!match) {
+      console.log('❌ Contraseña incorrecta');
       return res.status(400).json({ message: '⚠️ Credenciales incorrectas' });
     }
 
