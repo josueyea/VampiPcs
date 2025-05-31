@@ -3,7 +3,7 @@ const container = document.querySelector('.container');
 const registerBtn = document.querySelector('.register-btn');
 const loginBtn = document.querySelector('.login-btn');
 const toggleBtns = document.querySelectorAll('.toggle-panel .btn');
-const API_BASE = 'https://vampipcs-api.onrender.com';
+const API_BASE = 'https://vampipcs.onrender.com';
 
 registerBtn.addEventListener('click', () => {
     container.classList.add('active');
@@ -94,11 +94,11 @@ if (registerForm) {
         confirmPassword: registerForm.confirmPassword.value,
       };
 
-      const response = await fetch(`${API_BASE}/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(formData),
-  });
+      const response = await fetch(`${API_BASE}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    });
 
       const result = await response.json(); // Aquí cambio a json()
 
