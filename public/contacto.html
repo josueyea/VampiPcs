@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Alerta Toast con fondo blur y animación</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #121212;
+      color: #eee;
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      justify-content: center;
+    }
+
+    button {
+      background-color: #22b455;
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(34,180,85,0.6);
+    }
+
+    button:hover {
+      background-color: #1a8c41;
+    }
+
+    /* Fondo overlay con blur */
+    #toast-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(6px);
+      z-index: 9998;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    #toast-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Toast al centro */
+    #toast {
+      max-width: 320px;
+      background-color: rgba(34,180,85,0.9);
+      color: white;
+      text-align: center;
+      border-radius: 12px;
+      padding: 18px 28px;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-weight: 700;
+      font-size: 18px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      user-select: none;
+      transition: opacity 0.3s ease;
+    }
+
+    #toast.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Alerta toast con fondo blur y animación suave</h1>
+
+  <button onclick="showToast('✅ Operación exitosa!')">
+    Mostrar alerta toast
+  </button>
+
+  <div id="toast-overlay"></div>
+  <div id="toast"></div>
+
+  <script>
+    function showToast(message, duration = 2500) {
+      const toast = document.getElementById('toast');
+      const overlay = document.getElementById('toast-overlay');
+
+      toast.textContent = message;
+
+      // Mostrar
+      toast.classList.add('show');
+      overlay.classList.add('show');
+
+      // Ocultar después del tiempo indicado
+      setTimeout(() => {
+        toast.classList.remove('show');
+        overlay.classList.remove('show');
+      }, duration);
+    }
+  </script>
+
+</body>
+</html>

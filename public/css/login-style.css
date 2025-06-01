@@ -436,3 +436,44 @@ form{
   background-color: #1b8b3d;
   transform: scale(1.05);
 }
+
+
+
+#toast-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(6px);
+    z-index: 9998;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  #toast-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  #toast {
+    max-width: 320px;
+    background-color: rgba(34,180,85,0.9);
+    color: white;
+    text-align: center;
+    border-radius: 12px;
+    padding: 18px 28px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: 700;
+    font-size: 18px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    user-select: none;
+    transition: opacity 0.3s ease;
+  }
+  #toast.show {
+    opacity: 1;
+    pointer-events: auto;
+  }

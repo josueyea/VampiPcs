@@ -1,4 +1,3 @@
-
 const container = document.querySelector('.container');
 const registerBtn = document.querySelector('.register-btn');
 const loginBtn = document.querySelector('.login-btn');
@@ -49,13 +48,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (response.ok) {
           localStorage.setItem('user', JSON.stringify(result.user));
-          window.location.href = `${window.location.origin}/index.html`;
+          const prevPage = document.referrer;
+          if (!prevPage || prevPage.includes('login.html') || prevPage.includes('register.html')) {
+            window.location.href = `${window.location.origin}/index.html`;
+          } else {
+            // Si hay una página previa distinta, regresa a ella
+            window.location.href = prevPage;
+          }
         } else {
-          alert(result.message || 'Error en login');
+          showToast(result.message || 'Error en login');
         }
       } catch (error) {
         console.error('Error en login:', error);
-        alert('Error en login');
+        showToast('Error en login');
       }
     });
   }
@@ -66,13 +71,16 @@ document.addEventListener('DOMContentLoaded', () => {
 const registerForm = document.querySelector('.form-box.register form');
 
 if (registerForm) {
-  const messageDiv = document.getElementById('error-message'); // usa el div existente
+  // Puedes eliminar este bloque si no quieres mostrar mensajes en un div visible
+  // const messageDiv = document.getElementById('error-message'); 
+
   const spinner = document.createElement('div');
   spinner.textContent = 'Cargando...';
   spinner.style.marginTop = '10px';
   spinner.style.fontWeight = '600';
   spinner.style.display = 'none';
-  messageDiv.parentNode.appendChild(spinner);
+  // Si usas messageDiv, asegúrate que exista y está en el DOM
+  // messageDiv.parentNode.appendChild(spinner);
 
   registerForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -81,13 +89,13 @@ if (registerForm) {
     const confirmPassword = registerForm.confirmPassword.value;
 
     if (password !== confirmPassword) {
-      messageDiv.textContent = '❌ Las contraseñas no coinciden.';
-      messageDiv.style.color = 'red';
+      // Usamos toast para el error
+      showToast('❌ Las contraseñas no coinciden.');
       return;
     }
 
     spinner.style.display = 'block';
-    messageDiv.textContent = '';
+    // messageDiv.textContent = '';
 
     try {
       const formData = {
@@ -98,28 +106,43 @@ if (registerForm) {
       };
 
       const response = await fetch(`${API_BASE}/auth/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
-    });
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
 
-      const result = await response.json(); // Aquí cambio a json()
+      const result = await response.json();
 
       spinner.style.display = 'none';
 
       if (response.ok) {
-        messageDiv.textContent = '✅ ' + result.message;
-        messageDiv.style.color = 'green';
+        // Mensaje verde con toast
+        showToast('✅ ' + result.message);
         registerForm.reset();
       } else {
-        messageDiv.textContent = '❌ ' + result.message;
-        messageDiv.style.color = 'red';
+        showToast('❌ ' + result.message);
       }
     } catch (error) {
       spinner.style.display = 'none';
-      messageDiv.textContent = '❌ Error inesperado';
-      messageDiv.style.color = 'red';
+      showToast('❌ Error inesperado');
     }
   });
 }
 
+
+function showToast(message, duration = 2500) {
+  const toast = document.getElementById('toast');
+  const overlay = document.getElementById('toast-overlay');
+
+  toast.textContent = message;
+
+  // Mostrar toast y overlay
+  toast.classList.add('show');
+  overlay.classList.add('show');
+
+  // Ocultar después de la duración
+  setTimeout(() => {
+    toast.classList.remove('show');
+    overlay.classList.remove('show');
+  }, duration);
+}

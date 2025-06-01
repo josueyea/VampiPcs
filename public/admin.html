@@ -3,44 +3,249 @@
 
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel de Administrador</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 2rem;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #121212, #1e1e1e);
+      color: #eee;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+
+    .filters input {
+      padding: 0.5rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      width: 200px;
+    }
+
+    .actions {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .actions button {
+      background: #22b455;
+      color: #fff;
+      border: none;
+      padding: 0.6rem 1rem;
+      border-radius: 6px;
+      margin: 0 0.5rem;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .actions button:hover {
+      transform: scale(1.05);
+      background: #28c76f;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      animation: fadeIn 0.5s ease;
+      position: relative;
+    }
+
+    .card p, .card li {
+      margin: 0.2rem 0;
+    }
+
+    .card hr {
+      border: 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .card .card-actions {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .card .card-actions button {
+      background: transparent;
+      color: #eee;
+      border: 1px solid #444;
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .card .card-actions button:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 600px) {
+      .filters input {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 
 <body>
-  <h1>Presupuestos registrados</h1>
+  <h1>Panel de Presupuestos</h1>
+
+  <div class="filters">
+    <input type="text" id="filtroUsuario" placeholder="Filtrar por usuario/email">
+    <input type="number" id="minTotal" placeholder="Total mínimo">
+    <input type="number" id="maxTotal" placeholder="Total máximo">
+    <input type="text" id="filtroComponente" placeholder="Filtrar por componente">
+  </div>
+
+  <div class="actions">
+    <button onclick="exportarExcel()"><i class="fas fa-file-excel"></i> Exportar Excel</button>
+    <button onclick="exportarPDF()"><i class="fas fa-file-pdf"></i> Exportar PDF</button>
+  </div>
+
   <div id="contenedor-presupuestos"></div>
 
   <script>
+    let presupuestosData = [];
+
     async function cargarPresupuestos() {
       try {
         const res = await fetch('/presupuesto/admin', { credentials: 'include' });
-
-        if (!res.ok) {
-          const errData = await res.json();
-          throw new Error(errData.message || 'Error desconocido');
-        }
-
-        const presupuestos = await res.json();
-
-        const contenedor = document.getElementById('contenedor-presupuestos');
-        presupuestos.forEach(p => {
-          const div = document.createElement('div');
-          div.innerHTML = `
-            <p><strong>Usuario:</strong> ${p.usuarioId ? p.usuarioId.username : 'Desconocido'} (${p.usuarioId ? p.usuarioId.email : 'Sin email'})</p>
-            <ul>
-              ${p.componentes.map(c => `<li>${c.categoria}: ${c.nombre} - S/ ${c.precio}</li>`).join('')}
-            </ul>
-            <p><strong>Montaje:</strong> ${p.incluyeMontaje ? 'Sí' : 'No'}</p>
-            <p><strong>Total:</strong> S/ ${p.total.toFixed(2)}</p>
-            <hr>
-          `;
-          contenedor.appendChild(div);
-        });
-
+        if (!res.ok) throw new Error('Error al obtener presupuestos');
+        presupuestosData = await res.json();
+        renderizarPresupuestos(presupuestosData);
       } catch (err) {
         alert('Acceso denegado o error al obtener presupuestos');
         console.error(err);
       }
+    }
+
+    function renderizarPresupuestos(data) {
+      const contenedor = document.getElementById('contenedor-presupuestos');
+      contenedor.innerHTML = '';
+
+      data.forEach(p => {
+        const div = document.createElement('div');
+        div.classList.add('card');
+        div.innerHTML = `
+          <div class="card-actions">
+            <button onclick="verDetalles(${p._id ? `'${p._id}'` : `''`})">Ver</button>
+            <button onclick="eliminarPresupuesto('${p._id}')">Eliminar</button>
+          </div>
+          <p><strong>Usuario:</strong> ${p.usuarioId?.username || 'Desconocido'} (${p.usuarioId?.email || 'Sin email'})</p>
+          <ul>${p.componentes.map(c => `<li>${c.categoria}: ${c.nombre} - S/ ${c.precio}</li>`).join('')}</ul>
+          <p><strong>Montaje:</strong> ${p.incluyeMontaje ? 'Sí' : 'No'}</p>
+          <p><strong>Total:</strong> S/ ${p.total.toFixed(2)}</p>
+        `;
+        contenedor.appendChild(div);
+      });
+    }
+
+    function aplicarFiltros() {
+      const usuario = document.getElementById('filtroUsuario').value.toLowerCase();
+      const min = parseFloat(document.getElementById('minTotal').value);
+      const max = parseFloat(document.getElementById('maxTotal').value);
+      const comp = document.getElementById('filtroComponente').value.toLowerCase();
+
+      const filtrado = presupuestosData.filter(p => {
+        const userMatch = p.usuarioId?.username?.toLowerCase().includes(usuario) || p.usuarioId?.email?.toLowerCase().includes(usuario);
+        const totalMatch = (!min || p.total >= min) && (!max || p.total <= max);
+        const compMatch = !comp || p.componentes.some(c => c.nombre.toLowerCase().includes(comp) || c.categoria.toLowerCase().includes(comp));
+        return userMatch && totalMatch && compMatch;
+      });
+
+      renderizarPresupuestos(filtrado);
+    }
+
+    function eliminarPresupuesto(id) {
+      if (confirm('¿Estás seguro de eliminar este presupuesto?')) {
+        fetch(`/presupuesto/${id}`, {
+          method: 'DELETE',
+          credentials: 'include'
+        })
+        .then(res => {
+          if (!res.ok) throw new Error('Error al eliminar presupuesto');
+          presupuestosData = presupuestosData.filter(p => p._id !== id);
+          renderizarPresupuestos(presupuestosData);
+        })
+        .catch(err => {
+          alert('Error al eliminar presupuesto');
+          console.error(err);
+        });
+      }
+    }
+
+    function verDetalles(id) {
+      window.location.href = `/presupuesto/${id}`;
+    }
+
+    document.getElementById('filtroUsuario').addEventListener('input', aplicarFiltros);
+    document.getElementById('minTotal').addEventListener('input', aplicarFiltros);
+    document.getElementById('maxTotal').addEventListener('input', aplicarFiltros);
+    document.getElementById('filtroComponente').addEventListener('input', aplicarFiltros);
+
+    function exportarExcel() {
+      const data = presupuestosData.map(p => ({
+        Usuario: p.usuarioId?.username || 'Desconocido',
+        Email: p.usuarioId?.email || '',
+        Componentes: p.componentes.map(c => `${c.categoria}: ${c.nombre} - S/ ${c.precio}`).join(', '),
+        Montaje: p.incluyeMontaje ? 'Sí' : 'No',
+        Total: p.total
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(data);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Presupuestos');
+      XLSX.writeFile(workbook, 'presupuestos.xlsx');
+    }
+
+    function exportarPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      let y = 10;
+      presupuestosData.forEach(p => {
+        doc.text(`Usuario: ${p.usuarioId?.username || 'Desconocido'} (${p.usuarioId?.email || ''})`, 10, y);
+        y += 6;
+        p.componentes.forEach(c => {
+          doc.text(`- ${c.categoria}: ${c.nombre} - S/ ${c.precio}`, 12, y);
+          y += 6;
+        });
+        doc.text(`Montaje: ${p.incluyeMontaje ? 'Sí' : 'No'}`, 10, y);
+        y += 6;
+        doc.text(`Total: S/ ${p.total.toFixed(2)}`, 10, y);
+        y += 10;
+        if (y > 270) {
+          doc.addPage();
+          y = 10;
+        }
+      });
+      doc.save('presupuestos.pdf');
     }
 
     window.onload = cargarPresupuestos;

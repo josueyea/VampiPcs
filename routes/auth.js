@@ -1,6 +1,3 @@
-console.log('🚦 Cargando rutas de autenticación...');
-
-
 const express = require('express');
 const User = require('../models/User');
 const passport = require('passport');
@@ -8,6 +5,9 @@ const router = express.Router();
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
+
+// ✅ Confirmación de carga del módulo
+console.log('🚦 Cargando rutas de autenticación...');
 
 // Iniciar login con Google
 router.get('/google',
@@ -25,7 +25,7 @@ router.get('/google/callback',
 
 // Logout
 router.get('/logout', (req, res) => {
-  req.logout(() => {                                                          
+  req.logout(() => {
     res.redirect('/');
   });
 });
@@ -65,12 +65,12 @@ router.post('/register', async (req, res) => {
     const newUser = new User({
       username,
       email: email.toLowerCase(),
-      password, // 👈 NO se hashea aquí
+      password,
       emailVerificationToken: token,
       isVerified: false
     });
 
-    await newUser.save(); // 🔐 Aquí se hashea automáticamente
+    await newUser.save();
 
     const verificationUrl = `https://vampipcs.onrender.com/auth/verify/${token}`;
     const mailOptions = {
@@ -87,7 +87,6 @@ router.post('/register', async (req, res) => {
     return res.status(500).json({ message: 'Error en el servidor' });
   }
 });
-
 
 // --- Verificar cuenta ---
 router.get('/verify/:token', async (req, res) => {
@@ -114,50 +113,28 @@ router.get('/verify/:token', async (req, res) => {
 // --- Login ---
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
-  console.log('📥 Email recibido:', email);
-  console.log('🔐 Password recibido:', password);
 
   if (!email || !password) {
-    console.log('⛔ Campos faltantes');
     return res.status(400).json({ message: '⚠️ Todos los campos son obligatorios' });
   }
 
   try {
     const user = await User.findOne({ email: email.toLowerCase() });
-    console.log('👤 Usuario encontrado:', user ? user.email : 'No encontrado');
 
     if (!user) {
       return res.status(400).json({ message: '⚠️ Credenciales incorrectas' });
     }
 
-    console.log('Password en DB:', user.password);
-
-    console.log("Password ingresado:", password);
-    console.log("Password en DB:", user.password);
-
-    console.log("⚠️ typeof password:", typeof password);
-    console.log("⚠️ typeof user.password:", typeof user.password);
-    console.log("⚠️ Longitud del password recibido:", password.length);
-
-
-    console.log('🔬 Comparando manualmente...');
-    console.log('Ingresado:', password);
-    console.log('En base de datos:', user.password);
-
-    // Prueba forzada (solo para test)
     const isMatch = await bcrypt.compare(password, user.password);
 
-    console.log("¿Coinciden?:", isMatch);
-
     if (!isMatch) {
-  return res.status(400).json({ message: '⚠️ Credenciales incorrectas' });
-}
+      return res.status(400).json({ message: '⚠️ Credenciales incorrectas' });
+    }
 
-if (!user.isVerified) {
-  return res.status(403).json({ message: '⚠️ Verifica tu correo electrónico primero' });
-}
+    if (!user.isVerified) {
+      return res.status(403).json({ message: '⚠️ Verifica tu correo electrónico primero' });
+    }
 
-// Aquí uso req.login para iniciar sesión y crear cookie
     req.login(user, (err) => {
       if (err) {
         console.error('Error en req.login:', err);
@@ -179,7 +156,6 @@ if (!user.isVerified) {
   }
 });
 
-
 // --- Enviar correo para restablecer contraseña ---
 router.post('/forgot-password', async (req, res) => {
   const { email } = req.body;
@@ -190,7 +166,7 @@ router.post('/forgot-password', async (req, res) => {
 
     const token = crypto.randomBytes(20).toString('hex');
     user.resetPasswordToken = token;
-    user.resetPasswordExpires = Date.now() + 3600000; // 1 hora
+    user.resetPasswordExpires = Date.now() + 3600000;
 
     await user.save();
 
@@ -240,7 +216,5 @@ router.post('/reset-password/:token', async (req, res) => {
     return res.status(500).json({ message: 'Error del servidor' });
   }
 });
-
-
 
 module.exports = router;
