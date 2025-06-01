@@ -251,6 +251,11 @@ form{
         padding: 0;
         height: 100vh;
     }
+
+    .btn{
+        margin: 0 !important;
+    }
+    
     .form-box{
         padding-right: 20px;
         padding-bottom: 0 !important;
@@ -266,7 +271,7 @@ form{
 
     }
     .form-box.login form{
-        margin-top: -200px; /* Súbelos un poco */
+        margin-top: -80px; /* Súbelos un poco */
     }
     .form-box.register form{
         margin-top: -30px; /* Súbelos un poco */
@@ -283,7 +288,7 @@ form{
     .input-box {
         width: 90%;               /* ancho adecuado */
         max-width: 320px;
-        margin: 19px auto !important;         /* centrado horizontal */
+        margin: 8px auto !important;         /* centrado horizontal */
         position: relative;
     }
 
@@ -325,8 +330,7 @@ form{
     align-items: center;
     padding: 20px;
     transition: 0.6s ease-in-out;
-    z-index: 2;
-    overflow-y: auto; /* 💡 Permite que el contenido se desplace si es muy alto */
+    z-index: 2; /* 💡 Permite que el contenido se desplace si es muy alto */
   }
   .toggle-panel h1 {
     font-size: 1.5rem;
@@ -362,11 +366,21 @@ form{
     .toggle-panel.toggle-right{
         right: 0;
         bottom: -30%;
+        height: 40%;
+        padding: 50px !important;
     }
 
     .container.active .toggle-panel.toggle-right{
         padding-top: 0;
         bottom: 0;
+    }
+    .forgot-link{
+        padding: 10px;
+        margin: 0px;
+    }
+    .form-box.register p{
+        margin: 2px !important;
+        padding: 0;
     }
 }
 
