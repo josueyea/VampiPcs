@@ -162,6 +162,8 @@ app.get('/api/user', async (req, res) => {
   }
 });
 
+app.use('/auth/forgot-password', forgotPasswordRouter);
+
 // --- Contraseña: Olvido y Cambio ---
 app.get('/forgot-password', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'forgot-password.html'));
