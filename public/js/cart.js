@@ -8,11 +8,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const checkoutBtn = document.getElementById("checkout-btn");
 
   // Mostrar u ocultar panel carrito con toggle, y evitar propagación para que no se cierre inmediatamente
-  cartIcon.addEventListener("click", (e) => {
-    e.stopPropagation();
-    console.log("Click en icono carrito");
+  if (cartIcon && cartPanel) {
+  cartIcon.addEventListener("click", () => {
     cartPanel.classList.toggle("open");
   });
+
+  closeCartBtn?.addEventListener("click", () => {
+    cartPanel.classList.remove("open");
+  });
+}
 
   // Evitar que clicks dentro del panel cierren el panel
   cartPanel.addEventListener("click", (e) => {
