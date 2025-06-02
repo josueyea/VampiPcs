@@ -7,6 +7,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const cartTotal = document.getElementById("cart-total");
   const checkoutBtn = document.getElementById("checkout-btn");
 
+  // Verificar que existen todos los elementos clave del carrito
+  if (!cartIcon || !cartPanel || !cartCount || !cartItemsList || !cartTotal || !checkoutBtn) {
+    console.warn("Elementos del carrito no encontrados. ¿Olvidaste incluir el HTML del carrito en esta página?");
+    return;
+  }
+
   // Mostrar u ocultar panel carrito con toggle, y evitar propagación para que no se cierre inmediatamente
   if (cartIcon && cartPanel) {
   cartIcon.addEventListener("click", () => {
