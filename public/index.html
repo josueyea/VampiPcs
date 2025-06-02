@@ -31,9 +31,36 @@
             </div>
         <a href="#" title="Favoritos"><i class="fas fa-heart"></i></a>
         <a href="#" title="Carrito" class="cart-icon">
-        <i class="fas fa-shopping-cart"></i>
-        <span class="cart-count">3</span>
-        </a>
+        <div id="cart-icon" style="cursor:pointer; position: relative;">
+            <i alt="Carrito" class="fas fa-shopping-cart"></i>
+            <span id="cart-count" style="
+                position: absolute;
+                top: -6px;
+                right: -6px;
+                background: #22b455;
+                color: white;
+                font-size: 12px;
+                padding: 2px 6px;
+                border-radius: 50%;
+                font-weight: bold;
+                display: none;
+            ">0</span>
+            </div>
+
+            <!-- Panel carrito -->
+            <div id="cart-panel" class="cart-panel">
+            <div class="cart-header">
+                <h2>Tu carrito</h2>
+                <button id="close-cart">&times;</button>
+            </div>
+            <ul id="cart-items" class="cart-items">
+                <!-- Aquí van los productos -->
+            </ul>
+            <div class="cart-footer">
+                <div>Total: $<span id="cart-total">0.00</span></div>
+                <button id="checkout-btn">Finalizar compra</button>
+            </div>
+        </div>
         <a href="#" class="menu-btn" id="menuBtn" title="Menú"><i class="fas fa-bars"></i></a>
         </div>
         </div>
@@ -197,6 +224,7 @@
     <script src="https://unpkg.com/swiper@8/swiper-bundle.min.js"></script>
     <script src="js/index-scrip.js"></script>
     <script src="plugins/fontawesome/js/all.min.js"></script>
+    <script src="js/cart.js"></script>
 </body>
 
 </html>
