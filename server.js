@@ -11,7 +11,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
-const { storage } = require('../config/cloudinary');
+const { storage } = require('./config/cloudinary');
 const multer = require('multer');
 const fs = require('fs');
 
