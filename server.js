@@ -162,7 +162,8 @@ app.get('/api/user', async (req, res) => {
   }
 });
 
-app.use('/auth/forgot-password', forgotPasswordRouter);
+const forgotPasswordRouter = require('./routes/auth/forgot-password');
+app.use('/', forgotPasswordRouter);
 
 // --- Contraseña: Olvido y Cambio ---
 app.get('/forgot-password', (req, res) => {
