@@ -245,7 +245,7 @@ app.post('/admin/make-admin', isAuthenticated, isAdmin, async (req, res) => {
 });
 
 // Ruta para subir foto de perfil
-app.post('/profile/upload-photo', isAuthenticated, upload.single('profilePhoto'), async (req, res) => {
+app.post('/profile/upload-photo', isAuthenticated, upload.single('profilePic'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).send('No se subió ninguna imagen.');
 
