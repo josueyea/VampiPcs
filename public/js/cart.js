@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+
   // Mostrar u ocultar panel carrito con toggle, y evitar propagación para que no se cierre inmediatamente
   if (cartIcon && cartPanel) {
   cartIcon.addEventListener("click", () => {
