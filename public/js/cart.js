@@ -31,10 +31,12 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Cerrar el panel al hacer click en el botón de cerrar
-  closeCartBtn.addEventListener("click", () => {
-    console.log("Click en icono carrito");
-    cartPanel.classList.remove("open");
-  });
+  if (closeCartBtn) {
+    closeCartBtn.addEventListener("click", () => {
+      console.log("Click en icono carrito");
+      cartPanel.classList.remove("open");
+    });
+  }
 
   // Cerrar el panel si haces click fuera del icono y del panel
   document.addEventListener('click', (e) => {
@@ -154,20 +156,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const cartOverlay = document.querySelector(".cart-overlay");
 
+    if (cartIcon && cartPanel && cartOverlay) {
     cartIcon.addEventListener("click", () => {
-    cartPanel.classList.toggle("open");
-    cartOverlay.classList.toggle("show");
+      cartPanel.classList.toggle("open");
+      cartOverlay.classList.toggle("show");
     });
 
     closeCartBtn.addEventListener("click", () => {
-    cartPanel.classList.remove("open");
-    cartOverlay.classList.remove("show");
+      cartPanel.classList.remove("open");
+      cartOverlay.classList.remove("show");
     });
 
     cartOverlay.addEventListener("click", () => {
-    cartPanel.classList.remove("open");
-    cartOverlay.classList.remove("show");
+      cartPanel.classList.remove("open");
+      cartOverlay.classList.remove("show");
     });
+  }
 
 
   // Inicializar UI carrito (sin productos)
