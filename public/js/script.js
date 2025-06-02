@@ -115,6 +115,7 @@ function onRemoveItem(e) {
 }
 // Añadir producto al carrito (desde listado productos)
 function addToCart(product) {
+  console.log('Agregando producto:', product);
   const existing = cart.find(item => item.id === product.id);
   if (existing) {
     existing.quantity++;
@@ -152,7 +153,7 @@ function onProductListClick(e) {
   const product = {
     id: card.querySelector('button.btn-add').dataset.id,
     title: card.querySelector('h4').textContent,
-    price: parseFloat(card.querySelector('#currentPrice').textContent.replace('$', '')),
+    price: parseFloat(card.querySelector('.currentPrice').textContent.replace('$', '')),
     img: card.querySelector('img').src
   };
 
