@@ -33,6 +33,12 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+
+  profilePhoto: {
+    type: String,
+    default: '/img/default-profile.png' // o la ruta a una imagen por defecto
+  },
+
 }, { timestamps: true });
 
 // Middleware para convertir email a minúsculas antes de guardar (por si no usas lowercase)

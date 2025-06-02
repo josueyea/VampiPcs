@@ -11,6 +11,9 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
+const multer = require('multer');
+const fs = require('fs');
+
 
 require('./passport');
 const { isAuthenticated, isAdmin } = require('./middlewares/auth');
@@ -34,6 +37,40 @@ app.use(cors(corsOptions));
 const PORT = process.env.PORT || 3000;
 const mongoURI = process.env.MONGODB_URI;
 
+// Carpeta para subir fotos de perfil
+const uploadDir = path.join(__dirname, 'public/uploads/profile_photos');
+
+// Crear la carpeta si no existe
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Configuración multer para subir archivos
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, 'public/uploads'));
+  },
+  filename: function (req, file, cb) {
+    // Para evitar duplicados, guardamos con el id del usuario + extensión
+    const ext = path.extname(file.originalname);
+    cb(null, req.user._id + ext);
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  fileFilter: function (req, file, cb) {
+    const allowedTypes = /jpeg|jpg|png|gif/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    if (extname && mimetype) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Solo imágenes jpg, jpeg, png y gif'));
+    }
+  },
+  limits: { fileSize: 1024 * 1024 * 5 } // máximo 5MB
+});
 
 
 // --- Conexión a MongoDB ---
@@ -141,7 +178,7 @@ app.get('/api/user', async (req, res) => {
   if (!req.isAuthenticated()) return res.status(401).send('No autorizado');
 
   try {
-    const user = await User.findById(req.user._id).select('username email isAdmin');
+    const user = await User.findById(req.user._id).select('username email isAdmin profilePhoto');
     res.json(user);
   } catch (error) {
     res.status(500).send('Error en el servidor');
@@ -204,6 +241,23 @@ app.post('/admin/make-admin', isAuthenticated, isAdmin, async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).send('Error en el servidor');
+  }
+});
+
+// Ruta para subir foto de perfil
+app.post('/profile/upload-photo', isAuthenticated, upload.single('profilePhoto'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).send('No se subió ninguna imagen.');
+
+    // Guardamos la ruta relativa en el usuario
+    const user = await User.findById(req.user._id);
+    user.profilePhoto = `/uploads/${req.file.filename}`;
+    await user.save();
+
+    res.send({ message: 'Foto de perfil actualizada.', photoUrl: user.profilePhoto });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error al subir la foto.');
   }
 });
 
