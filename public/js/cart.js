@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const cartItemsList = document.getElementById("cart-items");
   const cartTotal = document.getElementById("cart-total");
   const checkoutBtn = document.getElementById("checkout-btn");
+  const cartOverlay = document.querySelector(".cart-overlay");
 
   // Verificar que existen todos los elementos clave del carrito
   if (!cartIcon || !cartPanel || !cartCount || !cartItemsList || !cartTotal || !checkoutBtn) {
@@ -154,7 +155,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateCartUI();
   });
 
-  const cartOverlay = document.querySelector(".cart-overlay");
+
 
     if (cartIcon && cartPanel && cartOverlay) {
     cartIcon.addEventListener("click", () => {
