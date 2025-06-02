@@ -11,7 +11,7 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary,
   params: {
-    folder: 'perfiles', // Nombre de carpeta en tu cuenta Cloudinary
+    folder: 'vampipcs_profiles', // Nombre de carpeta en tu cuenta Cloudinary
     allowed_formats: ['jpg', 'png', 'jpeg'],
   },
 });
