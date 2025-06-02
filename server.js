@@ -11,6 +11,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
+const { storage } = require('../config/cloudinary');
 const multer = require('multer');
 const fs = require('fs');
 
@@ -45,32 +46,8 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// Configuración multer para subir archivos
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, 'public/uploads'));
-  },
-  filename: function (req, file, cb) {
-    // Para evitar duplicados, guardamos con el id del usuario + extensión
-    const ext = path.extname(file.originalname);
-    cb(null, req.user._id + ext);
-  }
-});
 
-const upload = multer({
-  storage: storage,
-  fileFilter: function (req, file, cb) {
-    const allowedTypes = /jpeg|jpg|png|gif/;
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedTypes.test(file.mimetype);
-    if (extname && mimetype) {
-      return cb(null, true);
-    } else {
-      cb(new Error('Solo imágenes jpg, jpeg, png y gif'));
-    }
-  },
-  limits: { fileSize: 1024 * 1024 * 5 } // máximo 5MB
-});
+const upload = multer({ storage });
 
 
 // --- Conexión a MongoDB ---
@@ -249,17 +226,18 @@ app.post('/profile/upload-photo', isAuthenticated, upload.single('profilePic'), 
   try {
     if (!req.file) return res.status(400).send('No se subió ninguna imagen.');
 
-    // Guardamos la ruta relativa en el usuario
+    // ⚠️ Cloudinary devuelve la URL en req.file.path
     const user = await User.findById(req.user._id);
-    user.profilePhoto = `/uploads/${req.file.filename}`;
+    user.profilePhoto = req.file.path; // esta es la URL de Cloudinary
     await user.save();
 
     res.send({ message: 'Foto de perfil actualizada.', photoUrl: user.profilePhoto });
   } catch (error) {
-    console.error(error);
+    console.error('❌ Error al subir la foto:', error);
     res.status(500).send('Error al subir la foto.');
   }
 });
+
 
 // --- Iniciar servidor ---
 app.listen(PORT, () => {
