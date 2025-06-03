@@ -204,11 +204,11 @@ router.post('/reset-password/:token', async (req, res) => {
       return res.status(400).json({ message: '⚠️ Token inválido o expirado' });
     }
 
-    user.password = await bcrypt.hash(password, 10);
+    user.password = password; // ⚠️ Ya no usar bcrypt aquí
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
 
-    await user.save();
+    await user.save(); // El pre('save') lo encripta correctamente
 
     return res.status(200).json({ message: '✅ Contraseña actualizada correctamente' });
   } catch (err) {
