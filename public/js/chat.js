@@ -61,7 +61,7 @@ subChatItems.forEach(item => {
     currentRoom = room;
     chatTitle.textContent = roomName;
     chatBox.innerHTML = '';
-    chatAvatar.src = `/public/img/${room}.jpg`;
+    chatAvatar.src = `/img/${room}.jpg`;
 
     socket.emit('joinRoom', currentRoom);
 
