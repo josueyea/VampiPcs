@@ -212,56 +212,55 @@ io.on('connection', socket => {
     socket.emit('roomMessages', messages);
   });
 
-  socket.on('joinSupportRoom', async (type) => {
-    try {
-      if (!staffRoleMap[type]) {
-        socket.emit('errorMessage', 'Tipo de soporte no válido');
-        return;
-      }
-
-      // Buscar un staff con el rol necesario (aquí ejemplo: el primero que encuentra)
-      const staffUser = await User.findOne({ role: staffRoleMap[type] });
-
-      if (!staffUser) {
-        socket.emit('errorMessage', 'No hay personal disponible en este momento');
-        return;
-      }
-
-      // Crear nombre de sala privada único entre usuario y staff
-      const userId = socket.user._id.toString();
-      const staffId = staffUser._id.toString();
-
-      // Sala privada ordenada para evitar duplicados
-      const privateRoom = [userId, staffId].sort().join('_');
-
-      // Unir usuario a la sala privada
-      socket.join(privateRoom);
-
-      // Aquí, si quieres, une también al staff (si está conectado)
-      // Supongamos que guardas los sockets de cada staff para hacer join:
-      const staffSockets = findSocketsByUserId(staffId);
-      staffSockets.forEach(s => s.join(privateRoom));
-
-      // Enviar mensaje predeterminado SOLO a la sala privada
-      io.to(privateRoom).emit('message', {
-        sender: { username: 'Sistema', profilePhoto: '/img/toji.jpg' },
-        message: defaultMessages[type],
-        timestamp: new Date(),
-        room: privateRoom
-      });
-
-      // Enviar confirmación al usuario con el nombre de la sala privada
-      socket.emit('joinedPrivateRoom', { room: privateRoom, type });
-
-      // Opcional: cargar historial de mensajes de esta sala privada y enviarlos
-      // const messages = await Message.find({ room: privateRoom });
-      // socket.emit('roomMessages', messages);
-
-    } catch (error) {
-      console.error('Error en joinSupportRoom:', error);
-      socket.emit('errorMessage', 'Error al unirse a la sala');
+ socket.on('joinSupportRoom', async (type) => {
+  let privateRoom = null;
+  try {
+    if (!staffRoleMap[type]) {
+      socket.emit('errorMessage', 'Tipo de soporte no válido');
+      return;
     }
-  });
+
+    // Buscar staff con rol necesario
+    const staffUser = await User.findOne({ role: staffRoleMap[type] });
+
+    if (!staffUser) {
+      socket.emit('errorMessage', 'No hay personal disponible en este momento');
+      return;
+    }
+
+    const userId = socket.user._id.toString();
+    const staffId = staffUser._id.toString();
+
+    privateRoom = [userId, staffId].sort().join('_');
+
+    socket.join(privateRoom);
+
+    // Unir sockets del staff
+    const staffSockets = findSocketsByUserId(staffId);
+    staffSockets.forEach(s => s.join(privateRoom));
+
+    // Enviar mensaje predeterminado solo UNA vez
+    io.to(privateRoom).emit('message', {
+      sender: { username: 'Sistema', profilePhoto: '/img/toji.jpg' },
+      message: defaultMessages[type],
+      timestamp: new Date(),
+      room: privateRoom
+    });
+
+    socket.emit('joinedPrivateRoom', { room: privateRoom, type });
+
+    // Opcional: enviar historial de mensajes
+    // const messages = await Message.find({ room: privateRoom });
+    // socket.emit('roomMessages', messages);
+
+  } catch (error) {
+    console.error('Error en joinSupportRoom:', error);
+    socket.emit('errorMessage', 'Error al unirse a la sala');
+  }
+
+  // NO repetir este emit fuera del try/catch
+});
+
 
   // Función auxiliar para buscar sockets activos por userId
   function findSocketsByUserId(userId) {

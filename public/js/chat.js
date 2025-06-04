@@ -57,10 +57,6 @@ subChatItems.forEach(item => {
     if (!roomType) return;
 
     if (roomType === currentRoom) return;
-
-    currentRoom = roomType;
-    chatTitle.textContent = item.textContent.trim();
-    chatBox.innerHTML = '';
     
     // Emitir evento para unirse a sala privada de soporte
     socket.emit('joinSupportRoom', roomType);
@@ -71,6 +67,9 @@ subChatItems.forEach(item => {
 socket.on('joinedPrivateRoom', ({ room, type }) => {
   currentRoom = room;
   console.log('Unido a sala privada:', room);
+
+  chatBox.innerHTML = '';
+  chatTitle.textContent = type;
 
   // Actualiza el avatar si quieres (ejemplo)
   chatAvatar.src = `/img/${type}.jpg`;
