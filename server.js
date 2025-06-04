@@ -162,6 +162,15 @@ const publicRooms = [
   'admins'
 ];
 
+// Mapea el tipo de sala con el rol del staff asignado
+const staffRoleMap = {
+  'soporte-general': 'soporte',
+  'tecnico': 'tecnico',
+  'vendedores': 'vendedor',
+  'moderadores': 'moderador',
+  'admins': 'admin'
+};
+
 io.on('connection', socket => {
   console.log('Usuario conectado:', socket.user.username);
 
@@ -202,6 +211,68 @@ io.on('connection', socket => {
 
     socket.emit('roomMessages', messages);
   });
+
+  socket.on('joinSupportRoom', async (type) => {
+    try {
+      if (!staffRoleMap[type]) {
+        socket.emit('errorMessage', 'Tipo de soporte no válido');
+        return;
+      }
+
+      // Buscar un staff con el rol necesario (aquí ejemplo: el primero que encuentra)
+      const staffUser = await User.findOne({ role: staffRoleMap[type] });
+
+      if (!staffUser) {
+        socket.emit('errorMessage', 'No hay personal disponible en este momento');
+        return;
+      }
+
+      // Crear nombre de sala privada único entre usuario y staff
+      const userId = socket.user._id.toString();
+      const staffId = staffUser._id.toString();
+
+      // Sala privada ordenada para evitar duplicados
+      const privateRoom = [userId, staffId].sort().join('_');
+
+      // Unir usuario a la sala privada
+      socket.join(privateRoom);
+
+      // Aquí, si quieres, une también al staff (si está conectado)
+      // Supongamos que guardas los sockets de cada staff para hacer join:
+      const staffSockets = findSocketsByUserId(staffId);
+      staffSockets.forEach(s => s.join(privateRoom));
+
+      // Enviar mensaje predeterminado SOLO a la sala privada
+      io.to(privateRoom).emit('message', {
+        sender: { username: 'Sistema', profilePhoto: '/img/toji.jpg' },
+        message: defaultMessages[type],
+        timestamp: new Date(),
+        room: privateRoom
+      });
+
+      // Enviar confirmación al usuario con el nombre de la sala privada
+      socket.emit('joinedPrivateRoom', { room: privateRoom, type });
+
+      // Opcional: cargar historial de mensajes de esta sala privada y enviarlos
+      // const messages = await Message.find({ room: privateRoom });
+      // socket.emit('roomMessages', messages);
+
+    } catch (error) {
+      console.error('Error en joinSupportRoom:', error);
+      socket.emit('errorMessage', 'Error al unirse a la sala');
+    }
+  });
+
+  // Función auxiliar para buscar sockets activos por userId
+  function findSocketsByUserId(userId) {
+    const sockets = [];
+    for (const [id, s] of io.of("/").sockets) {
+      if (s.user && s.user._id.toString() === userId) {
+        sockets.push(s);
+      }
+    }
+    return sockets;
+  }
 
   // Recibir mensaje en sala pública
   socket.on('chatMessage', async (data) => {

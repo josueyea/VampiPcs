@@ -53,18 +53,36 @@ function appendMessage({ sender, message, timestamp }, isOwn = false) {
 // Unirse a sala
 subChatItems.forEach(item => {
   item.addEventListener('click', () => {
-    const room = item.getAttribute('data-room');
-    console.log('Unido a sala:', room);
+    const roomType = item.getAttribute('data-room'); // ej: soporte-general, tecnico, vendedores...
+    if (!roomType) return;
 
-    if (room === currentRoom) return;
+    if (roomType === currentRoom) return;
 
-    currentRoom = room;
+    currentRoom = roomType;
     chatTitle.textContent = item.textContent.trim();
     chatBox.innerHTML = '';
-    chatAvatar.src = `/img/${room}.jpg`;
-
-    socket.emit('joinRoom', currentRoom);
+    
+    // Emitir evento para unirse a sala privada de soporte
+    socket.emit('joinSupportRoom', roomType);
   });
+});
+
+// Cuando el backend confirma la unión a la sala privada
+socket.on('joinedPrivateRoom', ({ room, type }) => {
+  currentRoom = room;
+  console.log('Unido a sala privada:', room);
+
+  // Actualiza el avatar si quieres (ejemplo)
+  chatAvatar.src = `/img/${type}.jpg`;
+
+  // Aquí podrías cargar mensajes previos o dejar que se carguen con 'roomMessages'
+});
+
+// Mostrar mensajes recibidos
+socket.on('message', (data) => {
+  if (data.room === currentRoom) {
+    appendMessage(data, data.sender._id === userID);
+  }
 });
 
 // Submenús
