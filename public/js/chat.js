@@ -1,112 +1,112 @@
-// Simula usuario actual (en app real, obténlo del backend o sesión)
-const currentUser = {
-  _id: 'user123',
-  username: 'Mi Usuario',
-  profilePhoto: 'https://i.pravatar.cc/150?img=5'
-};
-
-// Define las salas disponibles con nombre y avatar para mostrar
-const chatRooms = {
-  soporte: {
-    name: "Soporte VampiPCs",
-    avatar: "/public/img/toji.jpg"
-  },
-  usuarios: {
-    name: "Chat Entre Usuarios",
-    avatar: "https://i.pravatar.cc/150?img=7"
-  },
-  vendedores: {
-    name: "Chat Vendedores",
-    avatar: "https://i.pravatar.cc/150?img=8"
-  },
-  asesoria: {
-    name: "Chat Asesoría",
-    avatar: "https://i.pravatar.cc/150?img=9"
+const socket = io({
+  query: {
+    userID: localStorage.getItem('userID') // Asegúrate de setear esto al loguear
   }
+});
+
+const chatBox = document.getElementById('chatBox');
+const msgInput = document.getElementById('msgInput');
+const chatForm = document.getElementById('chatForm');
+const chatTitle = document.getElementById('chatTitle');
+const chatListItems = document.querySelectorAll('.chat-list li');
+const avatar = document.querySelector('.chat-avatar');
+
+const avatars = {
+  soporte: '/public/img/soporte.png',
+  usuarios: '/public/img/usuarios.png',
+  vendedores: '/public/img/vendedor.png',
+  asesoria: '/public/img/asesoria.png'
 };
 
-const socket = io();
-
-// Referencias DOM
-const chatList = document.querySelectorAll('.chat-list li');
-const chatTitle = document.getElementById('chatTitle');
-const chatAvatar = document.querySelector('.chat-avatar');
-const chatBox = document.getElementById('chatBox');
-const chatForm = document.getElementById('chatForm');
-const msgInput = document.getElementById('msgInput');
+const defaultMessages = {
+  soporte: '¡Hola! ¿En qué podemos ayudarte hoy? 😊',
+  usuarios: 'Puedes chatear con otros usuarios aquí 🧑‍🤝‍🧑',
+  vendedores: 'Habla directamente con nuestros vendedores 🧑‍💻',
+  asesoria: 'Bienvenido al área de asesoría técnica 📘'
+};
 
 let currentRoom = 'soporte';
+socket.emit('joinRoom', currentRoom);
+loadRoomUI(currentRoom);
 
-// Cambiar sala y actualizar UI
-function joinRoom(room) {
-  if (room === currentRoom) return; // ya en esa sala
-  socket.emit('leaveRoom', currentRoom);
-  currentRoom = room;
-  socket.emit('joinRoom', currentRoom);
+// --- Eventos de interfaz ---
+chatListItems.forEach(item => {
+  item.addEventListener('click', () => {
+    const room = item.dataset.room;
+    if (room !== currentRoom) {
+      currentRoom = room;
+      socket.emit('joinRoom', currentRoom);
+      chatBox.innerHTML = '';
+      loadRoomUI(room);
 
-  // Actualiza título y avatar
-  chatTitle.textContent = chatRooms[room].name;
-  chatAvatar.src = chatRooms[room].avatar;
+      // Mensaje predeterminado
+      const msg = {
+        sender: { username: 'Sistema', profilePhoto: '/public/img/logo.png' },
+        message: defaultMessages[room],
+        timestamp: new Date()
+      };
+      appendMessage(msg, false);
+    }
+  });
+});
 
-  chatBox.innerHTML = ''; // Limpia chat al cambiar sala
-}
+chatForm.addEventListener('submit', e => {
+  e.preventDefault();
+  const message = msgInput.value.trim();
+  if (message) {
+    socket.emit('chatMessage', {
+      room: currentRoom,
+      message
+    });
+    msgInput.value = '';
+  }
+});
 
-// Renderizar un mensaje en el chat
-function renderMessage(msg) {
-  const div = document.createElement('div');
-  div.classList.add('message');
-  if (msg.sender._id === currentUser._id) div.classList.add('you');
+// --- Recibir mensaje ---
+socket.on('message', data => {
+  const isOwnMessage = data.sender._id === socket.userID;
+  appendMessage(data, isOwnMessage);
+});
 
-  div.innerHTML = `
-    <img class="msg-avatar" src="${msg.sender.profilePhoto}" alt="${msg.sender.username}" />
+socket.on('chatHistory', messages => {
+  chatBox.innerHTML = '';
+  messages.forEach(msg => appendMessage(msg, msg.sender._id === socket.userID));
+});
+
+// --- Función para añadir mensaje al DOM ---
+function appendMessage(data, isOwnMessage) {
+  const msgEl = document.createElement('div');
+  msgEl.classList.add('message');
+  if (isOwnMessage || data.sender.username === 'Tú') msgEl.classList.add('you');
+
+  const photo = data.sender.profilePhoto || '/public/img/default-avatar.png';
+  const time = formatTime(new Date(data.timestamp));
+
+  msgEl.innerHTML = `
+    <img src="${photo}" alt="avatar" class="msg-avatar">
     <div class="msg-content">
       <div class="msg-header">
-        <span class="msg-username">${msg.sender.username}</span>
-        <span class="msg-time">${new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+        <strong>${data.sender.username}</strong>
+        <span class="msg-time">${time}</span>
       </div>
-      <p>${msg.message}</p>
+      <p>${data.message}</p>
     </div>
   `;
-
-  chatBox.appendChild(div);
+  chatBox.appendChild(msgEl);
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// Eventos para cambiar de sala al hacer click
-chatList.forEach(li => {
-  li.addEventListener('click', () => {
-    joinRoom(li.getAttribute('data-room'));
-  });
-});
+// --- Cambiar título y avatar ---
+function loadRoomUI(room) {
+  chatTitle.textContent = capitalizeFirst(room);
+  avatar.src = avatars[room] || '/public/img/default-avatar.png';
+}
 
-// Al conectarse, unirse a la sala inicial
-socket.on('connect', () => {
-  socket.emit('joinRoom', currentRoom);
-});
+// --- Utilidades ---
+function formatTime(date) {
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+}
 
-// Recibir historial de mensajes de la sala
-socket.on('roomMessages', (messages) => {
-  chatBox.innerHTML = '';
-  messages.forEach(renderMessage);
-});
-
-// Recibir mensaje nuevo
-socket.on('message', (msg) => {
-  if (msg.room === currentRoom) {
-    renderMessage(msg);
-  }
-});
-
-// Enviar mensaje
-chatForm.addEventListener('submit', e => {
-  e.preventDefault();
-  const text = msgInput.value.trim();
-  if (!text) return;
-
-  socket.emit('chatMessage', {
-    room: currentRoom,
-    message: text,
-    sender: currentUser
-  });
-  msgInput.value = '';
-});
+function capitalizeFirst(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
