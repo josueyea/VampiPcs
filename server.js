@@ -221,7 +221,7 @@ io.on('connection', socket => {
 
     await newMsg.save();
 
-    const populatedMsg = await newMsg.populate('sender', 'username profilePhoto').execPopulate();
+    const populatedMsg = await newMsg.populate('sender', 'username profilePhoto');
 
     io.to(room).emit('message', {
       message: populatedMsg.message,
@@ -270,7 +270,7 @@ io.on('connection', socket => {
 
     await newMsg.save();
 
-    const populatedMsg = await newMsg.populate('sender', 'username profilePhoto').execPopulate();
+    const populatedMsg = await newMsg.populate('sender', 'username profilePhoto');
 
     io.to(roomName).emit('message', {
       message: populatedMsg.message,
