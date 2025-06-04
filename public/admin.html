@@ -342,9 +342,9 @@
     async function cargarDatos() {
       try {
         const [usuariosRes, presupuestosRes, soporteRes] = await Promise.all([
-          fetch('/admin/usuarios'),
-          fetch('/admin/presupuestos'),
-          fetch('/admin/soporte')
+          fetch('/api/admin/usuarios'),
+          fetch('/api/admin/presupuestos'),
+          fetch('/api/admin/soporte')
         ]);
 
         usuariosData = await usuariosRes.json();
