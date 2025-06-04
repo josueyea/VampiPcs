@@ -54,6 +54,7 @@ function appendMessage({ sender, message, timestamp }, isOwn = false) {
 subChatItems.forEach(item => {
   item.addEventListener('click', () => {
     const room = item.getAttribute('data-room');
+    console.log('Intentando unirse a la sala:', room);
     const roomName = item.textContent.trim();
 
     if (room === currentRoom) return;
@@ -101,13 +102,15 @@ chatForm.addEventListener('submit', e => {
 
 // Recibir mensajes nuevos en la sala actual
 socket.on('message', data => {
+    console.log('Mensaje nuevo recibido:', data);
   if (data.room === currentRoom && data.sender._id !== userID) {
     appendMessage(data);
   }
 });
 
 // Recibir historial de mensajes al unirse a sala
-socket.on('roomMessages', messages => {
+socket.on('roomMessages', messages => { 
+    console.log('Historial recibido:', messages);
   chatBox.innerHTML = ''; // Limpiar chat antes de cargar historial
   messages.forEach(msg => {
     appendMessage(msg, msg.sender._id === userID);

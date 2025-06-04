@@ -197,6 +197,7 @@ io.on('connection', socket => {
 
   // Recibir mensaje en sala pública
   socket.on('chatMessage', async (data) => {
+    console.log('Mensaje recibido:', data);
     const { room, message } = data;
 
     if (!publicRooms.includes(room)) {
