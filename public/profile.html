@@ -406,7 +406,7 @@
         const user = await res.json();
         document.getElementById('username').value = user.username || '';
         document.getElementById('email').value = user.email || '';
-        profilePic.src = user.profilePic || '/img/default-avatar.png';
+        profilePic.src = user.profilePic ? user.profilePic + '?t=' + new Date().getTime() : '/public/img/usuario.png';
 
         document.getElementById('loader').style.display = 'none';
         document.getElementById('welcome').style.display = 'block';
