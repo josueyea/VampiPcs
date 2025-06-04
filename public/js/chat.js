@@ -66,22 +66,27 @@ subChatItems.forEach(item => {
 // Cuando el backend confirma la unión a la sala privada
 socket.on('joinedPrivateRoom', ({ room, type }) => {
   currentRoom = room;
-  console.log('Unido a sala privada:', room);
+  console.log(`Unido a sala privada: ${room} (Soporte: ${type})`);
+  
+  // Limpiar chat o actualizar vista
+  clearMessages(); // <-- función que borra el chat anterior si tienes una
 
-  chatBox.innerHTML = '';
-  chatTitle.textContent = type;
+  // Mostrar que está en una sala privada (opcional)
+  document.getElementById('roomName').textContent = `Soporte: ${type}`;
 
-  // Actualiza el avatar si quieres (ejemplo)
-  chatAvatar.src = `/img/${type}.jpg`;
-
-  // Aquí podrías cargar mensajes previos o dejar que se carguen con 'roomMessages'
+  // También podrías cargar historial si se envía después
 });
 
 // Mostrar mensajes recibidos
-socket.on('message', (data) => {
-  if (data.room === currentRoom) {
-    appendMessage(data, data.sender._id === userID);
+socket.on('message', (msg) => {
+  if (msg.room === currentRoom) {
+    displayMessage(msg); // función para renderizar en pantalla
   }
+});
+
+// Mostrar errores
+socket.on('errorMessage', (msg) => {
+  alert(msg); // o mostrar en la interfaz
 });
 
 // Submenús
