@@ -23,6 +23,21 @@ router.get('/google/callback',
   }
 );
 
+router.get('/success', (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ message: 'No autorizado' });
+  }
+
+  res.json({
+    user: {
+      _id: req.user._id,
+      username: req.user.username || req.user.displayName,
+      email: req.user.email,
+      profilePhoto: req.user.profilePhoto || (req.user.photos && req.user.photos[0]?.value) || '',
+    }
+  });
+});
+
 // Logout
 router.get('/logout', (req, res) => {
   req.logout(() => {

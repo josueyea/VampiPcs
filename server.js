@@ -394,6 +394,8 @@ app.post('/admin/make-admin', isAuthenticated, isAdmin, async (req, res) => {
   }
 });
 
+
+
 // Ruta para subir foto de perfil
 app.post('/profile/upload-photo', isAuthenticated, upload.single('profilePic'), async (req, res) => {
   try {

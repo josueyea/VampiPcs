@@ -365,5 +365,34 @@ overlay.addEventListener('click', () => {
   overlay.classList.remove('show');
 });
 
+async function fetchLoggedUser() {
+  try {
+    const response = await fetch('https://vampipcs.onrender.com/auth/success', {
+      credentials: 'include', // para enviar cookies de sesión
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+
+      localStorage.setItem('userID', data.user._id);
+      localStorage.setItem('username', data.user.username);
+      localStorage.setItem('profilePhoto', data.user.profilePhoto);
+
+      console.log('Usuario cargado en localStorage:', data.user);
+    } else {
+      console.log('No hay usuario logueado');
+      localStorage.removeItem('userID');
+      localStorage.removeItem('username');
+      localStorage.removeItem('profilePhoto');
+    }
+  } catch (error) {
+    console.error('Error al obtener usuario logueado:', error);
+  }
+}
+
+// Ejecutar al cargar la página
+fetchLoggedUser();
+
+
 // ===== Cargar estado usuario al cargar la ventana =====
 window.addEventListener('load', verificarUsuario);
