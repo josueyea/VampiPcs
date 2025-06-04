@@ -54,24 +54,16 @@ function appendMessage({ sender, message, timestamp }, isOwn = false) {
 subChatItems.forEach(item => {
   item.addEventListener('click', () => {
     const room = item.getAttribute('data-room');
-    console.log('Intentando unirse a la sala:', room);
-    const roomName = item.textContent.trim();
+    console.log('Unido a sala:', room);
 
     if (room === currentRoom) return;
 
     currentRoom = room;
-    chatTitle.textContent = roomName;
-    chatBox.innerHTML = ''; // Limpiar chat antes de cargar nuevos mensajes
+    chatTitle.textContent = item.textContent.trim();
+    chatBox.innerHTML = '';
     chatAvatar.src = `/img/${room}.jpg`;
 
     socket.emit('joinRoom', currentRoom);
-
-    // Mensaje de bienvenida
-    appendMessage({
-      sender: { username: 'Sistema', profilePhoto: '/img/toji.jpg' },
-      message: defaultMessages[room] || 'Bienvenido al chat.',
-      timestamp: new Date()
-    });
   });
 });
 
@@ -102,7 +94,7 @@ chatForm.addEventListener('submit', e => {
 
 // Recibir mensajes nuevos en la sala actual
 socket.on('message', data => {
-    console.log('Mensaje nuevo recibido:', data);
+  console.log('Mensaje nuevo recibido:', data);
   if (data.room === currentRoom && data.sender._id !== userID) {
     appendMessage(data);
   }
@@ -110,11 +102,21 @@ socket.on('message', data => {
 
 // Recibir historial de mensajes al unirse a sala
 socket.on('roomMessages', messages => { 
-    console.log('Historial recibido:', messages);
+  console.log('Historial recibido:', messages);
   chatBox.innerHTML = ''; // Limpiar chat antes de cargar historial
-  messages.forEach(msg => {
-    appendMessage(msg, msg.sender._id === userID);
-  });
+
+  if (messages.length === 0) {
+    // Mostrar mensaje predeterminado solo si no hay mensajes previos
+    appendMessage({
+      sender: { username: 'Sistema', profilePhoto: '/img/toji.jpg' },
+      message: defaultMessages[currentRoom] || 'Bienvenido al chat.',
+      timestamp: new Date()
+    });
+  } else {
+    messages.forEach(msg => {
+      appendMessage(msg, msg.sender._id === userID);
+    });
+  }
 });
 
 // Auto-cargar primer chat al iniciar
