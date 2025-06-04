@@ -1,15 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
+const Usuario = require('../models/User');
 const Presupuesto = require('../models/Presupuesto');
 const Soporte = require('../models/Soporte'); // si tienes este modelo
 
 // Obtener todos los usuarios
 router.get('/usuarios', async (req, res) => {
   try {
-    const usuarios = await User.find();
+    const usuarios = await Usuario.find();
+    console.log('Usuarios cargados:', usuarios);
     res.json(usuarios);
   } catch (err) {
+    console.error('Error al obtener usuarios:', err);   
     res.status(500).json({ error: 'Error al obtener usuarios' });
   }
 });
