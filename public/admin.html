@@ -337,7 +337,7 @@
     </section>
   </div>
 
-  <script>
+  <script> 
     // ----- DATOS DE PRUEBA SIMULADOS -----
     async function cargarDatos() {
       try {
@@ -426,19 +426,43 @@
 
     // ----- FUNCIONES DE USUARIOS -----
     function editarUsuario(id) {
-      let usuario = usuariosData.find((u) => u.id === id);
+      const usuario = usuariosData.find((u) => u.id === id);
       if (!usuario) return alert("Usuario no encontrado");
-      let nuevoRol = prompt(
-        `Editar rol para ${usuario.username} (admin/moderador/usuario):`,
-        usuario.rol
-      );
-      if (nuevoRol && ["admin", "moderador", "usuario"].includes(nuevoRol.toLowerCase())) {
-        usuario.rol = nuevoRol.toLowerCase();
-        alert("Rol actualizado.");
-        renderUsuarios();
-      } else {
-        alert("Rol inválido.");
+
+      const nuevoRol = prompt(`Editar rol para ${usuario.username} (admin/moderador/usuario):`, usuario.rol);
+      if (!["admin", "moderador", "usuario"].includes(nuevoRol?.toLowerCase())) {
+        return alert("Rol inválido.");
       }
+
+      const nuevoEstado = prompt(`Editar estado para ${usuario.username} (activo/inactivo):`, usuario.estado);
+      if (!["activo", "inactivo"].includes(nuevoEstado?.toLowerCase())) {
+        return alert("Estado inválido.");
+      }
+
+      // Actualizar en el frontend
+      usuario.rol = nuevoRol.toLowerCase();
+      usuario.estado = nuevoEstado.toLowerCase();
+
+      // Enviar al backend
+      fetch(`/api/admin/usuarios/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ rol: usuario.rol, estado: usuario.estado }),
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error("Error al actualizar usuario");
+          return res.json();
+        })
+        .then(() => {
+          alert("Usuario actualizado correctamente.");
+          renderUsuarios();
+        })
+        .catch((err) => {
+          console.error(err);
+          alert("Error al actualizar en la base de datos.");
+        });
     }
     function eliminarUsuario(id) {
       if (confirm("¿Estás seguro de eliminar este usuario?")) {

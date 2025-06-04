@@ -39,6 +39,17 @@ const userSchema = new mongoose.Schema({
     default: '/uploads/usuario.png' // o la ruta a una imagen por defecto
   },
 
+  rol: {
+    type: String,
+    enum: ['usuario', 'admin', 'vendedor', 'soporte'],
+    default: 'usuario'
+  },
+  estado: {
+    type: String,
+    enum: ['activo', 'suspendido'],
+    default: 'activo'
+  },
+
 }, { timestamps: true });
 
 // Middleware para convertir email a minúsculas antes de guardar (por si no usas lowercase)

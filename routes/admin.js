@@ -38,4 +38,27 @@ router.get('/soporte', async (req, res) => {
   }
 });
 
+// Actualizar rol de usuario
+router.put('/usuarios/:id/rol', async (req, res) => {
+  try {
+    const { rol } = req.body;
+    await Usuario.findByIdAndUpdate(req.params.id, { rol });
+    res.json({ mensaje: 'Rol actualizado correctamente' });
+  } catch (err) {
+    res.status(500).json({ error: 'Error al actualizar rol' });
+  }
+});
+
+// Actualizar estado de usuario
+router.put('/usuarios/:id/estado', async (req, res) => {
+  try {
+    const { estado } = req.body;
+    await Usuario.findByIdAndUpdate(req.params.id, { estado });
+    res.json({ mensaje: 'Estado actualizado correctamente' });
+  } catch (err) {
+    res.status(500).json({ error: 'Error al actualizar estado' });
+  }
+});
+
+
 module.exports = router;
