@@ -16,14 +16,16 @@ const nodemailer = require('nodemailer');
 const { storage } = require('./config/cloudinary');
 const multer = require('multer');
 const fs = require('fs');
-const server = http.createServer(app);
-const io = socketio(server);
+
 
 require('./passport');
 const { isAuthenticated, isAdmin } = require('./middlewares/auth');
 const User = require('./models/User');
 
 const app = express();
+
+const server = http.createServer(app);
+const io = socketio(server);
 
 
 // --- CORS ---
