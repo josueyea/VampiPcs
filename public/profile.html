@@ -295,7 +295,7 @@
 
     <section id="profile-section" style="display:none;">
       <!-- Foto de perfil -->
-      <img id="profile-pic" src="{{ user.profilePhoto }}" alt="Foto de perfil" title="Haz clic para cambiar foto" />
+      <img id="profile-pic" src="/images/default-user.png " alt="Foto de perfil" title="Haz clic para cambiar foto" />
       <input type="file" id="profile-pic-input" accept="image/png, image/jpeg" />
       <p id="upload-hint">Haz clic en la imagen para cambiarla</p>
 
@@ -404,18 +404,31 @@
         if (!res.ok) throw new Error('No autorizado');
 
         const user = await res.json();
+        console.log('👤 Usuario:', user);
+
+        // Mostrar imagen de perfil (Cloudinary o imagen por defecto)
+        const img = document.getElementById('profile-photo');
+        if (user.profilePhoto) {
+          img.src = user.profilePhoto + '?t=' + new Date().getTime(); // evitar caché
+        } else {
+          img.src = '/images/default-user.png'; // ruta de imagen por defecto
+        }
+
+        // Mostrar datos del usuario
         document.getElementById('username').value = user.username || '';
         document.getElementById('email').value = user.email || '';
-        profilePic.src = user.profilePic ? user.profilePic + '?t=' + new Date().getTime() : '/uploads/usuario.png';
 
+        // Mostrar secciones y mensaje
         document.getElementById('loader').style.display = 'none';
         document.getElementById('welcome').style.display = 'block';
         document.getElementById('welcome').textContent = `¡Hola, ${user.username || 'usuario'}!`;
         document.getElementById('profile-section').style.display = 'block';
-      } catch {
+      } catch (error) {
+        console.error('❌ Error al cargar perfil:', error);
         document.getElementById('loader').textContent = 'No se pudo cargar el perfil.';
       }
     }
+
 
     // Actualizar perfil (nombre usuario)
     document.getElementById('profile-form').addEventListener('submit', async e => {
