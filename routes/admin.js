@@ -39,26 +39,28 @@ router.get('/soporte', async (req, res) => {
 });
 
 // Actualizar rol de usuario
-router.put('/usuarios/:id/rol', async (req, res) => {
+// Actualizar tanto rol como estado del usuario
+router.put('/usuarios/:id', async (req, res) => {
   try {
-    const { rol } = req.body;
-    await Usuario.findByIdAndUpdate(req.params.id, { rol });
-    res.json({ mensaje: 'Rol actualizado correctamente' });
+    const { rol, estado } = req.body;
+    const id = req.params.id;
+
+    console.log('ID recibido en PUT /usuarios/:id:', id);
+    console.log('Datos recibidos:', { rol, estado });
+
+    const usuario = await Usuario.findByIdAndUpdate(id, { rol, estado });
+
+    if (!usuario) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    res.json({ mensaje: 'Usuario actualizado correctamente' });
   } catch (err) {
-    res.status(500).json({ error: 'Error al actualizar rol' });
+    console.error('Error al actualizar usuario:', err);
+    res.status(500).json({ error: 'Error al actualizar usuario' });
   }
 });
 
-// Actualizar estado de usuario
-router.put('/usuarios/:id/estado', async (req, res) => {
-  try {
-    const { estado } = req.body;
-    await Usuario.findByIdAndUpdate(req.params.id, { estado });
-    res.json({ mensaje: 'Estado actualizado correctamente' });
-  } catch (err) {
-    res.status(500).json({ error: 'Error al actualizar estado' });
-  }
-});
 
 
 module.exports = router;

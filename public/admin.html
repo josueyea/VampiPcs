@@ -445,10 +445,11 @@
       usuario.estado = nuevoEstado.toLowerCase();
 
       // Enviar al backend
+      console.log("ID del usuario a actualizar:", id);
       fetch(`/api/admin/usuarios/${id}`, {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json", 
         },
         body: JSON.stringify({ rol: usuario.rol, estado: usuario.estado }),
       })
