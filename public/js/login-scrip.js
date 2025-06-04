@@ -66,6 +66,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+localStorage.setItem('userID', data.user._id);
+localStorage.setItem('username', data.user.username);
+localStorage.setItem('profilePhoto', data.user.profilePhoto || '');
+
 // Validar confirmación de password y feedback para registro
 
 const registerForm = document.querySelector('.form-box.register form');

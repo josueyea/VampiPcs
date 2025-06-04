@@ -135,17 +135,19 @@ const MessageModel = mongoose.model('Message', messageSchema);
 
 // --- Middleware autenticación Socket.IO ---
 io.use(async (socket, next) => {
-  try {
-    const userID = socket.handshake.query.userID;
-    if (!userID) return next(new Error('No userID en query'));
+  const userID = socket.handshake.query.userID;
 
-    const user = await User.findById(userID).select('_id username profilePhoto');
+  if (!userID) return next(new Error('No userID'));
+
+  try {
+    const user = await User.findById(userID);
     if (!user) return next(new Error('Usuario no encontrado'));
 
     socket.user = user;
     next();
   } catch (err) {
-    next(err);
+    console.error('Error de autenticación socket:', err);
+    return next(new Error('Error de autenticación'));
   }
 });
 
