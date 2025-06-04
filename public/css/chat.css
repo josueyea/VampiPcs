@@ -230,6 +230,7 @@ body {
   display: none;
   margin-top: 0.5rem;
   margin-left: 1rem;
+  list-style: none;
 }
 
 .chat-category.active .sub-chat-list {
@@ -247,5 +248,30 @@ body {
 
 .sub-chat-list li:hover {
   background-color: #22b455;
+  color: #000;
+}
+
+.sub-chat-list.open {
+  display: block;
+}
+
+.sub-chat-list {
+  display: none;
+  list-style: none;
+  padding-left: 15px;
+  margin-top: 0.3rem;
+}
+
+.sub-chat-list.open {
+  display: block;
+}
+
+.category-title {
+  cursor: pointer;
+  border-radius: 10px;
+  transition: background-color 0.3s;
+}
+
+.category-title:hover {
   color: #000;
 }
