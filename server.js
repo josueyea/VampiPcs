@@ -275,6 +275,6 @@ app.post('/profile/upload-photo', isAuthenticated, upload.single('profilePic'), 
 
 
 // --- Iniciar servidor ---
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`🚀 Servidor escuchando en el puerto ${PORT}`);
 });
