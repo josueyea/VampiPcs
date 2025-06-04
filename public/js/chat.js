@@ -37,7 +37,7 @@ function appendMessage({ sender, message, timestamp }, isOwn = false) {
   if (isOwn) msg.classList.add('you');
 
   msg.innerHTML = `
-    <img src="${sender.profilePhoto || '/public/img/default.jpg'}" class="msg-avatar" />
+    <img src="${sender.profilePhoto || '/img/toji.jpg'}" class="msg-avatar" />
     <div class="msg-content">
       <div class="msg-header">
         <span>${sender.username}</span>
@@ -67,7 +67,7 @@ subChatItems.forEach(item => {
 
     // Mensaje de bienvenida
     appendMessage({
-      sender: { username: 'Sistema', profilePhoto: '/public/img/logo.png' },
+      sender: { username: 'Sistema', profilePhoto: '/img/logo.png' },
       message: defaultMessages[room] || 'Bienvenido al chat.',
       timestamp: new Date()
     });
