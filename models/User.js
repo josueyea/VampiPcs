@@ -36,7 +36,7 @@ const userSchema = new mongoose.Schema({
 
   profilePhoto: {
     type: String,
-    default: '/public/img/usuario.png' // o la ruta a una imagen por defecto
+    default: '/uploads/usuario.png' // o la ruta a una imagen por defecto
   },
 
 }, { timestamps: true });

@@ -295,7 +295,7 @@
 
     <section id="profile-section" style="display:none;">
       <!-- Foto de perfil -->
-      <img id="profile-pic" src="/public/img/usuario.png" alt="Foto de perfil" title="Haz clic para cambiar foto" />
+      <img id="profile-pic" src="/uploads/usuario.png" alt="Foto de perfil" title="Haz clic para cambiar foto" />
       <input type="file" id="profile-pic-input" accept="image/png, image/jpeg" />
       <p id="upload-hint">Haz clic en la imagen para cambiarla</p>
 
@@ -406,7 +406,7 @@
         const user = await res.json();
         document.getElementById('username').value = user.username || '';
         document.getElementById('email').value = user.email || '';
-        profilePic.src = user.profilePic ? user.profilePic + '?t=' + new Date().getTime() : '/public/img/usuario.png';
+        profilePic.src = user.profilePic ? user.profilePic + '?t=' + new Date().getTime() : '/uploads/usuario.png';
 
         document.getElementById('loader').style.display = 'none';
         document.getElementById('welcome').style.display = 'block';
