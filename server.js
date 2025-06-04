@@ -16,6 +16,8 @@ const nodemailer = require('nodemailer');
 const { storage } = require('./config/cloudinary');
 const multer = require('multer');
 const fs = require('fs');
+const server = http.createServer(app);
+const io = socketio(server);
 
 io.on('connection', socket => {
   console.log('Usuario conectado');
