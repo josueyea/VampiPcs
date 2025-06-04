@@ -60,7 +60,7 @@ subChatItems.forEach(item => {
 
     currentRoom = room;
     chatTitle.textContent = roomName;
-    chatBox.innerHTML = '';
+    chatBox.innerHTML = ''; // Limpiar chat antes de cargar nuevos mensajes
     chatAvatar.src = `/img/${room}.jpg`;
 
     socket.emit('joinRoom', currentRoom);
@@ -99,21 +99,22 @@ chatForm.addEventListener('submit', e => {
   msgInput.value = '';
 });
 
-// Recibir mensajes
+// Recibir mensajes nuevos en la sala actual
 socket.on('message', data => {
   if (data.room === currentRoom && data.sender._id !== userID) {
     appendMessage(data);
   }
 });
 
-// Historial
-socket.on('chatHistory', messages => {
+// Recibir historial de mensajes al unirse a sala
+socket.on('roomMessages', messages => {
+  chatBox.innerHTML = ''; // Limpiar chat antes de cargar historial
   messages.forEach(msg => {
     appendMessage(msg, msg.sender._id === userID);
   });
 });
 
-// Auto-cargar primer chat
+// Auto-cargar primer chat al iniciar
 window.addEventListener('DOMContentLoaded', () => {
   const firstRoom = document.querySelector('.sub-chat-list li');
   if (firstRoom) firstRoom.click();
