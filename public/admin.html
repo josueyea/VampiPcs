@@ -339,67 +339,29 @@
 
   <script>
     // ----- DATOS DE PRUEBA SIMULADOS -----
-    let usuariosData = [
-      {
-        id: "1",
-        username: "admin",
-        email: "admin@ejemplo.com",
-        rol: "admin",
-        estado: "activo",
-      },
-      {
-        id: "2",
-        username: "usuario1",
-        email: "user1@ejemplo.com",
-        rol: "usuario",
-        estado: "activo",
-      },
-      {
-        id: "3",
-        username: "mod1",
-        email: "mod1@ejemplo.com",
-        rol: "moderador",
-        estado: "inactivo",
-      },
-    ];
+    async function cargarDatos() {
+      try {
+        const [usuariosRes, presupuestosRes, soporteRes] = await Promise.all([
+          fetch('/api/admin/usuarios'),
+          fetch('/api/admin/presupuestos'),
+          fetch('/api/admin/soporte')
+        ]);
 
-    let presupuestosData = [
-      {
-        _id: "p1",
-        usuarioId: usuariosData[1],
-        componentes: [
-          { categoria: "CPU", nombre: "Intel i7", precio: 1200 },
-          { categoria: "RAM", nombre: "16GB DDR4", precio: 300 },
-        ],
-        incluyeMontaje: true,
-        total: 1600,
-      },
-      {
-        _id: "p2",
-        usuarioId: usuariosData[2],
-        componentes: [
-          { categoria: "GPU", nombre: "NVIDIA RTX 3080", precio: 2500 },
-          { categoria: "SSD", nombre: "1TB NVMe", precio: 400 },
-        ],
-        incluyeMontaje: false,
-        total: 2900,
-      },
-    ];
+        usuariosData = await usuariosRes.json();
+        presupuestosData = await presupuestosRes.json();
+        soporteData = await soporteRes.json();
 
-    let soporteData = [
-      {
-        id: "t1",
-        usuario: usuariosData[1],
-        mensaje: "No puedo acceder a mi cuenta.",
-        estado: "abierto",
-      },
-      {
-        id: "t2",
-        usuario: usuariosData[2],
-        mensaje: "Problemas con el pago.",
-        estado: "cerrado",
-      },
-    ];
+        renderDashboard();
+        renderUsuarios();
+        renderPresupuestos();
+        renderSoporte();
+      } catch (error) {
+        console.error("Error al cargar datos:", error);
+        alert("Error al cargar datos del servidor.");
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', cargarDatos);
 
     // ----- FUNCIONES DE NAVEGACION ENTRE TABS -----
     const tabs = document.querySelectorAll(".tab");

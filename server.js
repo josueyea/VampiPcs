@@ -116,6 +116,9 @@ const presupuestoRoutes = require('./routes/presupuesto');
 const apiRoutes = require('./routes/api');
 app.use('/presupuesto', presupuestoRoutes);
 app.use('/api', apiRoutes);
+const adminRoutes = require('./routes/admin');
+app.use('/api/admin', adminRoutes);
+
 
 
 // --- Nodemailer ---
