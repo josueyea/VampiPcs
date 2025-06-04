@@ -413,8 +413,8 @@
           <td>${u.rol}</td>
           <td>${u.estado}</td>
           <td>
-            <button onclick="editarUsuario('${u.id}')">Editar</button>
-            <button class="danger" onclick="eliminarUsuario('${u.id}')">Eliminar</button>
+            <button onclick="editarUsuario('${u_id}')">Editar</button>
+            <button class="danger" onclick="eliminarUsuario('${u_id}')">Eliminar</button>
           </td>`;
         tbodyUsuarios.appendChild(tr);
       });
@@ -426,7 +426,7 @@
 
     // ----- FUNCIONES DE USUARIOS -----
     function editarUsuario(id) {
-      const usuario = usuariosData.find((u) => u.id === id);
+      const usuario = usuariosData.find((u) => u_id === id);
       if (!usuario) return alert("Usuario no encontrado");
 
       const nuevoRol = prompt(`Editar rol para ${usuario.username} (admin/moderador/usuario):`, usuario.rol);
