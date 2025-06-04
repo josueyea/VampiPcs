@@ -19,24 +19,6 @@ const fs = require('fs');
 const server = http.createServer(app);
 const io = socketio(server);
 
-io.on('connection', socket => {
-  console.log('Usuario conectado');
-
-  socket.on('joinRoom', room => {
-    socket.join(room);
-  });
-
-  socket.on('chatMessage', async ({ room, message, sender }) => {
-    const msg = new Message({ sender, room, message });
-    await msg.save();
-    io.to(room).emit('message', { sender, message, timestamp: Date.now() });
-  });
-
-  socket.on('disconnect', () => {
-    console.log('Usuario desconectado');
-  });
-});
-
 require('./passport');
 const { isAuthenticated, isAdmin } = require('./middlewares/auth');
 const User = require('./models/User');
@@ -140,6 +122,23 @@ app.use('/api', apiRoutes);
 const adminRoutes = require('./routes/admin');
 app.use('/api/admin', adminRoutes);
 
+io.on('connection', socket => {
+  console.log('Usuario conectado');
+
+  socket.on('joinRoom', room => {
+    socket.join(room);
+  });
+
+  socket.on('chatMessage', async ({ room, message, sender }) => {
+    const msg = new Message({ sender, room, message });
+    await msg.save();
+    io.to(room).emit('message', { sender, message, timestamp: Date.now() });
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Usuario desconectado');
+  });
+});
 
 
 // --- Nodemailer ---
