@@ -233,6 +233,33 @@
     .resumen-box li {
       margin: 5px 0;
     }
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+    .modal.hidden {
+      display: none;
+    }
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+    }
   </style>
 </head>
 
@@ -471,33 +498,36 @@
     document.getElementById("filtroEstado").addEventListener("change", renderUsuarios);
 
     // ----- FUNCIONES DE USUARIOS -----
+
+    let usuarioEditandoId = null;
+
     function editarUsuario(id) {
       const usuario = usuariosData.find((u) => (u.id || u._id) === id);
       if (!usuario) return alert("Usuario no encontrado");
 
-      const nuevoRol = prompt(`Editar rol para ${usuario.username} (admin/moderador/usuario):`, usuario.rol);
-      if (!["admin", "moderador", "usuario"].includes(nuevoRol?.toLowerCase())) {
-        return alert("Rol inválido.");
-      }
+      document.getElementById("editUserId").value = id;
+      document.getElementById("editUserRol").value = usuario.rol;
+      document.getElementById("editUserEstado").value = usuario.estado;
+      document.getElementById("modalEditarUsuario").classList.remove("hidden");
+      document.getElementById("formEditarUsuario").addEventListener("submit", function (e) {
+      e.preventDefault();
 
-      const nuevoEstado = prompt(`Editar estado para ${usuario.username} (activo/inactivo):`, usuario.estado);
-      if (!["activo", "inactivo"].includes(nuevoEstado?.toLowerCase())) {
-        return alert("Estado inválido.");
-      }
+      const id = document.getElementById("editUserId").value;
+      const nuevoRol = document.getElementById("editUserRol").value;
+      const nuevoEstado = document.getElementById("editUserEstado").value;
 
-      // Actualizar en el frontend
-      usuario.rol = nuevoRol.toLowerCase();
-      usuario.estado = nuevoEstado.toLowerCase();
+      const usuario = usuariosData.find((u) => (u.id || u._id) === id);
+      if (!usuario) return alert("Usuario no encontrado");
 
-      // Enviar al backend
-      console.log("ID del usuario a actualizar:", id);
-      
+      usuario.rol = nuevoRol;
+      usuario.estado = nuevoEstado;
+
       fetch(`/api/admin/usuarios/${id}`, {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json", 
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify({ rol: usuario.rol, estado: usuario.estado }),
+        body: JSON.stringify({ rol: nuevoRol, estado: nuevoEstado })
       })
         .then((res) => {
           if (!res.ok) throw new Error("Error al actualizar usuario");
@@ -505,13 +535,20 @@
         })
         .then(() => {
           alert("Usuario actualizado correctamente.");
+          cerrarModal();
           renderUsuarios();
         })
         .catch((err) => {
           console.error(err);
           alert("Error al actualizar en la base de datos.");
         });
+    });
     }
+    
+    function cerrarModal() {
+      document.getElementById("modalEditarUsuario").classList.add("hidden");
+    }
+
     function eliminarUsuario(id) {
       if (confirm("¿Estás seguro de eliminar este usuario?")) {
         usuariosData = usuariosData.filter((u) => u.id !== id);
@@ -771,5 +808,28 @@
 
     document.addEventListener("DOMContentLoaded", initApp);
   </script>
+  <div id="modalEditarUsuario" class="modal hidden">
+  <div class="modal-content">
+    <h3>Editar Usuario</h3>
+    <form id="formEditarUsuario">
+      <input type="hidden" id="editUserId">
+      <label>Rol:</label>
+      <select id="editUserRol">
+        <option value="admin">Admin</option>
+        <option value="moderador">Moderador</option>
+        <option value="usuario">Usuario</option>
+      </select>
+      <label>Estado:</label>
+      <select id="editUserEstado">
+        <option value="activo">Activo</option>
+        <option value="inactivo">Inactivo</option>
+      </select>
+      <div class="modal-actions">
+        <button type="submit">Guardar</button>
+        <button type="button" onclick="cerrarModal()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
 </body>
 </html>
