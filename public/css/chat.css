@@ -48,10 +48,6 @@ body {
   transition: background-color 0.3s;
 }
 
-.chat-list li:hover {
-  background-color: #22b455;
-  color: #000;
-}
 
 /* Chat principal */
 .chat-container {
@@ -187,9 +183,6 @@ body {
   transition: background-color 0.3s;
 }
 
-.chat-input button:hover {
-  background-color: #1aa645;
-}
 
 .chat-input button i {
   color: #000;
@@ -246,11 +239,6 @@ body {
   transition: background 0.3s;
 }
 
-.sub-chat-list li:hover {
-  background-color: #22b455;
-  color: #000;
-}
-
 .sub-chat-list.open {
   display: block;
 }
@@ -270,8 +258,4 @@ body {
   cursor: pointer;
   border-radius: 10px;
   transition: background-color 0.3s;
-}
-
-.category-title:hover {
-  color: #000;
 }

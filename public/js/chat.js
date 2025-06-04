@@ -9,8 +9,12 @@ const msgInput = document.getElementById('msgInput');
 const chatForm = document.getElementById('chatForm');
 const chatTitle = document.getElementById('chatTitle');
 const chatAvatar = document.querySelector('.chat-avatar');
+const categoryItems = document.querySelectorAll('.chat-category');
 const subChatItems = document.querySelectorAll('.sub-chat-list li');
 const categoryTitles = document.querySelectorAll('.category-title');
+const userID = localStorage.getItem('userID');
+const username = localStorage.getItem('username');
+const profilePhoto = localStorage.getItem('profilePhoto');
 
 categoryTitles.forEach(title => {
   title.addEventListener('click', () => {
@@ -24,15 +28,37 @@ categoryTitles.forEach(title => {
 
 let currentRoom = null;
 
-const defaultMessages = {
-  'soporte-general': 'Bienvenido al Soporte General, ¿en qué podemos ayudarte?',
-  'tecnico': 'Bienvenido al Soporte Técnico. Describe tu problema detalladamente.',
-  'chat-general': '¡Bienvenido al chat general entre usuarios!',
-  'intercambios': 'Aquí puedes intercambiar ideas, objetos o consejos entre usuarios.',
-  'vendedores': 'Chatea con nuestros vendedores directamente.',
-  'moderadores': 'Consulta o reporta temas a nuestros moderadores.',
-  'admins': 'Comunícate directamente con el equipo administrativo.'
-};
+document.querySelectorAll('[data-room]').forEach(item => {
+  item.addEventListener('click', () => {
+    const room = item.getAttribute('data-room');
+    const roomName = item.textContent.trim();
+    currentRoom = room;
+
+    chatTitle.textContent = roomName;
+    chatBox.innerHTML = ''; // Limpia el historial anterior
+
+    // Enviar evento para unirse a la sala
+    socket.emit('joinRoom', room);
+
+    // Mensaje predeterminado
+    const defaultMessages = {
+      'soporte-general': '👋 Bienvenido al Soporte General. ¿En qué podemos ayudarte?',
+      'tecnico': '🔧 Bienvenido al Soporte Técnico. Describe tu problema.',
+      'chat-general': '💬 Este es el chat general entre usuarios.',
+      'intercambios': '🔁 Zona de intercambios. Respeta las reglas.',
+      'vendedores': '🧑‍💼 Aquí puedes hablar con nuestros vendedores.',
+      'moderadores': '🔵 Asistencia de moderadores.',
+      'admins': '🔴 Asistencia directa de administración.'
+    };
+
+    const msg = defaultMessages[room] || 'Bienvenido al chat.';
+    displayMessage({
+      sender: { username: 'Sistema', profilePhoto: '/public/img/logo.png' },
+      message: msg,
+      timestamp: new Date().toISOString()
+    });
+  });
+});
 
 // Función para alternar submenús
 categoryItems.forEach(category => {
@@ -140,3 +166,61 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+function displayMessage({ sender, message, timestamp }) {
+  const isCurrentUser = sender._id === currentUserID;
+
+  const msgEl = document.createElement('div');
+  msgEl.classList.add('message');
+  if (isCurrentUser) msgEl.classList.add('you');
+
+  msgEl.innerHTML = `
+    <img src="${sender.profilePhoto || '/public/img/avatar.png'}" class="msg-avatar" />
+    <div class="msg-content">
+      <div class="msg-header">
+        <span>${sender.username}</span>
+        <span class="msg-time">${new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+      </div>
+      <p>${message}</p>
+    </div>
+  `;
+  chatBox.appendChild(msgEl);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+if (!userID) {
+  alert('Inicia sesión primero.');
+  window.location.href = '/login.html';
+} else {
+  const socket = io('https://vampipcs.onrender.com', {
+    query: { userID }
+  });
+
+  // Ya puedes usar el socket
+  socket.on('connect', () => {
+    console.log('Conectado al chat como', username);
+  });
+
+  // Ejemplo de uso:
+  document.querySelectorAll('[data-room]').forEach(item => {
+    item.addEventListener('click', () => {
+      const room = item.dataset.room;
+
+      socket.emit('joinRoom', room); // si usas salas públicas
+
+      // O si usas salas privadas
+      // socket.emit('joinPrivateRoom', { withUserID: otroID });
+
+      document.getElementById('chatTitle').textContent = item.textContent;
+      document.getElementById('chatBox').innerHTML = `
+        <div class="message system">
+          <p>📢 Bienvenido al chat <strong>${item.textContent}</strong></p>
+        </div>
+      `;
+    });
+  });
+
+  // Escuchar mensajes
+  socket.on('message', msg => {
+    renderMessage(msg, userID);
+  });
+}
