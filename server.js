@@ -3,6 +3,8 @@ require('dotenv').config();
 console.log('🚨 El servidor está arrancando...');
 
 const express = require('express');
+const http = require('http');
+const socketio = require('socket.io');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
@@ -15,6 +17,23 @@ const { storage } = require('./config/cloudinary');
 const multer = require('multer');
 const fs = require('fs');
 
+io.on('connection', socket => {
+  console.log('Usuario conectado');
+
+  socket.on('joinRoom', room => {
+    socket.join(room);
+  });
+
+  socket.on('chatMessage', async ({ room, message, sender }) => {
+    const msg = new Message({ sender, room, message });
+    await msg.save();
+    io.to(room).emit('message', { sender, message, timestamp: Date.now() });
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Usuario desconectado');
+  });
+});
 
 require('./passport');
 const { isAuthenticated, isAdmin } = require('./middlewares/auth');
@@ -131,6 +150,12 @@ const transporter = nodemailer.createTransport({
 });
 
 // --- Rutas específicas ---
+
+app.get('/chat', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'chat.html'));
+});
+
+
 app.get('/verify/:token', async (req, res) => {
   try {
     const user = await User.findOne({ emailVerificationToken: req.params.token });
