@@ -406,12 +406,9 @@
         const user = await res.json();
         console.log('👤 Usuario:', user);
 
-        // Mostrar imagen de perfil (Cloudinary o imagen por defecto)
-        const img = document.getElementById('profile-photo');
-        if (user.profilePhoto) {
-          img.src = user.profilePhoto + '?t=' + new Date().getTime(); // evitar caché
-        } else {
-          img.src = '/images/default-user.png'; // ruta de imagen por defecto
+        const img = document.getElementById('profile-pic');
+        if (img && user.profilePhoto) {
+          img.src = user.profilePhoto;
         }
 
         // Mostrar datos del usuario
@@ -425,7 +422,7 @@
         document.getElementById('profile-section').style.display = 'block';
       } catch (error) {
         console.error('❌ Error al cargar perfil:', error);
-        document.getElementById('loader').textContent = 'No se pudo cargar el perfil.';
+        document.getElementById('loader').textContent = 'Error al cargar el perfil.';
       }
     }
 
@@ -503,6 +500,11 @@
         pwBtn.disabled = false;
       }
     });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadUserProfile();
+    });
+
   </script>
   <script src="https://kit.fontawesome.com/a2d9d5f15b.js" crossorigin="anonymous"></script>
   <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
