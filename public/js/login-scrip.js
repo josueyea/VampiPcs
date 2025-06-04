@@ -48,6 +48,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (response.ok) {
           localStorage.setItem('user', JSON.stringify(result.user));
+          localStorage.setItem('userID', result.user._id);
+          localStorage.setItem('username', result.user.username);
+          localStorage.setItem('profilePhoto', result.user.profilePhoto || '');
+
+          console.log(localStorage.getItem('userID')); // ✅ Debería imprimir el ID
           const prevPage = document.referrer;
           if (!prevPage || prevPage.includes('login.html') || prevPage.includes('register.html')) {
             window.location.href = `${window.location.origin}/index.html`;
@@ -64,11 +69,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-});
+}); 
 
-localStorage.setItem('userID', data.user._id);
-localStorage.setItem('username', data.user.username);
-localStorage.setItem('profilePhoto', data.user.profilePhoto || '');
 
 // Validar confirmación de password y feedback para registro
 
