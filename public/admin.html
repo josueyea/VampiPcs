@@ -349,6 +349,7 @@
 
         usuariosData = await usuariosRes.json();
         presupuestosData = await presupuestosRes.json();
+        console.log("Usuarios cargados:", usuariosData);
         soporteData = await soporteRes.json();
 
         renderDashboard();
