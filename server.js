@@ -39,7 +39,7 @@ const PORT = process.env.PORT || 3000;
 const mongoURI = process.env.MONGODB_URI;
 
 // Carpeta para subir fotos de perfil
-const uploadDir = path.join(__dirname, 'public/uploads/profile_photos');
+const uploadDir = path.join(__dirname, '/uploads/profile_photos');
 
 // Crear la carpeta si no existe
 if (!fs.existsSync(uploadDir)) {
