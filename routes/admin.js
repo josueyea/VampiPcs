@@ -5,7 +5,7 @@ const Presupuesto = require('../models/Presupuesto');
 const Soporte = require('../models/Soporte'); // si tienes este modelo
 
 // Obtener todos los usuarios
-router.get('/user', async (req, res) => {
+router.get('/usuarios', async (req, res) => {
   try {
     const usuarios = await Usuario.find();
     res.json(usuarios);
