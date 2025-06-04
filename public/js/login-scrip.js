@@ -47,6 +47,9 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('🧾 Resultado del login:', result);
 
         if (response.ok) {
+
+          console.log('✅ Usuario devuelto del backend:', result.user);
+
           localStorage.setItem('user', JSON.stringify(result.user));
           localStorage.setItem('userID', result.user._id);
           localStorage.setItem('username', result.user.username);
