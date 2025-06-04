@@ -68,7 +68,7 @@ subChatItems.forEach(item => {
 
     // Mensaje de bienvenida
     appendMessage({
-      sender: { username: 'Sistema', profilePhoto: '/img/logo.png' },
+      sender: { username: 'Sistema', profilePhoto: '/img/toji.jpg' },
       message: defaultMessages[room] || 'Bienvenido al chat.',
       timestamp: new Date()
     });

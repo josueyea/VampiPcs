@@ -152,7 +152,15 @@ io.use(async (socket, next) => {
 });
 
 // Salas públicas disponibles
-const publicRooms = ['soporte', 'usuarios', 'vendedores', 'asesoria'];
+const publicRooms = [
+  'soporte-general',
+  'tecnico',
+  'chat-general',
+  'intercambios',
+  'vendedores',
+  'moderadores',
+  'admins'
+];
 
 io.on('connection', socket => {
   console.log('Usuario conectado:', socket.user.username);
