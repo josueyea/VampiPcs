@@ -42,24 +42,31 @@ router.get('/soporte', async (req, res) => {
 // Actualizar tanto rol como estado del usuario
 router.put('/usuarios/:id', async (req, res) => {
   try {
-    const { rol, estado } = req.body;
     const id = req.params.id;
+    const { rol, estado } = req.body;
 
-    console.log('ID recibido en PUT /usuarios/:id:', id);
+    console.log('ID recibido:', id);
     console.log('Datos recibidos:', { rol, estado });
 
-    const usuario = await Usuario.findByIdAndUpdate(id, { rol, estado });
+    const usuario = await Usuario.findById(id);
 
     if (!usuario) {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
 
+    // Actualiza los campos si vienen
+    if (rol !== undefined) usuario.rol = rol;
+    if (estado !== undefined) usuario.estado = estado;
+
+    await usuario.save();
+
     res.json({ mensaje: 'Usuario actualizado correctamente' });
   } catch (err) {
-    console.error('Error al actualizar usuario:', err);
+    console.error(err);
     res.status(500).json({ error: 'Error al actualizar usuario' });
   }
 });
+
 
 
 
