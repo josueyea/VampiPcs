@@ -2,83 +2,141 @@
 <html lang="es">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel de Administrador</title>
-  <link rel="shortcut icon" href="img/toji.jpg" type="image/x-icon">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Panel de Administrador Completo</title>
+  <link rel="shortcut icon" href="img/toji.jpg" type="image/x-icon" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
+    /* ---- Estilos base ---- */
     body {
       margin: 0;
       padding: 2rem;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: "Segoe UI", sans-serif;
       background: linear-gradient(135deg, #121212, #1e1e1e);
       color: #eee;
     }
-
-    h1 {
+    h1,
+    h2 {
       text-align: center;
-      margin-bottom: 2rem;
+      margin-bottom: 1rem;
     }
 
+    /* Contenedor general */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Panel tabs */
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    .tab {
+      background: #22b455;
+      padding: 0.7rem 1.5rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s;
+      font-weight: bold;
+      user-select: none;
+    }
+    .tab.active,
+    .tab:hover {
+      background: #28c76f;
+    }
+
+    /* Secciones visibles */
+    .section {
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+    .section.active {
+      display: block;
+    }
+
+    /* Filtros */
     .filters {
       display: flex;
       flex-wrap: wrap;
       gap: 1rem;
       justify-content: center;
-      margin-bottom: 2rem;
+      margin-bottom: 1rem;
     }
-
-    .filters input {
+    .filters input,
+    .filters select {
       padding: 0.5rem;
       border: none;
       border-radius: 6px;
       font-size: 1rem;
       width: 200px;
+      color: #121212;
     }
 
-    .actions {
+    /* Botones */
+    .actions,
+    .user-actions,
+    .support-actions {
       text-align: center;
       margin-bottom: 1rem;
     }
-
-    .actions button {
+    button {
       background: #22b455;
       color: #fff;
       border: none;
       padding: 0.6rem 1rem;
       border-radius: 6px;
-      margin: 0 0.5rem;
+      margin: 0 0.5rem 0.5rem 0.5rem;
       cursor: pointer;
-      transition: transform 0.2s;
+      transition: transform 0.2s, background 0.3s;
+      font-weight: 600;
     }
-
-    .actions button:hover {
+    button:hover {
       transform: scale(1.05);
       background: #28c76f;
     }
+    button.danger {
+      background: #d9534f;
+    }
+    button.danger:hover {
+      background: #c9302c;
+    }
+    button.secondary {
+      background: #444;
+    }
+    button.secondary:hover {
+      background: #666;
+    }
 
+    /* Tarjetas */
     .card {
       background: rgba(255, 255, 255, 0.05);
       border-radius: 12px;
       padding: 1rem;
       margin-bottom: 1rem;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-      animation: fadeIn 0.5s ease;
       position: relative;
     }
-
-    .card p, .card li {
+    .card p,
+    .card li {
       margin: 0.2rem 0;
     }
-
     .card hr {
       border: 0;
       border-top: 1px solid rgba(255, 255, 255, 0.1);
+      margin: 0.5rem 0;
     }
 
+    /* Acciones dentro de tarjetas */
     .card .card-actions {
       position: absolute;
       top: 10px;
@@ -86,7 +144,6 @@
       display: flex;
       gap: 0.5rem;
     }
-
     .card .card-actions button {
       background: transparent;
       color: #eee;
@@ -97,160 +154,588 @@
       cursor: pointer;
       transition: background 0.2s;
     }
-
     .card .card-actions button:hover {
       background: rgba(255, 255, 255, 0.1);
     }
 
+    /* Tabla simple para usuarios y soporte */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+    th,
+    td {
+      border: 1px solid #444;
+      padding: 0.5rem;
+      text-align: left;
+    }
+    th {
+      background: #22b455;
+    }
+
+    /* Estadísticas dashboard */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 1rem;
+      border-radius: 12px;
+      text-align: center;
+    }
+    .stat-card h3 {
+      margin: 0.5rem 0;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #22b455;
+    }
+
+    /* Animación */
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     @media (max-width: 600px) {
-      .filters input {
+      .filters input,
+      .filters select {
         width: 100%;
+      }
+      .tabs {
+        flex-direction: column;
+        align-items: center;
       }
     }
   </style>
 </head>
 
 <body>
-  <h1>Panel de Presupuestos</h1>
+  <div class="container">
+    <h1>Panel de Administrador Completo</h1>
 
-  <div class="filters">
-    <input type="text" id="filtroUsuario" placeholder="Filtrar por usuario/email">
-    <input type="number" id="minTotal" placeholder="Total mínimo">
-    <input type="number" id="maxTotal" placeholder="Total máximo">
-    <input type="text" id="filtroComponente" placeholder="Filtrar por componente">
+    <!-- Tabs para secciones -->
+    <div class="tabs">
+      <div class="tab active" data-target="dashboard">Dashboard</div>
+      <div class="tab" data-target="usuarios">Usuarios</div>
+      <div class="tab" data-target="presupuestos">Presupuestos</div>
+      <div class="tab" data-target="soporte">Soporte</div>
+      <div class="tab" data-target="configuracion">Configuración</div>
+    </div>
+
+    <!-- SECCION DASHBOARD -->
+    <section id="dashboard" class="section active">
+      <h2>Estadísticas Generales</h2>
+      <div class="stats-grid" id="statsGrid">
+        <!-- Estadísticas se cargan aquí -->
+      </div>
+    </section>
+
+    <!-- SECCION USUARIOS -->
+    <section id="usuarios" class="section">
+      <h2>Gestión de Usuarios</h2>
+      <div class="filters">
+        <input type="text" id="filtroUsuario" placeholder="Buscar por usuario o email" />
+        <select id="filtroRol">
+          <option value="">Todos los roles</option>
+          <option value="admin">Admin</option>
+          <option value="moderador">Moderador</option>
+          <option value="usuario">Usuario</option>
+        </select>
+        <select id="filtroEstado">
+          <option value="">Todos los estados</option>
+          <option value="activo">Activo</option>
+          <option value="inactivo">Inactivo</option>
+        </select>
+      </div>
+      <div class="user-actions">
+        <button onclick="exportarUsuariosExcel()">
+          <i class="fas fa-file-excel"></i> Exportar Usuarios Excel
+        </button>
+      </div>
+      <table id="tablaUsuarios">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- SECCION PRESUPUESTOS -->
+    <section id="presupuestos" class="section">
+      <h2>Gestión de Presupuestos</h2>
+      <div class="filters">
+        <input type="text" id="filtroUsuarioPresupuesto" placeholder="Filtrar por usuario/email" />
+        <input type="number" id="minTotal" placeholder="Total mínimo" />
+        <input type="number" id="maxTotal" placeholder="Total máximo" />
+        <input type="text" id="filtroComponente" placeholder="Filtrar por componente" />
+      </div>
+      <div class="actions">
+        <button onclick="exportarPresupuestosExcel()">
+          <i class="fas fa-file-excel"></i> Exportar Excel
+        </button>
+        <button onclick="exportarPresupuestosPDF()">
+          <i class="fas fa-file-pdf"></i> Exportar PDF
+        </button>
+      </div>
+      <div id="contenedor-presupuestos"></div>
+    </section>
+
+    <!-- SECCION SOPORTE -->
+    <section id="soporte" class="section">
+      <h2>Panel de Soporte</h2>
+      <div class="filters">
+        <input type="text" id="filtroSoporteUsuario" placeholder="Filtrar por usuario" />
+        <select id="filtroEstadoSoporte">
+          <option value="">Todos los estados</option>
+          <option value="abierto">Abierto</option>
+          <option value="cerrado">Cerrado</option>
+        </select>
+      </div>
+      <div class="support-actions">
+        <button onclick="exportarSoporteExcel()">
+          <i class="fas fa-file-excel"></i> Exportar Tickets Excel
+        </button>
+      </div>
+      <table id="tablaSoporte">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Mensaje</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- SECCION CONFIGURACION -->
+    <section id="configuracion" class="section">
+      <h2>Configuración General</h2>
+      <p><strong>Cambiar tema:</strong></p>
+      <button onclick="toggleTema()">Cambiar tema claro/oscuro</button>
+      <p><strong>Configuración de roles:</strong></p>
+      <button onclick="alert('Función de gestión de roles aún no implementada')">Administrar roles y permisos</button>
+      <p><strong>Backup y mantenimiento:</strong></p>
+      <button onclick="alert('Función de backup aún no implementada')">Realizar backup manual</button>
+    </section>
   </div>
-
-  <div class="actions">
-    <button onclick="exportarExcel()"><i class="fas fa-file-excel"></i> Exportar Excel</button>
-    <button onclick="exportarPDF()"><i class="fas fa-file-pdf"></i> Exportar PDF</button>
-  </div>
-
-  <div id="contenedor-presupuestos"></div>
 
   <script>
-    let presupuestosData = [];
+    // ----- DATOS DE PRUEBA SIMULADOS -----
+    let usuariosData = [
+      {
+        id: "1",
+        username: "admin",
+        email: "admin@ejemplo.com",
+        rol: "admin",
+        estado: "activo",
+      },
+      {
+        id: "2",
+        username: "usuario1",
+        email: "user1@ejemplo.com",
+        rol: "usuario",
+        estado: "activo",
+      },
+      {
+        id: "3",
+        username: "mod1",
+        email: "mod1@ejemplo.com",
+        rol: "moderador",
+        estado: "inactivo",
+      },
+    ];
 
-    async function cargarPresupuestos() {
-      try {
-        const res = await fetch('/presupuesto/admin', { credentials: 'include' });
-        if (!res.ok) throw new Error('Error al obtener presupuestos');
-        presupuestosData = await res.json();
-        renderizarPresupuestos(presupuestosData);
-      } catch (err) {
-        alert('Acceso denegado o error al obtener presupuestos');
-        console.error(err);
+    let presupuestosData = [
+      {
+        _id: "p1",
+        usuarioId: usuariosData[1],
+        componentes: [
+          { categoria: "CPU", nombre: "Intel i7", precio: 1200 },
+          { categoria: "RAM", nombre: "16GB DDR4", precio: 300 },
+        ],
+        incluyeMontaje: true,
+        total: 1600,
+      },
+      {
+        _id: "p2",
+        usuarioId: usuariosData[2],
+        componentes: [
+          { categoria: "GPU", nombre: "NVIDIA RTX 3080", precio: 2500 },
+          { categoria: "SSD", nombre: "1TB NVMe", precio: 400 },
+        ],
+        incluyeMontaje: false,
+        total: 2900,
+      },
+    ];
+
+    let soporteData = [
+      {
+        id: "t1",
+        usuario: usuariosData[1],
+        mensaje: "No puedo acceder a mi cuenta.",
+        estado: "abierto",
+      },
+      {
+        id: "t2",
+        usuario: usuariosData[2],
+        mensaje: "Problemas con el pago.",
+        estado: "cerrado",
+      },
+    ];
+
+    // ----- FUNCIONES DE NAVEGACION ENTRE TABS -----
+    const tabs = document.querySelectorAll(".tab");
+    const sections = document.querySelectorAll(".section");
+
+    tabs.forEach((tab) =>
+      tab.addEventListener("click", () => {
+        tabs.forEach((t) => t.classList.remove("active"));
+        tab.classList.add("active");
+
+        sections.forEach((sec) => {
+          sec.classList.remove("active");
+          if (sec.id === tab.dataset.target) {
+            sec.classList.add("active");
+          }
+        });
+      })
+    );
+
+    // ----- RENDERIZADO USUARIOS -----
+    const tbodyUsuarios = document.querySelector("#tablaUsuarios tbody");
+    function renderUsuarios() {
+      let filtroText = document.getElementById("filtroUsuario").value.toLowerCase();
+      let filtroRol = document.getElementById("filtroRol").value;
+      let filtroEstado = document.getElementById("filtroEstado").value;
+
+      tbodyUsuarios.innerHTML = "";
+
+      let filtrados = usuariosData.filter((u) => {
+        let matchesText =
+          u.username.toLowerCase().includes(filtroText) ||
+          u.email.toLowerCase().includes(filtroText);
+        let matchesRol = filtroRol ? u.rol === filtroRol : true;
+        let matchesEstado = filtroEstado ? u.estado === filtroEstado : true;
+        return matchesText && matchesRol && matchesEstado;
+      });
+
+      if (filtrados.length === 0) {
+        tbodyUsuarios.innerHTML =
+          '<tr><td colspan="5" style="text-align:center;">No se encontraron usuarios.</td></tr>';
+        return;
       }
-    }
 
-    function renderizarPresupuestos(data) {
-      const contenedor = document.getElementById('contenedor-presupuestos');
-      contenedor.innerHTML = '';
-
-      data.forEach(p => {
-        const div = document.createElement('div');
-        div.classList.add('card');
-        div.innerHTML = `
-          <div class="card-actions">
-            <button onclick="verDetalles(${p._id ? `'${p._id}'` : `''`})">Ver</button>
-            <button onclick="eliminarPresupuesto('${p._id}')">Eliminar</button>
-          </div>
-          <p><strong>Usuario:</strong> ${p.usuarioId?.username || 'Desconocido'} (${p.usuarioId?.email || 'Sin email'})</p>
-          <ul>${p.componentes.map(c => `<li>${c.categoria}: ${c.nombre} - S/ ${c.precio}</li>`).join('')}</ul>
-          <p><strong>Montaje:</strong> ${p.incluyeMontaje ? 'Sí' : 'No'}</p>
-          <p><strong>Total:</strong> S/ ${p.total.toFixed(2)}</p>
-        `;
-        contenedor.appendChild(div);
+      filtrados.forEach((u) => {
+        let tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${u.username}</td>
+          <td>${u.email}</td>
+          <td>${u.rol}</td>
+          <td>${u.estado}</td>
+          <td>
+            <button onclick="editarUsuario('${u.id}')">Editar</button>
+            <button class="danger" onclick="eliminarUsuario('${u.id}')">Eliminar</button>
+          </td>`;
+        tbodyUsuarios.appendChild(tr);
       });
     }
 
-    function aplicarFiltros() {
-      const usuario = document.getElementById('filtroUsuario').value.toLowerCase();
-      const min = parseFloat(document.getElementById('minTotal').value);
-      const max = parseFloat(document.getElementById('maxTotal').value);
-      const comp = document.getElementById('filtroComponente').value.toLowerCase();
+    document.getElementById("filtroUsuario").addEventListener("input", renderUsuarios);
+    document.getElementById("filtroRol").addEventListener("change", renderUsuarios);
+    document.getElementById("filtroEstado").addEventListener("change", renderUsuarios);
 
-      const filtrado = presupuestosData.filter(p => {
-        const userMatch = p.usuarioId?.username?.toLowerCase().includes(usuario) || p.usuarioId?.email?.toLowerCase().includes(usuario);
-        const totalMatch = (!min || p.total >= min) && (!max || p.total <= max);
-        const compMatch = !comp || p.componentes.some(c => c.nombre.toLowerCase().includes(comp) || c.categoria.toLowerCase().includes(comp));
+    // ----- FUNCIONES DE USUARIOS -----
+    function editarUsuario(id) {
+      let usuario = usuariosData.find((u) => u.id === id);
+      if (!usuario) return alert("Usuario no encontrado");
+      let nuevoRol = prompt(
+        `Editar rol para ${usuario.username} (admin/moderador/usuario):`,
+        usuario.rol
+      );
+      if (nuevoRol && ["admin", "moderador", "usuario"].includes(nuevoRol.toLowerCase())) {
+        usuario.rol = nuevoRol.toLowerCase();
+        alert("Rol actualizado.");
+        renderUsuarios();
+      } else {
+        alert("Rol inválido.");
+      }
+    }
+    function eliminarUsuario(id) {
+      if (confirm("¿Estás seguro de eliminar este usuario?")) {
+        usuariosData = usuariosData.filter((u) => u.id !== id);
+        alert("Usuario eliminado.");
+        renderUsuarios();
+      }
+    }
+
+    function exportarUsuariosExcel() {
+      let wb = XLSX.utils.book_new();
+      let data = usuariosData.map((u) => ({
+        Usuario: u.username,
+        Email: u.email,
+        Rol: u.rol,
+        Estado: u.estado,
+      }));
+      let ws = XLSX.utils.json_to_sheet(data);
+      XLSX.utils.book_append_sheet(wb, ws, "Usuarios");
+      XLSX.writeFile(wb, "usuarios.xlsx");
+    }
+
+    // ----- RENDERIZADO PRESUPUESTOS -----
+    const contenedorPresupuestos = document.getElementById("contenedor-presupuestos");
+    function renderPresupuestos() {
+      let filtroUsuario = document.getElementById("filtroUsuarioPresupuesto").value.toLowerCase();
+      let minTotal = parseFloat(document.getElementById("minTotal").value) || 0;
+      let maxTotal = parseFloat(document.getElementById("maxTotal").value) || Infinity;
+      let filtroComp = document.getElementById("filtroComponente").value.toLowerCase();
+
+      contenedorPresupuestos.innerHTML = "";
+
+      let filtrados = presupuestosData.filter((p) => {
+        let userMatch =
+          p.usuarioId.username.toLowerCase().includes(filtroUsuario) ||
+          p.usuarioId.email.toLowerCase().includes(filtroUsuario);
+        let totalMatch = p.total >= minTotal && p.total <= maxTotal;
+        let compMatch =
+          filtroComp === "" ||
+          p.componentes.some((c) => c.nombre.toLowerCase().includes(filtroComp));
         return userMatch && totalMatch && compMatch;
       });
 
-      renderizarPresupuestos(filtrado);
+      if (filtrados.length === 0) {
+        contenedorPresupuestos.innerHTML =
+          '<p style="text-align:center;">No se encontraron presupuestos.</p>';
+        return;
+      }
+
+      filtrados.forEach((p) => {
+        let card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <h3>Presupuesto ID: ${p._id}</h3>
+          <p><strong>Usuario:</strong> ${p.usuarioId.username} (${p.usuarioId.email})</p>
+          <p><strong>Componentes:</strong></p>
+          <ul>
+            ${p.componentes
+              .map((c) => `<li>${c.categoria}: ${c.nombre} - S/ ${c.precio}</li>`)
+              .join("")}
+          </ul>
+          <p><strong>Incluye montaje:</strong> ${p.incluyeMontaje ? "Sí" : "No"}</p>
+          <p><strong>Total:</strong> S/ ${p.total}</p>
+          <div class="card-actions">
+            <button onclick="verDetallePresupuesto('${p._id}')">Ver detalle</button>
+            <button class="danger" onclick="eliminarPresupuesto('${p._id}')">Eliminar</button>
+          </div>
+        `;
+        contenedorPresupuestos.appendChild(card);
+      });
     }
 
+    // Eventos filtros presupuestos
+    document
+      .getElementById("filtroUsuarioPresupuesto")
+      .addEventListener("input", renderPresupuestos);
+    document.getElementById("minTotal").addEventListener("input", renderPresupuestos);
+    document.getElementById("maxTotal").addEventListener("input", renderPresupuestos);
+    document.getElementById("filtroComponente").addEventListener("input", renderPresupuestos);
+
+    function verDetallePresupuesto(id) {
+      alert("Función para mostrar detalle extendido aún no implementada");
+    }
     function eliminarPresupuesto(id) {
-      if (confirm('¿Estás seguro de eliminar este presupuesto?')) {
-        fetch(`/presupuesto/${id}`, {
-          method: 'DELETE',
-          credentials: 'include'
-        })
-        .then(res => {
-          if (!res.ok) throw new Error('Error al eliminar presupuesto');
-          presupuestosData = presupuestosData.filter(p => p._id !== id);
-          renderizarPresupuestos(presupuestosData);
-        })
-        .catch(err => {
-          alert('Error al eliminar presupuesto');
-          console.error(err);
-        });
+      if (confirm("¿Eliminar este presupuesto?")) {
+        presupuestosData = presupuestosData.filter((p) => p._id !== id);
+        alert("Presupuesto eliminado.");
+        renderPresupuestos();
       }
     }
 
-    function verDetalles(id) {
-      window.location.href = `/presupuesto/${id}`;
-    }
-
-    document.getElementById('filtroUsuario').addEventListener('input', aplicarFiltros);
-    document.getElementById('minTotal').addEventListener('input', aplicarFiltros);
-    document.getElementById('maxTotal').addEventListener('input', aplicarFiltros);
-    document.getElementById('filtroComponente').addEventListener('input', aplicarFiltros);
-
-    function exportarExcel() {
-      const data = presupuestosData.map(p => ({
-        Usuario: p.usuarioId?.username || 'Desconocido',
-        Email: p.usuarioId?.email || '',
-        Componentes: p.componentes.map(c => `${c.categoria}: ${c.nombre} - S/ ${c.precio}`).join(', '),
-        Montaje: p.incluyeMontaje ? 'Sí' : 'No',
-        Total: p.total
+    function exportarPresupuestosExcel() {
+      let wb = XLSX.utils.book_new();
+      let data = presupuestosData.map((p) => ({
+        ID: p._id,
+        Usuario: p.usuarioId.username,
+        Total: p.total,
+        Montaje: p.incluyeMontaje ? "Sí" : "No",
+        Componentes: p.componentes
+          .map((c) => `${c.categoria}: ${c.nombre} (${c.precio} S/)`)
+          .join(", "),
       }));
-
-      const worksheet = XLSX.utils.json_to_sheet(data);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Presupuestos');
-      XLSX.writeFile(workbook, 'presupuestos.xlsx');
+      let ws = XLSX.utils.json_to_sheet(data);
+      XLSX.utils.book_append_sheet(wb, ws, "Presupuestos");
+      XLSX.writeFile(wb, "presupuestos.xlsx");
     }
 
-    function exportarPDF() {
+    function exportarPresupuestosPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
       let y = 10;
-      presupuestosData.forEach(p => {
-        doc.text(`Usuario: ${p.usuarioId?.username || 'Desconocido'} (${p.usuarioId?.email || ''})`, 10, y);
+      doc.setFontSize(16);
+      doc.text("Reporte de Presupuestos", 10, y);
+      y += 10;
+      presupuestosData.forEach((p) => {
+        doc.setFontSize(12);
+        doc.text(`ID: ${p._id}`, 10, y);
         y += 6;
-        p.componentes.forEach(c => {
-          doc.text(`- ${c.categoria}: ${c.nombre} - S/ ${c.precio}`, 12, y);
+        doc.text(`Usuario: ${p.usuarioId.username} (${p.usuarioId.email})`, 10, y);
+        y += 6;
+        doc.text(`Total: S/ ${p.total}`, 10, y);
+        y += 6;
+        doc.text(`Componentes:`, 10, y);
+        y += 6;
+        p.componentes.forEach((c) => {
+          doc.text(`- ${c.categoria}: ${c.nombre} - S/ ${c.precio}`, 14, y);
           y += 6;
+          if (y > 270) {
+            doc.addPage();
+            y = 10;
+          }
         });
-        doc.text(`Montaje: ${p.incluyeMontaje ? 'Sí' : 'No'}`, 10, y);
-        y += 6;
-        doc.text(`Total: S/ ${p.total.toFixed(2)}`, 10, y);
-        y += 10;
+        y += 4;
         if (y > 270) {
           doc.addPage();
           y = 10;
         }
       });
-      doc.save('presupuestos.pdf');
+      doc.save("presupuestos.pdf");
     }
 
-    window.onload = cargarPresupuestos;
+    // ----- RENDERIZADO SOPORTE -----
+    const tbodySoporte = document.querySelector("#tablaSoporte tbody");
+    function renderSoporte() {
+      let filtroUsuario = document.getElementById("filtroSoporteUsuario").value.toLowerCase();
+      let filtroEstado = document.getElementById("filtroEstadoSoporte").value;
+
+      tbodySoporte.innerHTML = "";
+
+      let filtrados = soporteData.filter((t) => {
+        let userMatch = t.usuario.username.toLowerCase().includes(filtroUsuario);
+        let estadoMatch = filtroEstado ? t.estado === filtroEstado : true;
+        return userMatch && estadoMatch;
+      });
+
+      if (filtrados.length === 0) {
+        tbodySoporte.innerHTML =
+          '<tr><td colspan="4" style="text-align:center;">No hay tickets.</td></tr>';
+        return;
+      }
+
+      filtrados.forEach((t) => {
+        let tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${t.usuario.username}</td>
+          <td>${t.mensaje}</td>
+          <td>${t.estado}</td>
+          <td>
+            <button onclick="cerrarTicket('${t.id}')">Cerrar</button>
+            <button class="danger" onclick="eliminarTicket('${t.id}')">Eliminar</button>
+          </td>`;
+        tbodySoporte.appendChild(tr);
+      });
+    }
+
+    document.getElementById("filtroSoporteUsuario").addEventListener("input", renderSoporte);
+    document.getElementById("filtroEstadoSoporte").addEventListener("change", renderSoporte);
+
+    function cerrarTicket(id) {
+      let ticket = soporteData.find((t) => t.id === id);
+      if (ticket) {
+        ticket.estado = "cerrado";
+        alert("Ticket cerrado.");
+        renderSoporte();
+      }
+    }
+    function eliminarTicket(id) {
+      if (confirm("¿Eliminar este ticket?")) {
+        soporteData = soporteData.filter((t) => t.id !== id);
+        alert("Ticket eliminado.");
+        renderSoporte();
+      }
+    }
+
+    function exportarSoporteExcel() {
+      let wb = XLSX.utils.book_new();
+      let data = soporteData.map((t) => ({
+        Usuario: t.usuario.username,
+        Mensaje: t.mensaje,
+        Estado: t.estado,
+      }));
+      let ws = XLSX.utils.json_to_sheet(data);
+      XLSX.utils.book_append_sheet(wb, ws, "Soporte");
+      XLSX.writeFile(wb, "soporte.xlsx");
+    }
+
+    // ----- DASHBOARD -----
+    function renderDashboard() {
+      const statsGrid = document.getElementById("statsGrid");
+      statsGrid.innerHTML = "";
+
+      let totalUsuarios = usuariosData.length;
+      let activos = usuariosData.filter((u) => u.estado === "activo").length;
+      let inactivos = totalUsuarios - activos;
+
+      let totalPresupuestos = presupuestosData.length;
+      let totalMontaje = presupuestosData.filter((p) => p.incluyeMontaje).length;
+
+      let ticketsAbiertos = soporteData.filter((t) => t.estado === "abierto").length;
+      let ticketsCerrados = soporteData.length - ticketsAbiertos;
+
+      let stats = [
+        { label: "Usuarios totales", value: totalUsuarios },
+        { label: "Usuarios activos", value: activos },
+        { label: "Usuarios inactivos", value: inactivos },
+        { label: "Presupuestos totales", value: totalPresupuestos },
+        { label: "Presupuestos con montaje", value: totalMontaje },
+        { label: "Tickets abiertos", value: ticketsAbiertos },
+        { label: "Tickets cerrados", value: ticketsCerrados },
+      ];
+
+      stats.forEach((s) => {
+        let div = document.createElement("div");
+        div.className = "stat-card";
+        div.innerHTML = `<h3>${s.value}</h3><p>${s.label}</p>`;
+        statsGrid.appendChild(div);
+      });
+    }
+
+    // ---- Cambio de tema -----
+    function toggleTema() {
+      if (document.body.style.background.includes("#121212")) {
+        document.body.style.background = "#f0f0f0";
+        document.body.style.color = "#121212";
+      } else {
+        document.body.style.background = "linear-gradient(135deg, #121212, #1e1e1e)";
+        document.body.style.color = "#eee";
+      }
+    }
+
+    // Inicialización
+    function initApp() {
+      renderUsuarios();
+      renderPresupuestos();
+      renderSoporte();
+      renderDashboard();
+    }
+
+    document.addEventListener("DOMContentLoaded", initApp);
   </script>
 </body>
-
 </html>

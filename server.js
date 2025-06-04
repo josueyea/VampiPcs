@@ -117,6 +117,7 @@ const apiRoutes = require('./routes/api');
 app.use('/presupuesto', presupuestoRoutes);
 app.use('/api', apiRoutes);
 
+
 // --- Nodemailer ---
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
