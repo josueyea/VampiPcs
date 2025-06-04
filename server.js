@@ -124,21 +124,157 @@ app.use('/api', apiRoutes);
 const adminRoutes = require('./routes/admin');
 app.use('/api/admin', adminRoutes);
 
-io.on('connection', socket => {
-  console.log('Usuario conectado');
+// Message schema simple (guarda mensajes)
+const messageSchema = new mongoose.Schema({
+  room: String, // nombre de sala única
+  sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  message: String,
+  timestamp: { type: Date, default: Date.now }
+});
+const MessageModel = mongoose.model('Message', messageSchema);
 
-  socket.on('joinRoom', room => {
+// --- Middleware autenticación Socket.IO ---
+io.use(async (socket, next) => {
+  try {
+    const userID = socket.handshake.query.userID;
+    if (!userID) return next(new Error('No userID en query'));
+
+    const user = await User.findById(userID).select('_id username profilePhoto');
+    if (!user) return next(new Error('Usuario no encontrado'));
+
+    socket.user = user;
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Salas públicas disponibles
+const publicRooms = ['soporte', 'usuarios', 'vendedores', 'asesoria'];
+
+io.on('connection', socket => {
+  console.log('Usuario conectado:', socket.user.username);
+
+  // Unirse a sala pública
+  socket.on('joinRoom', async (room) => {
+    if (!publicRooms.includes(room)) {
+      socket.emit('errorMessage', 'Sala no válida');
+      return;
+    }
+
+    // Salir de otras salas públicas (solo 1 sala pública a la vez)
+    publicRooms.forEach(r => {
+      if (r !== room && socket.rooms.has(r)) {
+        socket.leave(r);
+      }
+    });
+
     socket.join(room);
+    console.log(`${socket.user.username} se unió a la sala pública ${room}`);
+
+    // Enviar historial de mensajes de la sala
+    const history = await MessageModel.find({ room })
+      .sort({ timestamp: 1 })
+      .limit(100)
+      .populate('sender', 'username profilePhoto');
+
+    // Mapear datos para frontend
+    const messages = history.map(msg => ({
+      message: msg.message,
+      sender: {
+        _id: msg.sender._id,
+        username: msg.sender.username,
+        profilePhoto: msg.sender.profilePhoto || null
+      },
+      timestamp: msg.timestamp,
+      room: msg.room
+    }));
+
+    socket.emit('roomMessages', messages);
   });
 
-  socket.on('chatMessage', async ({ room, message, sender }) => {
-    const msg = new Message({ sender, room, message });
-    await msg.save();
-    io.to(room).emit('message', { sender, message, timestamp: Date.now() });
+  // Recibir mensaje en sala pública
+  socket.on('chatMessage', async (data) => {
+    const { room, message } = data;
+
+    if (!publicRooms.includes(room)) {
+      socket.emit('errorMessage', 'Sala no válida');
+      return;
+    }
+
+    const newMsg = new MessageModel({
+      room,
+      sender: socket.user._id,
+      message
+    });
+
+    await newMsg.save();
+
+    const populatedMsg = await newMsg.populate('sender', 'username profilePhoto').execPopulate();
+
+    io.to(room).emit('message', {
+      message: populatedMsg.message,
+      sender: {
+        _id: populatedMsg.sender._id,
+        username: populatedMsg.sender.username,
+        profilePhoto: populatedMsg.sender.profilePhoto || null
+      },
+      timestamp: populatedMsg.timestamp,
+      room: populatedMsg.room
+    });
+  });
+
+  // Chat privado: unirse a sala privada con otro usuario
+  socket.on('joinPrivateRoom', async ({ withUserID }) => {
+    const roomName = [socket.user._id.toString(), withUserID].sort().join('_');
+    socket.join(roomName);
+    console.log(`${socket.user.username} se unió a la sala privada ${roomName}`);
+
+    const lastMessages = await MessageModel.find({ room: roomName })
+      .sort({ timestamp: 1 })
+      .limit(50)
+      .populate('sender', 'username profilePhoto');
+
+    socket.emit('chatHistory', lastMessages.map(msg => ({
+      message: msg.message,
+      sender: {
+        _id: msg.sender._id,
+        username: msg.sender.username,
+        profilePhoto: msg.sender.profilePhoto || null
+      },
+      timestamp: msg.timestamp,
+      room: msg.room
+    })));
+  });
+
+  // Recibir y guardar mensaje privado
+  socket.on('privateMessage', async ({ toUserID, message }) => {
+    const roomName = [socket.user._id.toString(), toUserID].sort().join('_');
+
+    const newMsg = new MessageModel({
+      room: roomName,
+      sender: socket.user._id,
+      message
+    });
+
+    await newMsg.save();
+
+    const populatedMsg = await newMsg.populate('sender', 'username profilePhoto').execPopulate();
+
+    io.to(roomName).emit('message', {
+      message: populatedMsg.message,
+      sender: {
+        _id: populatedMsg.sender._id,
+        username: populatedMsg.sender.username,
+        profilePhoto: populatedMsg.sender.profilePhoto || null
+      },
+      timestamp: populatedMsg.timestamp,
+      room: populatedMsg.room
+    });
   });
 
   socket.on('disconnect', () => {
-    console.log('Usuario desconectado');
+    console.log(`Usuario desconectado: ${socket.user.username}`);
   });
 });
 

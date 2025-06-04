@@ -1,8 +1,10 @@
 const mongoose = require('mongoose');
-const MessageSchema = new mongoose.Schema({
-  sender: String,
+
+const messageSchema = new mongoose.Schema({
   room: String,
+  sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   message: String,
   timestamp: { type: Date, default: Date.now }
 });
-module.exports = mongoose.model('Message', MessageSchema);
+
+module.exports = mongoose.model('Message', messageSchema);

@@ -1,25 +1,50 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Chat VampiPCs</title>
-  <link rel="stylesheet" href="/public/css/chat.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet"/>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="css/chat.css">
 </head>
 <body>
-  <div class="chat-container">
-    <h2>VampiPCs Chat</h2>
-    <select id="roomSelector">
-      <option value="soporte">Soporte</option>
-      <option value="usuarios">Entre Usuarios</option>
-      <option value="vendedores">Vendedores</option>
-      <option value="asesoria">Asesoría</option>
-    </select>
-    <div id="chatBox" class="chat-box"></div>
-    <input type="text" id="msgInput" placeholder="Escribe tu mensaje...">
-    <button onclick="sendMessage()">Enviar</button>
+  <div class="chat-app">
+    <aside class="sidebar">
+      <h2>Chats</h2>
+      <ul class="chat-list">
+        <li data-room="soporte">🛠 Soporte</li>
+        <li data-room="usuarios">👥 Entre Usuarios</li>
+        <li data-room="vendedores">🧑‍💻 Vendedores</li>
+        <li data-room="asesoria">📘 Asesoría</li>
+      </ul>
+    </aside>
+
+    <main class="chat-container">
+      <div class="chat-header">
+        <img src="/public/img/toji.jpg" alt="Avatar" class="chat-avatar"/>
+        <div class="chat-info">
+          <h3 id="chatTitle">Soporte VampiPCs</h3>
+          <span>En línea</span>
+        </div>
+      </div>
+
+      <div id="chatBox" class="chat-messages">
+        <!-- Mensajes aquí -->
+      </div>
+
+      <form id="chatForm" class="chat-input">
+        <input type="text" id="msgInput" placeholder="Escribe tu mensaje..." autocomplete="off" required />
+        <button type="submit"><i data-lucide="send"></i></button>
+      </form>
+    </main>
   </div>
-  <script src="/socket.io/socket.io.js"></script>
+
   <script src="chat.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    lucide.createIcons();
+  </script>
 </body>
 </html>
