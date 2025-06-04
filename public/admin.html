@@ -427,6 +427,9 @@
 
     // ----- FUNCIONES DE USUARIOS -----
     function editarUsuario(id) {
+      const id = usuario._id; // aquí obtienes solo el string del id
+
+      console.log("ID que usaré para actualizar:", id); 
       const usuario = usuariosData.find((u) => u.id === id);
       if (!usuario) return alert("Usuario no encontrado");
 
@@ -446,6 +449,7 @@
 
       // Enviar al backend
       console.log("ID del usuario a actualizar:", id);
+      
       fetch(`/api/admin/usuarios/${id}`, {
         method: "PUT",
         headers: {
