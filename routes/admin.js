@@ -30,8 +30,10 @@ router.get('/presupuestos', async (req, res) => {
 router.get('/soporte', async (req, res) => {
   try {
     const tickets = await Soporte.find().populate('usuario');
+    console.log("Tickets soporte:", tickets);
     res.json(tickets);
   } catch (err) {
+    console.error("Error al obtener soporte:", err);
     res.status(500).json({ error: 'Error al obtener soporte' });
   }
 });
