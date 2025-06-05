@@ -160,8 +160,8 @@ io.on('connection', socket => {
     console.log(`${socket.user.username} se unió a ${room}`);
 
     // ✅ Mostrar mensaje predeterminado solo para usuarios normales
-    if (defaultMessages[room] && socket.user.roles.includes('usuario')) {
-      console.log('Enviando mensaje predeterminado:', msg);
+    if (defaultMessages[room]) {
+      console.log('Enviando mensaje predeterminado:', defaultMessages[room]);
       socket.emit('message', {
         sender: { username: 'Sistema', profilePhoto: '/img/toji.jpg' },
         message: defaultMessages[room],
