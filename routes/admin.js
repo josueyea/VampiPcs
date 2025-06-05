@@ -46,7 +46,11 @@ router.put('/usuarios/:id', async (req, res) => {
     const { roles, estado } = req.body;
 
     console.log('ID recibido:', id);
-    console.log('Datos recibidos:', { rol, estado });
+    console.log('Datos recibidos:', { roles, estado });
+
+    if (roles && !Array.isArray(roles)) {
+      return res.status(400).json({ error: "'roles' debe ser un array." });
+    }
 
     const usuario = await Usuario.findById(id);
 
@@ -54,7 +58,6 @@ router.put('/usuarios/:id', async (req, res) => {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
 
-    // Actualiza los campos si vienen
     if (roles !== undefined) usuario.roles = roles;
     if (estado !== undefined) usuario.estado = estado;
 
@@ -62,7 +65,7 @@ router.put('/usuarios/:id', async (req, res) => {
 
     res.json({ mensaje: 'Usuario actualizado correctamente' });
   } catch (err) {
-    console.error(err);
+    console.error("Error al actualizar usuario:", err);
     res.status(500).json({ error: 'Error al actualizar usuario' });
   }
 });
