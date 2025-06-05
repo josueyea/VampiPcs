@@ -64,7 +64,7 @@ router.put('/usuarios/:id', async (req, res) => {
 
       // Usamos Set para evitar duplicados
       const setRoles = new Set([...rolesActuales, ...nuevosRoles]);
-      usuario.roles = Array.from(setRoles);
+      usuario.roles = roles;
     }
 
 
