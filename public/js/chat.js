@@ -128,12 +128,6 @@ chatForm.addEventListener('submit', e => {
 
   socket.emit('chatMessage', { room: currentRoom, message });
 
-  appendMessage({
-    sender: { username: 'Tú', profilePhoto },
-    message,
-    timestamp: new Date()
-  }, true);
-
   msgInput.value = '';
 });
 
