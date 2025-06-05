@@ -16,6 +16,35 @@ const nodemailer = require('nodemailer');
 const { storage } = require('./config/cloudinary');
 const multer = require('multer');
 const fs = require('fs');
+const twilio = require('twilio');
+const accountSid = process.env.TWILIO_SID;
+const authToken = process.env.TWILIO_TOKEN;
+const client = twilio(accountSid, authToken);
+
+// Horario de atención
+const horarioAtencion = {
+  inicio: 9, // 9 AM
+  fin: 18   // 6 PM
+};
+
+function estaDentroDelHorario() {
+  const horaActual = new Date().getHours();
+  return horaActual >= horarioAtencion.inicio && horaActual < horarioAtencion.fin;
+}
+
+// Enviar WhatsApp
+async function enviarNotificacionWhatsApp(numero, mensaje) {
+  try {
+    await client.messages.create({
+      from: 'whatsapp:+14155238886', // Número de Twilio
+      to: `whatsapp:${to+51906034060}`,
+      body: mensaje
+    });
+    console.log('✅ WhatsApp enviado');
+  } catch (err) {
+    console.error('❌ Error enviando WhatsApp:', err.message);
+  }
+}
 
 require('./passport');
 const { isAuthenticated, isAdmin } = require('./middlewares/auth');
@@ -24,7 +53,6 @@ const User = require('./models/User');
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
-
 // --- CORS ---
 const corsOptions = {
   origin: 'https://vampipcs.onrender.com',
@@ -187,33 +215,72 @@ io.on('connection', socket => {
     }
   });
 
-  socket.on('joinSupportRoom', async (type) => {
-    try {
-      if (!staffRoleMap[type]) return socket.emit('errorMessage', 'Tipo de soporte no válido');
+  socket.on('joinSupportRoom', async (roomType) => {
+    const validTypes = ['soporte-general', 'tecnico', 'chat-general', 'intercambios', 'vendedores', 'moderadores', 'admins'];
+    if (!validTypes.includes(roomType)) {
+      return socket.emit('errorMessage', 'Tipo de soporte no válido');
+    }
 
-      const staffUser = await User.findOne({ roles: staffRoleMap[type] });
-      if (!staffUser) return socket.emit('errorMessage', 'No hay personal disponible');
+    let roomName;
 
-      const userId = socket.user._id.toString();
-      const staffId = staffUser._id.toString();
-      const privateRoom = [userId, staffId].sort().join('_');
+    // ✅ Soporte técnico
+    if (roomType === 'tecnico') {
+      if (!estaDentroDelHorario()) {
+        return socket.emit('errorMessage', '📅 El soporte técnico atiende de 9 AM a 6 PM.');
+      }
 
-      socket.join(privateRoom);
+      const staffUser = await User.findOne({ role: 'tecnico' });
+      if (!staffUser) {
+        return socket.emit('errorMessage', '❌ No hay técnico asignado.');
+      }
 
-      const staffSockets = findSocketsByUserId(staffId);
-      staffSockets.forEach(s => s.join(privateRoom));
+      const staffSockets = findSocketsByUserId(staffUser._id.toString());
 
-      io.to(privateRoom).emit('message', {
-        sender: { username: 'Sistema', profilePhoto: '/img/toji.jpg' },
-        message: defaultMessages[type],
-        timestamp: new Date(),
-        room: privateRoom
-      });
+      if (staffSockets.length === 0 && staffUser.phone) {
+        await enviarNotificacionWhatsApp(
+          staffUser.phone,
+          '📲 Un usuario ingresó al soporte técnico. Ingresa a la plataforma para atenderlo.'
+        );
+      }
 
-      socket.emit('joinedPrivateRoom', { room: privateRoom, type });
-    } catch (error) {
-      console.error('Error en joinSupportRoom:', error);
-      socket.emit('errorMessage', 'Error al unirse a la sala');
+      if (socket.userRole === 'tecnico') {
+        // El técnico se une a todas las salas activas
+        const activeUsers = await getActiveTechRooms(); // deberías tener esta función
+        activeUsers.forEach(userID => {
+          socket.join(`tecnico-${userID}`);
+        });
+        return socket.emit('joinedPrivateRoom', { room: null, type: 'tecnico' });
+      } else {
+        // El usuario normal entra a su sala privada con técnicos
+        roomName = `tecnico-${socket.userID}`;
+        socket.join(roomName);
+        socket.emit('joinedPrivateRoom', { room: roomName, type: 'tecnico' });
+
+        // Unir a los técnicos conectados
+        const sockets = await io.fetchSockets();
+        sockets.forEach(s => {
+          if (s.userRole === 'tecnico') {
+            s.join(roomName);
+            s.emit('notificacionSoporte', {
+              room: roomName,
+              username: socket.username
+            });
+          }
+        });
+
+        const messages = await getRoomMessages(roomName);
+        socket.emit('roomMessages', messages);
+      }
+    }
+
+    // ✅ Salas normales (soporte-general, intercambios, etc.)
+    else {
+      roomName = roomType;
+      socket.join(roomName);
+      socket.emit('joinedPrivateRoom', { room: roomName, type: roomType });
+
+      const messages = await getRoomMessages(roomName);
+      socket.emit('roomMessages', messages);
     }
   });
 
