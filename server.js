@@ -140,23 +140,6 @@ const MessageModel = mongoose.model('Message', messageSchema);
 
 const messages = await getRoomMessages(roomName);
 
-async function getRoomMessages(room) {
-  return await MessageModel.find({ room })
-    .sort({ timestamp: 1 })
-    .limit(100)
-    .populate('sender', 'username profilePhoto')
-    .then(messages => messages.map(msg => ({
-      message: msg.message,
-      sender: {
-        _id: msg.sender._id,
-        username: msg.sender.username,
-        profilePhoto: msg.sender.profilePhoto || null
-      },
-      timestamp: msg.timestamp,
-      room: msg.room
-    })));
-}
-
 
 // --- Socket.IO ---
 const defaultMessages = {
