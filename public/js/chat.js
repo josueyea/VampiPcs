@@ -67,7 +67,14 @@ subChatItems.forEach(item => {
     const roomType = item.getAttribute('data-room');
     if (!roomType || roomType === currentRoomType) return;
 
-    socket.emit('joinSupportRoom', roomType);
+    currentRoomType = roomType;
+
+    const supportRooms = ['soporte-general', 'tecnico', 'vendedores', 'moderadores', 'admins'];
+    if (supportRooms.includes(roomType)) {
+      socket.emit('joinSupportRoom', roomType);
+    } else {
+      socket.emit('joinPublicRoom', roomType); // 👈 usa evento nuevo
+    }
   });
 });
 
@@ -131,11 +138,21 @@ chatForm.addEventListener('submit', e => {
 });
 
 // Cargar historial de mensajes
-socket.on('roomMessages', messages => { 
-  console.log('Historial recibido:', messages);
+socket.on('roomMessages', messages => {
   chatBox.innerHTML = '';
 
+  // ✅ Asegúrate de actualizar currentRoom
   if (messages.length > 0) {
+    currentRoom = messages[0].room;
+  }
+
+  if (messages.length === 0) {
+    appendMessage({
+      sender: { username: 'Sistema', profilePhoto: '/img/toji.jpg' },
+      message: defaultMessages[currentRoomType] || 'Bienvenido al chat.',
+      timestamp: new Date()
+    });
+  } else {
     messages.forEach(msg => {
       appendMessage(msg, msg.sender._id === userID);
     });

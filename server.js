@@ -163,7 +163,6 @@ io.on('connection', socket => {
       .sort({ timestamp: 1 })
       .limit(100)
       .populate('sender', 'username profilePhoto');
-      
     console.log('👉 Enviando mensaje del sistema a', socket.user.username);
     socket.emit('roomMessages', history.map(msg => ({
       message: msg.message,
@@ -262,6 +261,50 @@ io.on('connection', socket => {
       timestamp: msg.timestamp,
       room: msg.room
     })));
+  });
+
+  socket.on('joinPublicRoom', async (room) => {
+    try {
+      if (!publicRooms.includes(room)) {
+        return socket.emit('errorMessage', 'Sala pública no válida');
+      }
+
+      publicRooms.forEach(r => {
+        if (r !== room && socket.rooms.has(r)) socket.leave(r);
+      });
+
+      socket.join(room);
+      console.log(`${socket.user.username} se unió a sala pública: ${room}`);
+
+      // Enviar mensaje predeterminado solo a usuarios normales
+      if (defaultMessages[room] && socket.user.roles.includes('usuario')) {
+        socket.emit('message', {
+          sender: { username: 'Sistema', profilePhoto: '/img/toji.jpg' },
+          message: defaultMessages[room],
+          timestamp: new Date(),
+          room
+        });
+      }
+
+      const history = await MessageModel.find({ room })
+        .sort({ timestamp: 1 })
+        .limit(100)
+        .populate('sender', 'username profilePhoto');
+
+      socket.emit('roomMessages', history.map(msg => ({
+        message: msg.message,
+        sender: {
+          _id: msg.sender._id,
+          username: msg.sender.username,
+          profilePhoto: msg.sender.profilePhoto || null
+        },
+        timestamp: msg.timestamp,
+        room: msg.room
+      })));
+    } catch (error) {
+      console.error('Error en joinPublicRoom:', error);
+      socket.emit('errorMessage', 'Error al unirse a la sala pública');
+    }
   });
 
   socket.on('privateMessage', async ({ toUserID, message }) => {
