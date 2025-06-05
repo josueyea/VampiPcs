@@ -165,7 +165,7 @@ const publicRooms = [
 // Mapea el tipo de sala con el rol del staff asignado
 const staffRoleMap = {
   'soporte-general': 'soporte',
-  'tecnico': 'tecnico',
+  'tecnico': 'técnico',
   'vendedores': 'vendedor',
   'moderadores': 'moderador',
   'admins': 'admin'
