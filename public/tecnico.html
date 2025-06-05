@@ -9,38 +9,32 @@
 </head>
 <body>
   <div class="chat-app">
-    <aside class="sidebar">
-        <h2>Solicitudes de Soporte</h2>
-        <ul class="chat-list" id="lista-salas">
-        <!-- Aquí se agregan dinámicamente las salas -->
-        </ul>
-    </aside>
-
-    <section class="chat-container">
-        <header class="chat-header">
-        <div class="chat-info">
-            <h3 id="sala-actual">Selecciona una sala</h3>
-        </div>
-        </header>
-
-        <main class="chat-messages" id="messages">
-        <!-- Aquí van los mensajes -->
-        </main>
-
-        <form id="formulario" class="chat-input">
-        <input
-            type="text"
-            id="input"
-            placeholder="Escribe tu mensaje..."
-            required
-            autocomplete="off"
-        />
-        <button type="submit">
-            <i class="fa fa-paper-plane"></i>
-        </button>
-        </form>
-    </section>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h2>Solicitudes de Soporte</h2>
+      <ul class="chat-list" id="lista-salas"></ul>
     </div>
+
+    <!-- Chat principal -->
+    <div class="chat-container">
+      <div class="chat-header">
+        <img src="https://via.placeholder.com/40" class="chat-avatar" alt="Avatar">
+        <div class="chat-info">
+          <h3 id="sala-actual">Selecciona una sala</h3>
+          <span>Soporte en vivo</span>
+        </div>
+      </div>
+
+      <div class="chat-messages" id="messages">
+        <!-- mensajes aquí -->
+      </div>
+
+      <form class="chat-input" id="formulario">
+        <input type="text" id="input" placeholder="Escribe tu mensaje..." required autocomplete="off" />
+        <button type="submit"><i class="fas fa-paper-plane"></i></button>
+      </form>
+    </div>
+  </div>
 
   <script>
     const socket = io({ withCredentials: true });
