@@ -76,6 +76,12 @@ socket.on('joinedPrivateRoom', ({ room, type }) => {
   console.log(`Unido a sala privada: ${room} (Soporte: ${type})`);
   
   clearMessages();
+
+  const roomNameElement = document.getElementById('roomName');
+  if (roomNameElement) {
+    roomNameElement.textContent = `Soporte: ${type}`;
+  }
+
   document.getElementById('roomName').textContent = `Soporte: ${type}`;
 });
 
@@ -133,6 +139,8 @@ socket.on('roomMessages', messages => {
     });
   }
 });
+
+
 
 // Cargar primer chat automáticamente
 window.addEventListener('DOMContentLoaded', () => {
