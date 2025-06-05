@@ -221,7 +221,6 @@ io.on('connection', socket => {
           }
         });
 
-        const messages = await getRoomMessages(roomName);
         socket.emit('roomMessages', messages);
       }
     } else {
