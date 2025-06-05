@@ -110,6 +110,23 @@ const messageSchema = new mongoose.Schema({
 });
 const MessageModel = mongoose.model('Message', messageSchema);
 
+async function getRoomMessages(room) {
+  const messages = await MessageModel.find({ room })
+    .sort({ timestamp: 1 })
+    .limit(100)
+    .populate('sender', 'username profilePhoto');
+  return messages.map(msg => ({
+    message: msg.message,
+    sender: {
+      _id: msg.sender._id,
+      username: msg.sender.username,
+      profilePhoto: msg.sender.profilePhoto || null
+    },
+    timestamp: msg.timestamp,
+    room: msg.room
+  }));
+}
+
 // --- Socket.IO ---
 const defaultMessages = {
   'soporte-general': 'Hola, bienvenido al soporte general. ¿En qué podemos ayudarte?',
@@ -221,6 +238,7 @@ io.on('connection', socket => {
           }
         });
 
+        const messages = await getRoomMessages(roomName);
         socket.emit('roomMessages', messages);
       }
     } else {
