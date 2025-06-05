@@ -517,9 +517,15 @@
       document.getElementById("formEditarUsuario").addEventListener("submit", function (e) {
       e.preventDefault();
 
+
       const id = document.getElementById("editUserId").value;
-      const nuevoRol = document.getElementById("editUserRol").value;
+      const select = document.getElementById("editUserRol");
+      const nuevosRoles = Array.from(select.selectedOptions).map(opt => opt.value);
       const nuevoEstado = document.getElementById("editUserEstado").value;
+
+      [...select.options].forEach(option => {
+        option.selected = usuario.roles.includes(option.value);
+      });
 
       const usuario = usuariosData.find((u) => (u.id || u._id) === id);
       if (!usuario) return alert("Usuario no encontrado");
@@ -819,7 +825,7 @@
     <form id="formEditarUsuario">
       <input type="hidden" id="editUserId">
       <label>Rol:</label>
-      <select id="editUserRol">
+      <select id="editUserRol" multiple class="w-full p-2 border rounded">
         <option value="admin">Admin</option>
         <option value="moderador">Moderador</option>
         <option value="usuario">Usuario</option>

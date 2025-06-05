@@ -39,7 +39,7 @@ const userSchema = new mongoose.Schema({
     default: '/uploads/usuario.png' // o la ruta a una imagen por defecto
   },
 
-  rol: {
+  roles: {
     type: String,
     enum: ['usuario', 'admin', 'vendedor', 'moderador', 'soporte', 'tecnico'],
     default: 'usuario'

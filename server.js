@@ -180,7 +180,7 @@ io.on('connection', socket => {
     try {
       if (!staffRoleMap[type]) return socket.emit('errorMessage', 'Tipo de soporte no válido');
 
-      const staffUser = await User.findOne({ rol: staffRoleMap[type] });
+      const staffUser = await User.findOne({ roles: staffRoleMap[type] });
       if (!staffUser) return socket.emit('errorMessage', 'No hay personal disponible');
 
       const userId = socket.user._id.toString();

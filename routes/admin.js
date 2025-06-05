@@ -43,7 +43,7 @@ router.get('/soporte', async (req, res) => {
 router.put('/usuarios/:id', async (req, res) => {
   try {
     const id = req.params.id;
-    const { rol, estado } = req.body;
+    const { roles, estado } = req.body;
 
     console.log('ID recibido:', id);
     console.log('Datos recibidos:', { rol, estado });
@@ -55,7 +55,7 @@ router.put('/usuarios/:id', async (req, res) => {
     }
 
     // Actualiza los campos si vienen
-    if (rol !== undefined) usuario.rol = rol;
+    if (roles !== undefined) usuario.roles = roles;
     if (estado !== undefined) usuario.estado = estado;
 
     await usuario.save();
