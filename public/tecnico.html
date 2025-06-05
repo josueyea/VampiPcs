@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Soporte Técnico</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <link rel="stylesheet" href="css/chat.css">
+</head>
+<body>
+  <div id="salas">
+    <h3>Solicitudes de Soporte</h3>
+    <ul id="lista-salas"></ul>
+  </div>
+  <div id="chat">
+    <h3 id="sala-actual">Selecciona una sala</h3>
+    <div id="messages"></div>
+    <form id="formulario">
+      <input type="text" id="input" placeholder="Escribe tu mensaje..." required autocomplete="off" />
+      <button type="submit">Enviar</button>
+    </form>
+  </div>
+
+  <script>
+    const socket = io({ withCredentials: true });
+
+    let salaActual = null;
+
+    socket.on('connect', () => {
+      console.log('🔌 Conectado como técnico');
+      socket.emit('joinSupportRoom', 'tecnico');
+    });
+
+    socket.on('joinedPrivateRoom', data => {
+      console.log('👥 Técnico unido a salas:', data);
+    });
+
+    socket.on('notificacionSoporte', ({ room, username }) => {
+      console.log('📢 Nuevo usuario solicitó soporte:', username);
+      const li = document.createElement('li');
+      li.textContent = username;
+      li.dataset.room = room;
+      li.style.cursor = 'pointer';
+      li.onclick = () => {
+        salaActual = room;
+        document.getElementById('sala-actual').textContent = `Sala: ${username}`;
+        document.getElementById('messages').innerHTML = '';
+        socket.emit('joinRoom', room);
+      };
+      document.getElementById('lista-salas').appendChild(li);
+    });
+
+    socket.on('roomMessages', msgs => {
+      msgs.forEach(msg => mostrarMensaje(msg));
+    });
+
+    socket.on('message', msg => {
+      if (msg.room === salaActual) mostrarMensaje(msg);
+    });
+
+    function mostrarMensaje({ sender, message, timestamp }) {
+      const div = document.createElement('div');
+      div.classList.add('message');
+      div.innerHTML = `<span class="sender">${sender.username}:</span> ${message} <small>(${new Date(timestamp).toLocaleTimeString()})</small>`;
+      document.getElementById('messages').appendChild(div);
+      document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+    }
+
+    document.getElementById('formulario').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = document.getElementById('input');
+      if (!salaActual) return alert('Selecciona una sala');
+      socket.emit('chatMessage', { room: salaActual, message: input.value });
+      input.value = '';
+    });
+  </script>
+</body>
+</html>

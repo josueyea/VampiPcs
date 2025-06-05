@@ -25,6 +25,9 @@ const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
 
+const techSockets = new Map();  // userID => socket
+const userSockets = new Map();  // userID => socket
+
 // --- CORS ---
 const corsOptions = {
   origin: 'https://vampipcs.onrender.com',
