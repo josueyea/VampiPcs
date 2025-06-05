@@ -32,19 +32,7 @@ function estaDentroDelHorario() {
   return horaActual >= horarioAtencion.inicio && horaActual < horarioAtencion.fin;
 }
 
-// Enviar WhatsApp
-async function enviarNotificacionWhatsApp(numero, mensaje) {
-  try {
-    await client.messages.create({
-      from: 'whatsapp:+14155238886', // Número de Twilio
-      to: `whatsapp:${to+51906034060}`,
-      body: mensaje
-    });
-    console.log('✅ WhatsApp enviado');
-  } catch (err) {
-    console.error('❌ Error enviando WhatsApp:', err.message);
-  }
-}
+
 
 require('./passport');
 const { isAuthenticated, isAdmin } = require('./middlewares/auth');
