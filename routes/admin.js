@@ -58,7 +58,16 @@ router.put('/usuarios/:id', async (req, res) => {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
 
-    if (roles !== undefined) usuario.roles = roles;
+    if (roles !== undefined) {
+      const rolesActuales = Array.isArray(usuario.roles) ? usuario.roles : [];
+      const nuevosRoles = Array.isArray(roles) ? roles : [];
+
+      // Usamos Set para evitar duplicados
+      const setRoles = new Set([...rolesActuales, ...nuevosRoles]);
+      usuario.roles = Array.from(setRoles);
+    }
+
+
     if (estado !== undefined) usuario.estado = estado;
 
     await usuario.save();
