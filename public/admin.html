@@ -435,67 +435,70 @@
     // ----- RENDERIZADO USUARIOS -----
     const tbodyUsuarios = document.querySelector("#tablaUsuarios tbody");
     function renderUsuarios() {
-    let filtroText = document.getElementById("filtroUsuario").value.toLowerCase();
-    let filtroRol = document.getElementById("filtroRol").value;
-    let filtroEstado = document.getElementById("filtroEstado").value;
+      let filtroText = document.getElementById("filtroUsuario").value.toLowerCase();
+      let filtroRol = document.getElementById("filtroRol").value;
+      let filtroEstado = document.getElementById("filtroEstado").value;
 
-    tbodyUsuarios.innerHTML = "";
+      tbodyUsuarios.innerHTML = "";
 
-    let filtrados = usuariosData.filter((u) => {
-      let matchesText =
-        u.username.toLowerCase().includes(filtroText) ||
-        u.email.toLowerCase().includes(filtroText);
-      let matchesRol = filtroRol ? u.rol === filtroRol : true;
-      let matchesEstado = filtroEstado ? u.estado === filtroEstado : true;
-      return matchesText && matchesRol && matchesEstado;
-    });
-
-    // ---- ESTADISTICAS DE ROLES ----
-    const resumenContainer = document.getElementById("resumenRoles");
-    resumenContainer.innerHTML = ""; // Limpiar
-
-    if (filtrados.length > 0) {
-      const rolesCount = { admin: 0, moderador: 0, usuario: 0 };
-      filtrados.forEach((u) => {
-        if (rolesCount.hasOwnProperty(u.rol)) {
-          rolesCount[u.rol]++;
-        }
+      let filtrados = usuariosData.filter((u) => {
+        let matchesText =
+          u.username.toLowerCase().includes(filtroText) ||
+          u.email.toLowerCase().includes(filtroText);
+        let matchesRol = filtroRol ? (u.roles && u.roles.includes(filtroRol)) : true;
+        let matchesEstado = filtroEstado ? u.estado === filtroEstado : true;
+        return matchesText && matchesRol && matchesEstado;
       });
 
-      let resumenHTML = `
-        <div class="resumen-box">
-          <strong>Resumen de Roles:</strong>
-          <ul>
-            <li>🛡️ Admins: ${rolesCount.admin}</li>
-            <li>🎯 Moderadores: ${rolesCount.moderador}</li>
-            <li>👤 Usuarios: ${rolesCount.usuario}</li>
-          </ul>
-        </div>
-      `;
-      resumenContainer.innerHTML = resumenHTML;
-    }
+      // ---- ESTADISTICAS DE ROLES ----
+      const resumenContainer = document.getElementById("resumenRoles");
+      resumenContainer.innerHTML = ""; // Limpiar
 
-    // ---- TABLA DE USUARIOS ----
-    if (filtrados.length === 0) {
-      tbodyUsuarios.innerHTML =
-        '<tr><td colspan="5" style="text-align:center;">No se encontraron usuarios.</td></tr>';
-      return;
-    }
+      if (filtrados.length > 0) {
+        const rolesCount = { admin: 0, moderador: 0, usuario: 0 };
+        filtrados.forEach((u) => {
+          if (Array.isArray(u.roles)) {
+            u.roles.forEach(r => {
+              if (rolesCount[r] !== undefined) rolesCount[r]++;
+            });
+          }
+        });
 
-    filtrados.forEach((u) => {
-      let tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${u.username}</td>
-        <td>${u.email}</td>
-        <td>${Array.isArray(u.roles) ? u.roles.join(', ') : u.roles}</td>
-        <td>${u.estado}</td>
-        <td>
-          <button onclick="editarUsuario('${u._id}')">Editar</button>
-          <button class="danger" onclick="eliminarUsuario('${u._id}')">Eliminar</button>
-        </td>`;
-      tbodyUsuarios.appendChild(tr);
-    });
-  }
+
+        let resumenHTML = `
+          <div class="resumen-box">
+            <strong>Resumen de Roles:</strong>
+            <ul>
+              <li>🛡️ Admins: ${rolesCount.admin}</li>
+              <li>🎯 Moderadores: ${rolesCount.moderador}</li>
+              <li>👤 Usuarios: ${rolesCount.usuario}</li>
+            </ul>
+          </div>
+        `;
+        resumenContainer.innerHTML = resumenHTML;
+      }
+
+      // ---- TABLA DE USUARIOS ----
+      if (filtrados.length === 0) {
+        tbodyUsuarios.innerHTML =
+          '<tr><td colspan="5" style="text-align:center;">No se encontraron usuarios.</td></tr>';
+        return;
+      }
+
+      filtrados.forEach((u) => {
+        let tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${u.username}</td>
+          <td>${u.email}</td>
+          <td>${Array.isArray(u.roles) ? u.roles.join(', ') : u.roles}</td>
+          <td>${u.estado}</td>
+          <td>
+            <button onclick="editarUsuario('${u._id}')">Editar</button>
+            <button class="danger" onclick="eliminarUsuario('${u._id}')">Eliminar</button>
+          </td>`;
+        tbodyUsuarios.appendChild(tr);
+      });
+    }
 
 
     document.getElementById("filtroUsuario").addEventListener("input", renderUsuarios);
