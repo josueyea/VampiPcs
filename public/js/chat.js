@@ -123,9 +123,9 @@ chatForm.addEventListener('submit', e => {
 });
 
 // Cargar historial de mensajes
-socket.on('roomMessages', messages => {
+socket.on('roomMessages', messages => { 
   console.log('Historial recibido:', messages);
-  clearMessages();
+  chatBox.innerHTML = '';
 
   if (messages.length === 0) {
     appendMessage({
@@ -139,7 +139,6 @@ socket.on('roomMessages', messages => {
     });
   }
 });
-
 
 
 // Cargar primer chat automáticamente
