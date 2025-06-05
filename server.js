@@ -159,6 +159,16 @@ io.on('connection', socket => {
     socket.join(room);
     console.log(`${socket.user.username} se unió a ${room}`);
 
+    // ✅ Mostrar mensaje predeterminado solo para usuarios normales
+    if (defaultMessages[room] && socket.user.roles.includes('usuario')) {
+      socket.emit('message', {
+        sender: { username: 'Sistema', profilePhoto: '/img/toji.jpg' },
+        message: defaultMessages[room],
+        timestamp: new Date(),
+        room
+      });
+    }
+
     const history = await MessageModel.find({ room })
       .sort({ timestamp: 1 })
       .limit(100)
