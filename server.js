@@ -16,23 +16,6 @@ const nodemailer = require('nodemailer');
 const { storage } = require('./config/cloudinary');
 const multer = require('multer');
 const fs = require('fs');
-const twilio = require('twilio');
-const accountSid = process.env.TWILIO_SID;
-const authToken = process.env.TWILIO_TOKEN;
-const client = twilio(accountSid, authToken);
-
-// Horario de atención
-const horarioAtencion = {
-  inicio: 9, // 9 AM
-  fin: 18   // 6 PM
-};
-
-function estaDentroDelHorario() {
-  const horaActual = new Date().getHours();
-  return horaActual >= horarioAtencion.inicio && horaActual < horarioAtencion.fin;
-}
-
-
 
 require('./passport');
 const { isAuthenticated, isAdmin } = require('./middlewares/auth');
@@ -41,6 +24,7 @@ const User = require('./models/User');
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
+
 // --- CORS ---
 const corsOptions = {
   origin: 'https://vampipcs.onrender.com',
@@ -125,9 +109,6 @@ const messageSchema = new mongoose.Schema({
   timestamp: { type: Date, default: Date.now }
 });
 const MessageModel = mongoose.model('Message', messageSchema);
-
-const messages = await getRoomMessages(roomName);
-
 
 // --- Socket.IO ---
 const defaultMessages = {
@@ -214,40 +195,21 @@ io.on('connection', socket => {
 
     let roomName;
 
-    // ✅ Soporte técnico
+    // ✅ Si es sala de técnico
     if (roomType === 'tecnico') {
-      if (!estaDentroDelHorario()) {
-        return socket.emit('errorMessage', '📅 El soporte técnico atiende de 9 AM a 6 PM.');
-      }
-
-      const staffUser = await User.findOne({ role: 'tecnico' });
-      if (!staffUser) {
-        return socket.emit('errorMessage', '❌ No hay técnico asignado.');
-      }
-
-      const staffSockets = findSocketsByUserId(staffUser._id.toString());
-
-      if (staffSockets.length === 0 && staffUser.phone) {
-        await enviarNotificacionWhatsApp(
-          staffUser.phone,
-          '📲 Un usuario ingresó al soporte técnico. Ingresa a la plataforma para atenderlo.'
-        );
-      }
-
       if (socket.userRole === 'tecnico') {
-        // El técnico se une a todas las salas activas
-        const activeUsers = await getActiveTechRooms(); // deberías tener esta función
+        // Un técnico se une a todas las salas activas
+        const activeUsers = await getActiveTechRooms(); // debes implementarlo
         activeUsers.forEach(userID => {
           socket.join(`tecnico-${userID}`);
         });
-        return socket.emit('joinedPrivateRoom', { room: null, type: 'tecnico' });
+        return socket.emit('joinedPrivateRoom', { room: null, type: 'tecnico' }); // o mostrar lista
       } else {
-        // El usuario normal entra a su sala privada con técnicos
         roomName = `tecnico-${socket.userID}`;
         socket.join(roomName);
         socket.emit('joinedPrivateRoom', { room: roomName, type: 'tecnico' });
 
-        // Unir a los técnicos conectados
+        // Buscar sockets de técnicos conectados y unirlos a esta sala
         const sockets = await io.fetchSockets();
         sockets.forEach(s => {
           if (s.userRole === 'tecnico') {
@@ -262,10 +224,8 @@ io.on('connection', socket => {
         const messages = await getRoomMessages(roomName);
         socket.emit('roomMessages', messages);
       }
-    }
-
-    // ✅ Salas normales (soporte-general, intercambios, etc.)
-    else {
+    } else {
+      // Otras salas normales
       roomName = roomType;
       socket.join(roomName);
       socket.emit('joinedPrivateRoom', { room: roomName, type: roomType });
