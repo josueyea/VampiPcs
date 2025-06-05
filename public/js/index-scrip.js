@@ -390,17 +390,27 @@ async function fetchLoggedUser() {
   }
 }
 
+// En tu JS
 document.getElementById('chatLink').addEventListener('click', e => {
   e.preventDefault();
 
-  const userRole = localStorage.getItem('userRole'); // O donde guardes el rol del usuario
+  // Obtener y parsear roles desde localStorage
+  const rolesJson = localStorage.getItem('userRoles');
+  let roles = [];
+  try {
+    roles = JSON.parse(rolesJson) || [];
+  } catch {
+    roles = [];
+  }
 
-  if (userRole === 'tecnico') {
-    window.location.href = 'tecnico.html'; // redirigir a chat técnico
+  // Prioridad para redireccionar según roles
+  if (roles.includes('tecnico')) {
+    window.location.href = 'tecnico.html';
   } else {
-    window.location.href = 'chat.html'; // redirigir a chat general u otro
+    window.location.href = 'chat.html'; // Chat general para usuarios sin roles especiales
   }
 });
+
 
 
 // Ejecutar al cargar la página
