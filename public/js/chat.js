@@ -19,6 +19,7 @@ const chatAvatar = document.querySelector('.chat-avatar');
 const subChatItems = document.querySelectorAll('.sub-chat-list li');
 
 let currentRoom = null;
+let currentRoomType = null; // Nuevo para mensajes predeterminados
 
 const defaultMessages = {
   'soporte-general': '👋 Bienvenido al Soporte General. ¿En qué podemos ayudarte?',
@@ -50,43 +51,44 @@ function appendMessage({ sender, message, timestamp }, isOwn = false) {
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
+// Limpiar mensajes anteriores
+function clearMessages() {
+  if (chatBox) {
+    chatBox.innerHTML = '';
+  }
+}
+
 // Unirse a sala
 subChatItems.forEach(item => {
   item.addEventListener('click', () => {
-    const roomType = item.getAttribute('data-room'); // ej: soporte-general, tecnico, vendedores...
-    if (!roomType) return;
+    const roomType = item.getAttribute('data-room');
+    if (!roomType || roomType === currentRoomType) return;
 
-    if (roomType === currentRoom) return;
-    
-    // Emitir evento para unirse a sala privada de soporte
     socket.emit('joinSupportRoom', roomType);
   });
 });
 
-// Cuando el backend confirma la unión a la sala privada
+// Al unirse a sala privada
 socket.on('joinedPrivateRoom', ({ room, type }) => {
   currentRoom = room;
+  currentRoomType = type;
+
   console.log(`Unido a sala privada: ${room} (Soporte: ${type})`);
   
-  // Limpiar chat o actualizar vista
-  clearMessages(); // <-- función que borra el chat anterior si tienes una
-
-  // Mostrar que está en una sala privada (opcional)
+  clearMessages();
   document.getElementById('roomName').textContent = `Soporte: ${type}`;
-
-  // También podrías cargar historial si se envía después
 });
 
 // Mostrar mensajes recibidos
-socket.on('message', (msg) => {
-  if (msg.room === currentRoom) {
-    displayMessage(msg); // función para renderizar en pantalla
+socket.on('message', msg => {
+  if (msg.room === currentRoom && msg.sender._id !== userID) {
+    appendMessage(msg);
   }
 });
 
 // Mostrar errores
-socket.on('errorMessage', (msg) => {
-  alert(msg); // o mostrar en la interfaz
+socket.on('errorMessage', msg => {
+  alert(msg);
 });
 
 // Submenús
@@ -114,24 +116,15 @@ chatForm.addEventListener('submit', e => {
   msgInput.value = '';
 });
 
-// Recibir mensajes nuevos en la sala actual
-socket.on('message', data => {
-  console.log('Mensaje nuevo recibido:', data);
-  if (data.room === currentRoom && data.sender._id !== userID) {
-    appendMessage(data);
-  }
-});
-
-// Recibir historial de mensajes al unirse a sala
-socket.on('roomMessages', messages => { 
+// Cargar historial de mensajes
+socket.on('roomMessages', messages => {
   console.log('Historial recibido:', messages);
-  chatBox.innerHTML = ''; // Limpiar chat antes de cargar historial
+  clearMessages();
 
   if (messages.length === 0) {
-    // Mostrar mensaje predeterminado solo si no hay mensajes previos
     appendMessage({
       sender: { username: 'Sistema', profilePhoto: '/img/toji.jpg' },
-      message: defaultMessages[currentRoom] || 'Bienvenido al chat.',
+      message: defaultMessages[currentRoomType] || 'Bienvenido al chat.',
       timestamp: new Date()
     });
   } else {
@@ -141,7 +134,7 @@ socket.on('roomMessages', messages => {
   }
 });
 
-// Auto-cargar primer chat al iniciar
+// Cargar primer chat automáticamente
 window.addEventListener('DOMContentLoaded', () => {
   const firstRoom = document.querySelector('.sub-chat-list li');
   if (firstRoom) firstRoom.click();
