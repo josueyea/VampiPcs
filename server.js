@@ -151,6 +151,14 @@ io.use(async (socket, next) => {
   }
 });
 
+const defaultMessages = {
+  'soporte-general': 'Hola, bienvenido al soporte general. ¿En qué podemos ayudarte?',
+  'tecnico': 'Hola, soy del soporte técnico. ¿Cuál es tu problema?',
+  'vendedores': 'Hola, estás en contacto con un vendedor. ¿Qué deseas saber?',
+  'moderadores': 'Hola, soy un moderador. ¿En qué te puedo ayudar?',
+  'admins': 'Hola, estás hablando con un administrador.'
+};
+
 // Salas públicas disponibles
 const publicRooms = [
   'soporte-general',
