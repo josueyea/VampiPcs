@@ -165,7 +165,7 @@ const publicRooms = [
 // Mapea el tipo de sala con el rol del staff asignado
 const staffRoleMap = {
   'soporte-general': 'soporte',
-  'tecnico': 'técnico',
+  'tecnico': 'tecnico',
   'vendedores': 'vendedor',
   'moderadores': 'moderador',
   'admins': 'admin'
@@ -188,6 +188,8 @@ io.on('connection', socket => {
       }
     });
 
+    
+    console.log('Usuario técnico encontrado:', staffUser.username, staffUser.rol);
     socket.join(room);
     console.log(`${socket.user.username} se unió a la sala pública ${room}`);
 
@@ -221,7 +223,7 @@ io.on('connection', socket => {
     }
 
     // Buscar staff con rol necesario
-    const staffUser = await User.findOne({ role: staffRoleMap[type] });
+    const staffUser = await User.findOne({ rol: staffRoleMap[type] });
 
     if (!staffUser) {
       socket.emit('errorMessage', 'No hay personal disponible en este momento');
