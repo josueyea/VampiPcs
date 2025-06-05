@@ -516,7 +516,7 @@
 
       // Seleccionar múltiples roles en el <select multiple>
       [...select.options].forEach(option => {
-        option.selected = usuario.roles.includes(option.value);
+        option.selected = usuario.roles && Array.isArray(usuario.roles) && usuario.roles.includes(option.value);
       });
 
       document.getElementById("modalEditarUsuario").classList.remove("hidden");
