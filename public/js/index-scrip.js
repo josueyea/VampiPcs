@@ -390,6 +390,19 @@ async function fetchLoggedUser() {
   }
 }
 
+document.getElementById('chatLink').addEventListener('click', e => {
+  e.preventDefault();
+
+  const userRole = localStorage.getItem('userRole'); // O donde guardes el rol del usuario
+
+  if (userRole === 'tecnico') {
+    window.location.href = 'tecnico.html'; // redirigir a chat técnico
+  } else {
+    window.location.href = 'chat.html'; // redirigir a chat general u otro
+  }
+});
+
+
 // Ejecutar al cargar la página
 fetchLoggedUser();
 
