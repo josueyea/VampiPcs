@@ -390,24 +390,30 @@ async function fetchLoggedUser() {
   }
 }
 
-// En tu JS
-document.getElementById('chatLink').addEventListener('click', e => {
-  e.preventDefault();
-
-  // Obtener y parsear roles desde localStorage
-  const rolesJson = localStorage.getItem('userRoles');
-  let roles = [];
-  try {
-    roles = JSON.parse(rolesJson) || [];
-  } catch {
-    roles = [];
-  }
-
-  // Prioridad para redireccionar según roles
-  if (roles.includes('tecnico')) {
-    window.location.href = 'tecnico.html';
+document.addEventListener('DOMContentLoaded', () => {
+  const chatLink = document.getElementById('chatLink');
+  if (chatLink) {
+    chatLink.addEventListener('click', e => {
+      e.preventDefault();
+      console.log('click detectado');
+      const rolesJson = localStorage.getItem('userRoles');
+      let roles = [];
+      try {
+        roles = JSON.parse(rolesJson) || [];
+      } catch {
+        roles = [];
+      }
+      console.log('Roles:', roles);
+      if (roles.includes('tecnico')) {
+        window.location.href = 'tecnico.html';
+      } else if (roles.includes('admin')) {
+        window.location.href = 'admin.html';
+      } else {
+        window.location.href = 'chat.html';
+      }
+    });
   } else {
-    window.location.href = 'chat.html'; // Chat general para usuarios sin roles especiales
+    console.log('No se encontró el enlace chatLink');
   }
 });
 
