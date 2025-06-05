@@ -1,4 +1,5 @@
 const userID = localStorage.getItem('userID');
+const userRole = localStorage.getItem('userRole');  // Esto es clave
 const username = localStorage.getItem('username');
 const profilePhoto = localStorage.getItem('profilePhoto') || '/public/img/default.jpg';
 
@@ -153,9 +154,14 @@ socket.on('roomMessages', messages => {
   }
 });
 
-
-// Cargar primer chat automáticamente
 window.addEventListener('DOMContentLoaded', () => {
-  const firstRoom = document.querySelector('.sub-chat-list li');
-  if (firstRoom) firstRoom.click();
+  if (userRole === 'tecnico') {
+    socket.emit('joinSupportRoom', 'tecnico');
+  } else {
+    // Para usuarios normales, unirse al chat-general o al primer sub-chat automáticamente
+    socket.emit('joinRoom', 'chat-general');
+
+    const firstRoom = document.querySelector('.sub-chat-list li');
+    if (firstRoom) firstRoom.click();
+  }
 });
