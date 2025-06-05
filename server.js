@@ -188,7 +188,7 @@ io.on('connection', socket => {
       }
     });
 
-    
+
     console.log('Usuario técnico encontrado:', staffUser.username, staffUser.rol);
     socket.join(room);
     console.log(`${socket.user.username} se unió a la sala pública ${room}`);
@@ -223,12 +223,15 @@ io.on('connection', socket => {
     }
 
     // Buscar staff con rol necesario
+    console.log('[DEBUG] Buscando personal con rol:', staffRoleMap[type]);
     const staffUser = await User.findOne({ rol: staffRoleMap[type] });
 
     if (!staffUser) {
       socket.emit('errorMessage', 'No hay personal disponible en este momento');
       return;
     }
+
+    console.log('[DEBUG] Staff encontrado:', staffUser.username);
 
     const userId = socket.user._id.toString();
     const staffId = staffUser._id.toString();
