@@ -37,11 +37,14 @@ function appendMessage({ sender, message, timestamp }, isOwn = false) {
   msg.classList.add('message');
   if (isOwn) msg.classList.add('you');
 
+  const avatar = sender.profilePhoto || '/img/toji.jpg';
+  const name = sender.username || 'Sistema';
+
   msg.innerHTML = `
-    <img src="${sender.profilePhoto || '/img/toji.jpg'}" class="msg-avatar" />
+    <img src="${avatar}" class="msg-avatar" />
     <div class="msg-content">
       <div class="msg-header">
-        <span>${sender.username}</span>
+        <span>${name}</span>
         <span class="msg-time">${new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
       </div>
       <p>${message}</p>
@@ -79,16 +82,21 @@ socket.on('joinedPrivateRoom', ({ room, type }) => {
 
   const roomNameElement = document.getElementById('roomName');
   if (roomNameElement) {
-    roomNameElement.textContent = `Soporte: ${type}`;
+    roomNameElement.textContent = `${type}`;
   }
 
-  document.getElementById('roomName').textContent = `Soporte: ${type}`;
+  // Mensaje predeterminado inmediato
+  appendMessage({
+    sender: { username: 'Sistema', profilePhoto: '/img/toji.jpg' },
+    message: defaultMessages[type] || 'Bienvenido al chat.',
+    timestamp: new Date()
+  });
 });
 
 // Mostrar mensajes recibidos
 socket.on('message', msg => {
-  if (msg.room === currentRoom && msg.sender._id !== userID) {
-    appendMessage(msg);
+  if (msg.room === currentRoom) {
+    appendMessage(msg, msg.sender._id === userID);
   }
 });
 
@@ -127,13 +135,7 @@ socket.on('roomMessages', messages => {
   console.log('Historial recibido:', messages);
   chatBox.innerHTML = '';
 
-  if (messages.length === 0) {
-    appendMessage({
-      sender: { username: 'Sistema', profilePhoto: '/img/toji.jpg' },
-      message: defaultMessages[currentRoomType] || 'Bienvenido al chat.',
-      timestamp: new Date()
-    });
-  } else {
+  if (messages.length > 0) {
     messages.forEach(msg => {
       appendMessage(msg, msg.sender._id === userID);
     });

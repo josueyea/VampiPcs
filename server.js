@@ -159,22 +159,12 @@ io.on('connection', socket => {
     socket.join(room);
     console.log(`${socket.user.username} se unió a ${room}`);
 
-    // ✅ Mostrar mensaje predeterminado solo para usuarios normales
-    if (defaultMessages[room]) {
-      console.log('Enviando mensaje predeterminado:', defaultMessages[room]);
-      socket.emit('message', {
-        sender: { username: 'Sistema', profilePhoto: '/img/toji.jpg' },
-        message: defaultMessages[room],
-        timestamp: new Date(),
-        room
-      });
-    }
-
     const history = await MessageModel.find({ room })
       .sort({ timestamp: 1 })
       .limit(100)
       .populate('sender', 'username profilePhoto');
-
+      
+    console.log('👉 Enviando mensaje del sistema a', socket.user.username);
     socket.emit('roomMessages', history.map(msg => ({
       message: msg.message,
       sender: {
@@ -185,6 +175,17 @@ io.on('connection', socket => {
       timestamp: msg.timestamp,
       room: msg.room
     })));
+
+    // ✅ Ahora enviamos el mensaje predeterminado DESPUÉS del historial
+    if (defaultMessages[room]) {
+      console.log('Enviando mensaje predeterminado:', defaultMessages[room]);
+      socket.emit('message', {
+        sender: { username: 'Sistema', profilePhoto: '/img/toji.jpg' },
+        message: defaultMessages[room],
+        timestamp: new Date(),
+        room
+      });
+    }
   });
 
   socket.on('joinSupportRoom', async (type) => {
