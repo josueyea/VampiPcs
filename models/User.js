@@ -40,10 +40,11 @@ const userSchema = new mongoose.Schema({
   },
 
   roles: {
-    type: String,
+    type: [String],
     enum: ['usuario', 'admin', 'vendedor', 'moderador', 'soporte', 'tecnico'],
-    default: 'usuario'
+    default: ['usuario']
   },
+
   estado: {
     type: String,
     enum: ['activo', 'suspendido'],
