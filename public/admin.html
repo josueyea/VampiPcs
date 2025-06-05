@@ -260,18 +260,40 @@
       justify-content: space-between;
       margin-top: 15px;
     }
-    .select-roles {
-      width: 100%;
-      height: 150px;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      background: #f9f9f9;
-      font-family: 'Poppins', sans-serif;
+    .checkbox-roles {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
     }
 
-    .select-roles option {
-      padding: 6px;
+    .checkbox-tag {
+      display: flex;
+      align-items: center;
+      background: #22b45510;
+      border: 1px solid #22b455;
+      border-radius: 20px;
+      padding: 5px 12px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s ease;
+      user-select: none;
+    }
+
+    .checkbox-tag:hover {
+      background: #22b45520;
+    }
+
+    .checkbox-tag input[type="checkbox"] {
+      margin-right: 8px;
+      cursor: pointer;
+      width: 16px;
+      height: 16px;
+    }
+
+    .checkbox-tag .icon {
+      margin-right: 6px;
+      font-size: 16px;
     }
   </style>
 </head>
@@ -526,24 +548,42 @@
       const usuario = usuariosData.find((u) => (u.id || u._id) === id);
       if (!usuario) return alert("Usuario no encontrado");
 
-      const select = document.getElementById("editUserRol");
       document.getElementById("editUserId").value = id;
       document.getElementById("editUserEstado").value = usuario.estado;
 
-      // Seleccionar múltiples roles en el <select multiple>
-      [...select.options].forEach(option => {
-        option.selected = usuario.roles && Array.isArray(usuario.roles) && usuario.roles.includes(option.value);
+      // Roles disponibles con sus íconos
+      const rolesDisponibles = [
+        { rol: 'admin', icono: '🛡️' },
+        { rol: 'moderador', icono: '🎯' },
+        { rol: 'vendedor', icono: '💰' },
+        { rol: 'tecnico', icono: '🔧' },
+        { rol: 'soporte', icono: '💬' },
+        { rol: 'usuario', icono: '👤' },
+      ];
+
+      const container = document.getElementById("checkboxRolesContainer");
+      container.innerHTML = ''; // Limpiar
+
+      rolesDisponibles.forEach(({ rol, icono }) => {
+        const checked = usuario.roles?.includes(rol) ? 'checked' : '';
+        container.innerHTML += `
+          <label class="checkbox-tag">
+            <input type="checkbox" name="roles" value="${rol}" ${checked}>
+            <span class="icon">${icono}</span> ${rol}
+          </label>
+        `;
       });
 
       document.getElementById("modalEditarUsuario").classList.remove("hidden");
 
-      // Asegurarse de no registrar múltiples listeners
       const form = document.getElementById("formEditarUsuario");
       form.onsubmit = function (e) {
         e.preventDefault();
 
         const id = document.getElementById("editUserId").value;
-        const nuevosRoles = Array.from(document.getElementById("editUserRol").selectedOptions).map(opt => opt.value);
+        const nuevosRoles = Array.from(document.querySelectorAll('input[name="roles"]:checked'))
+          .map(cb => cb.value);
+
         const nuevoEstado = document.getElementById("editUserEstado").value;
 
         console.log("Datos a enviar:", { roles: nuevosRoles, estado: nuevoEstado });
@@ -555,7 +595,7 @@
           },
           body: JSON.stringify({ roles: nuevosRoles, estado: nuevoEstado })
         })
-          .then((res) => {
+          .then(res => {
             if (!res.ok) throw new Error("Error al actualizar usuario");
             return res.json();
           })
@@ -840,14 +880,7 @@
     <form id="formEditarUsuario">
       <input type="hidden" id="editUserId">
       <label>Rol:</label>
-      <select id="editUserRol" multiple class="select-roles">
-        <option value="admin">Admin</option>
-        <option value="moderador">Moderador</option>
-        <option value="vendedor">Vendedor</option>
-        <option value="tecnico">Técnico</option>
-        <option value="soporte">Soporte</option>
-        <option value="usuario">Usuario</option>
-      </select>
+      <div id="checkboxRolesContainer" class="checkbox-roles"></div>
       <label>Estado:</label>
       <select id="editUserEstado">
         <option value="activo">Activo</option>
