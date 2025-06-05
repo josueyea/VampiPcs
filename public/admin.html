@@ -510,35 +510,32 @@
       const usuario = usuariosData.find((u) => (u.id || u._id) === id);
       if (!usuario) return alert("Usuario no encontrado");
 
+      const select = document.getElementById("editUserRol");
       document.getElementById("editUserId").value = id;
       document.getElementById("editUserEstado").value = usuario.estado;
 
-      const select = document.getElementById("editUserRol");
+      // Seleccionar múltiples roles en el <select multiple>
       [...select.options].forEach(option => {
         option.selected = usuario.roles.includes(option.value);
       });
 
       document.getElementById("modalEditarUsuario").classList.remove("hidden");
 
-      // Eliminar eventos previos
-      const oldForm = document.getElementById("formEditarUsuario");
-      const newForm = oldForm.cloneNode(true);
-      oldForm.parentNode.replaceChild(newForm, oldForm);
-
-      newForm.addEventListener("submit", function (e) {
+      // Asegurarse de no registrar múltiples listeners
+      const form = document.getElementById("formEditarUsuario");
+      form.onsubmit = function (e) {
         e.preventDefault();
 
         const id = document.getElementById("editUserId").value;
-        const select = document.getElementById("editUserRol");
-        const rolesSeleccionados = Array.from(select.selectedOptions).map(opt => opt.value);
-        const estado = document.getElementById("editUserEstado").value;
+        const nuevosRoles = Array.from(select.selectedOptions).map(opt => opt.value);
+        const nuevoEstado = document.getElementById("editUserEstado").value;
 
         fetch(`/api/admin/usuarios/${id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({ roles: rolesSeleccionados, estado })
+          body: JSON.stringify({ roles: nuevosRoles, estado: nuevoEstado })
         })
           .then((res) => {
             if (!res.ok) throw new Error("Error al actualizar usuario");
@@ -553,9 +550,8 @@
             console.error(err);
             alert("Error al actualizar en la base de datos.");
           });
-      });
+      };
     }
-
     
     function cerrarModal() {
       document.getElementById("modalEditarUsuario").classList.add("hidden");
