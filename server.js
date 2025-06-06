@@ -214,29 +214,17 @@ io.on('connection', socket => {
     let roomName;
 
     if (roomType === 'tecnico') {
-      if (socket.user.role === 'tecnico') {
-        // Técnicos pueden unirse a salas de usuarios activos (opcional)
-        const activeUsers = await getActiveTechRooms(); // Implementa esta función si quieres
+      // CORRECCIÓN: Verificamos si roles incluye 'tecnico'
+      if (socket.user.roles && socket.user.roles.includes('tecnico')) {
+        const activeUsers = await getActiveTechRooms(); // función que deberías tener implementada
         activeUsers.forEach(userID => {
           socket.join(`tecnico-${userID}`);
         });
         return socket.emit('joinedPrivateRoom', { room: null, type: 'tecnico' });
       } else {
         // Usuario común solicita soporte técnico
-        roomName = `tecnico-${socket.user._id.toString()}`;
+        roomName = `tecnico-${socket.user._id}`;
         socket.join(roomName);
-
-        // Notificar a técnicos
-        const sockets = await io.fetchSockets();
-        sockets.forEach(s => {
-          if (s.user.role === 'tecnico') {
-            s.emit('notificacionSoporte', {
-              room: roomName,
-              username: socket.user.username,
-              profilePhoto: socket.user.profilePhoto || null
-            });
-          }
-        });
 
         const messages = await getRoomMessages(roomName);
         socket.emit('joinedPrivateRoom', { room: roomName, type: 'tecnico' });
@@ -245,7 +233,7 @@ io.on('connection', socket => {
       }
     }
 
-    // Para otras salas de soporte
+    // Para otras salas
     roomName = roomType;
     socket.join(roomName);
     socket.emit('joinedPrivateRoom', { room: roomName, type: roomType });
@@ -254,20 +242,19 @@ io.on('connection', socket => {
     socket.emit('roomMessages', messages);
   });
 
-  // 🔥 NUEVO: Evento para solicitar soporte y notificar al técnico
   socket.on('solicitarSoporte', async () => {
-    const roomName = `tecnico-${socket.user._id.toString()}`;
+    const roomName = `tecnico-${socket.user._id}`;
     socket.join(roomName);
 
-    // Notificar a los técnicos conectados
+    // Notifica a los técnicos conectados
     const sockets = await io.fetchSockets();
     sockets.forEach(s => {
-      if (s.user.role === 'tecnico') {
+      // CORRECCIÓN: verificar roles array para técnicos
+      if (s.user.roles && s.user.roles.includes('tecnico')) {
         s.join(roomName);
         s.emit('notificacionSoporte', {
           room: roomName,
-          username: socket.user.username,
-          profilePhoto: socket.user.profilePhoto || null
+          username: socket.user.username
         });
       }
     });
@@ -335,7 +322,8 @@ io.on('connection', socket => {
       socket.join(room);
       console.log(`${socket.user.username} se unió a sala pública: ${room}`);
 
-      if (defaultMessages[room] && socket.user.roles.includes('usuario')) {
+      // CORRECCIÓN: Verificar roles como array, y si incluye 'usuario' para mostrar mensajes
+      if (defaultMessages[room] && socket.user.roles && socket.user.roles.includes('usuario')) {
         socket.emit('message', {
           sender: { username: 'Sistema', profilePhoto: '/img/toji.jpg' },
           message: defaultMessages[room],
