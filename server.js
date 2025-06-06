@@ -110,7 +110,7 @@ app.use('/api/admin', require('./routes/admin'));
 
 
 async function getRoomMessages(room) {
-  const messages = await MessageModel.find({ room })
+  const messages = await Message.find({ room })
     .sort({ timestamp: 1 })
     .limit(100)
     .populate('sender', 'username profilePhoto');
@@ -196,7 +196,7 @@ io.on('connection', socket => {
 
     socket.join(room);
 
-    const history = await MessageModel.find({ room }).sort({ timestamp: 1 }).limit(100).populate('sender', 'username profilePhoto');
+    const history = await Message.find({ room }).sort({ timestamp: 1 }).limit(100).populate('sender', 'username profilePhoto');
 
     socket.emit('roomMessages', history.map(msg => ({
       message: msg.message,
@@ -282,7 +282,7 @@ io.on('connection', socket => {
   socket.on('chatMessage', async ({ room, message }) => {
     if (!room || typeof room !== 'string') return socket.emit('errorMessage', 'Sala no válida');
 
-    const newMsg = new MessageModel({
+    const newMsg = new Message({
       room,
       sender: socket.user._id,
       message
@@ -378,7 +378,7 @@ io.on('connection', socket => {
         });
       }
 
-      const history = await MessageModel.find({ room })
+      const history = await Message.find({ room })
         .sort({ timestamp: 1 })
         .limit(100)
         .populate('sender', 'username profilePhoto');
@@ -402,7 +402,7 @@ io.on('connection', socket => {
   socket.on('privateMessage', async ({ toUserID, message }) => {
     const roomName = [socket.user._id.toString(), toUserID].sort().join('_');
 
-    const newMsg = new MessageModel({
+    const newMsg = new Message({
       room: roomName,
       sender: socket.user._id,
       message
