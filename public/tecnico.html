@@ -91,19 +91,19 @@
   });
 
   socket.on('joinedPrivateRoom', ({ room, type, withUser }) => {
-    salaActual = room;
-    if (withUser && withUser.username) {
-      document.getElementById('sala-actual').textContent = `Sala: ${withUser.username}`;
-    } else {
-      document.getElementById('sala-actual').textContent = `Sala: Desconocido`;
+    if (!room || !withUser) {
+      console.warn('Error al unirse a la sala privada: datos faltantes');
+      return;
     }
+
+    salaActual = room;
+    document.getElementById('sala-actual').textContent = `Sala: ${withUser.username}`;
     document.getElementById('messages').innerHTML = '';
 
-    console.log(`✅ Técnico unido a la sala privada ${room} con ${withUser.username || withUser}`);
-
-    // Solicitar historial si no lo envía el backend automáticamente
-    socket.emit('getRoomMessages', room);
+    console.log(`✅ Técnico unido a la sala privada ${room} con ${withUser.username}`);
   });
+
+
 
   // Listener para cargar historial recibido
   socket.on('roomMessages', msgs => {
@@ -126,11 +126,9 @@
     li.style.cursor = 'pointer';
 
     li.onclick = () => {
-      salaActual = room;
-      document.getElementById('sala-actual').textContent = `Sala: ${username}`;
-      document.getElementById('messages').innerHTML = '';
-      socket.emit('joinRoom', salaActual); // cambio clave
+      socket.emit('joinPrivateRoom', { withUserID: solicitud.userId });
     };
+
 
     document.getElementById('lista-salas').appendChild(li);
   });

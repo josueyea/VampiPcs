@@ -195,12 +195,8 @@ io.on('connection', socket => {
     });
 
     socket.join(room);
-    console.log(`${socket.user.username} se unió a ${room}`);
 
-    const history = await MessageModel.find({ room })
-      .sort({ timestamp: 1 })
-      .limit(100)
-      .populate('sender', 'username profilePhoto');
+    const history = await MessageModel.find({ room }).sort({ timestamp: 1 }).limit(100).populate('sender', 'username profilePhoto');
 
     socket.emit('roomMessages', history.map(msg => ({
       message: msg.message,
