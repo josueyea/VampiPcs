@@ -26,7 +26,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
 
-const Message = require('./models/Message');
+const MessageModel = require('./models/Message');
 
 
 const techSockets = new Map();  // userID => socket
