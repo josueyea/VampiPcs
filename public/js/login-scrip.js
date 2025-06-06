@@ -15,6 +15,8 @@ loginBtn.addEventListener('click', () => {
 
 document.getElementById('loginBtn').addEventListener('click', () => {
 
+document.addEventListener('DOMContentLoaded', () => {
+
 const loginForm = document.getElementById('loginForm');
 
 if (loginForm) {
@@ -79,6 +81,7 @@ if (loginForm) {
   }
 }); 
 
+});
 
 // Validar confirmación de password y feedback para registro
 
