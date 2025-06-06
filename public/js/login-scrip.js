@@ -32,9 +32,7 @@ if (loginForm) {
       console.log('📤 Enviando datos:', { email, password });
       const response = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ email, password }),
       });
@@ -43,27 +41,25 @@ if (loginForm) {
       console.log('🧾 Resultado del login:', result);
 
       if (response.ok) {
-        const user = result.user; // ✅ Esto es lo que recibes del backend
-
+        const user = result.user;
         console.log('✅ Usuario devuelto del backend:', user);
 
-        // ✅ Guardar solo los roles reales del usuario
+        // 👉 Comprobamos si hay roles válidos
         if (Array.isArray(user.roles)) {
+          console.log('🎭 Guardando roles:', user.roles);
           localStorage.setItem('userRoles', JSON.stringify(user.roles));
-          console.log('🎭 Roles reales guardados:', user.roles);
         } else {
+          console.warn('⚠️ Usuario no tiene roles válidos. Guardando array vacío');
           localStorage.setItem('userRoles', JSON.stringify([]));
-          console.warn('⚠️ El usuario no tiene roles válidos');
         }
 
-        // Guardar datos del usuario en localStorage
+        // Guardar otros datos
         localStorage.setItem('user', JSON.stringify(user));
         localStorage.setItem('userID', user._id);
         localStorage.setItem('username', user.username);
         localStorage.setItem('profilePhoto', user.profilePhoto || '');
 
-
-        console.log(localStorage.getItem('userID')); // ✅ Debería imprimir el ID
+        console.log('✅ Roles guardados:', localStorage.getItem('userRoles'));
 
         const prevPage = document.referrer;
         if (!prevPage || prevPage.includes('login.html') || prevPage.includes('register.html')) {
