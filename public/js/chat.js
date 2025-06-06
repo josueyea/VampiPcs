@@ -102,7 +102,7 @@ socket.on('joinedPrivateRoom', ({ room, type }) => {
   currentRoomType = type;
 
   console.log(`Unido a sala privada: ${room} (Soporte: ${type})`);
-  
+
   clearMessages();
 
   const roomNameElement = document.getElementById('roomName');
@@ -116,6 +116,12 @@ socket.on('joinedPrivateRoom', ({ room, type }) => {
     message: defaultMessages[type] || 'Bienvenido al chat.',
     timestamp: new Date()
   });
+
+  // ✅ Agrega esto SOLO si es un tipo de sala que requiere solicitud
+  if (type === 'tecnico' || type === 'soporte-general' || type === 'vendedores') {
+    console.log('📨 Emitiendo solicitud de soporte...');
+    socket.emit('solicitarSoporte');
+  }
 });
 
 // Mostrar mensajes recibidos
