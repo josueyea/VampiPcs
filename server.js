@@ -114,17 +114,22 @@ async function getRoomMessages(room) {
     .sort({ timestamp: 1 })
     .limit(100)
     .populate('sender', 'username profilePhoto');
-  return messages.map(msg => ({
-    message: msg.message,
-    sender: {
-      _id: msg.sender._id,
-      username: msg.sender.username,
-      profilePhoto: msg.sender.profilePhoto || null
-    },
-    timestamp: msg.timestamp,
-    room: msg.room
-  }));
+
+  // Filtrar mensajes sin sender válido
+  return messages
+    .filter(msg => msg.sender && msg.sender.username)
+    .map(msg => ({
+      message: msg.message,
+      sender: {
+        _id: msg.sender._id,
+        username: msg.sender.username,
+        profilePhoto: msg.sender.profilePhoto || null
+      },
+      timestamp: msg.timestamp,
+      room: msg.room
+    }));
 }
+
 
 async function getActiveTechRooms() {
   const sockets = await io.fetchSockets(); // obtener todos los sockets conectados
