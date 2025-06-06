@@ -18,7 +18,7 @@
     <!-- Chat principal -->
     <div class="chat-container">
       <div class="chat-header">
-        <img src="https://via.placeholder.com/40" class="chat-avatar" alt="Avatar">
+        <img src="img/toji.jpg" class="chat-avatar" alt="Avatar">
         <div class="chat-info">
           <h3 id="sala-actual">Selecciona una sala</h3>
           <span>Soporte en vivo</span>
@@ -37,63 +37,66 @@
   </div>
 
   <script>
-    const socket = io({ withCredentials: true });
+  const socket = io({ withCredentials: true });
+  let salaActual = null;
 
-    let salaActual = null;
-
-    socket.on('connect', () => {
+  socket.on('connect', () => {
     console.log('🔌 Conectado como técnico');
     socket.emit('joinSupportRoom', 'tecnico');
-    });
+  });
 
-    socket.on('joinedPrivateRoom', data => {
+  socket.on('joinedPrivateRoom', data => {
     console.log('👥 Técnico unido a salas:', data);
+  });
+
+  socket.on('notificacionSoporte', ({ room, username }) => {
+    console.log('📢 Nuevo usuario solicitó soporte:', username);
+
+    // Eliminar duplicados
+    [...document.querySelectorAll('.chat-category')].forEach(item => {
+      if (item.dataset.room === room) item.remove();
     });
 
-    socket.on('notificacionSoporte', ({ room, username }) => {
-    console.log('📢 Nuevo usuario solicitó soporte:', username);
     const li = document.createElement('li');
-    li.classList.add('chat-category'); // para que tenga el estilo de lista
+    li.classList.add('chat-category');
     li.textContent = username;
     li.dataset.room = room;
     li.style.cursor = 'pointer';
+
     li.onclick = () => {
-        salaActual = room;
-        document.getElementById('sala-actual').textContent = `Sala: ${username}`;
-        document.getElementById('messages').innerHTML = '';
-        socket.emit('joinSupportRoom', 'tecnico');
+      salaActual = room;
+      document.getElementById('sala-actual').textContent = `Sala: ${username}`;
+      document.getElementById('messages').innerHTML = '';
+      socket.emit('joinRoom', salaActual); // cambio clave
     };
+
     document.getElementById('lista-salas').appendChild(li);
-    });
+  });
 
-    socket.on('roomMessages', msgs => {
+  socket.on('roomMessages', msgs => {
     msgs.forEach(msg => mostrarMensaje(msg));
-    });
+  });
 
-    socket.on('message', msg => {
+  socket.on('message', msg => {
     if (msg.room === salaActual) mostrarMensaje(msg);
-    });
+  });
 
-    function mostrarMensaje({ sender, message, timestamp }) {
+  function mostrarMensaje({ sender, message, timestamp }) {
     const div = document.createElement('div');
     div.classList.add('message');
 
-    // Crear avatar del remitente, si tienes url usa sender.avatar o usa placeholder
     const avatar = document.createElement('img');
     avatar.classList.add('msg-avatar');
-    avatar.src = sender.avatar || 'https://via.placeholder.com/36'; // placeholder
+    avatar.src = sender.profilePhoto || 'https://via.placeholder.com/36';
     avatar.alt = sender.username;
 
-    // Contenido del mensaje
     const content = document.createElement('div');
     content.classList.add('msg-content');
 
-    // Header con nombre y hora
     const header = document.createElement('div');
     header.classList.add('msg-header');
     header.innerHTML = `<strong>${sender.username}</strong> <span class="msg-time">${new Date(timestamp).toLocaleTimeString()}</span>`;
 
-    // Texto del mensaje
     const p = document.createElement('p');
     p.textContent = message;
 
@@ -103,17 +106,18 @@
     div.appendChild(avatar);
     div.appendChild(content);
 
-    document.getElementById('messages').appendChild(div);
-    document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
-    }
+    const messagesDiv = document.getElementById('messages');
+    messagesDiv.appendChild(div);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }
 
-    document.getElementById('formulario').addEventListener('submit', (e) => {
+  document.getElementById('formulario').addEventListener('submit', (e) => {
     e.preventDefault();
     const input = document.getElementById('input');
     if (!salaActual) return alert('Selecciona una sala');
     socket.emit('chatMessage', { room: salaActual, message: input.value });
     input.value = '';
-    });
-  </script>
+  });
+</script>
 </body>
 </html>
