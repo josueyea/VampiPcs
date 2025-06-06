@@ -158,9 +158,13 @@ router.post('/login', async (req, res) => {
       return res.status(200).json({
         message: '✅ Inicio de sesión exitoso',
         user: {
-          id: user._id,
+          _id: user._id,
           username: user.username,
-          email: user.email
+          email: user.email,
+          roles: user.roles,
+          profilePhoto: user.profilePhoto || '',
+          isAdmin: user.isAdmin,
+          estado: user.estado
         }
       });
     });
