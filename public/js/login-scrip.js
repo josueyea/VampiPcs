@@ -12,70 +12,70 @@ loginBtn.addEventListener('click', () => {
     container.classList.remove('active');
 });
 
+  const loginForm = document.getElementById('loginForm');
+  if (loginForm) {
+    loginForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
 
-if (loginForm) {
-  loginForm.addEventListener('submit', async function (e) {
-    e.preventDefault();
+      const emailInput = loginForm.querySelector('input[name="email"]');
+      const passwordInput = loginForm.querySelector('input[name="password"]');
 
-    const emailInput = loginForm.querySelector('input[name="email"]');
-    const passwordInput = loginForm.querySelector('input[name="password"]');
-
-    if (!emailInput || !passwordInput) {
-      console.error('Campos no encontrados');
-      return;
-    }
-
-    const email = emailInput.value.trim().toLowerCase();
-    const password = passwordInput.value;
-
-    try {
-      console.log('📤 Enviando datos:', { email, password });
-      const response = await fetch(`${API_BASE}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ email, password }),
-      });
-
-      const result = await response.json();
-      console.log('🧾 Resultado del login:', result);
-
-      if (response.ok) {
-        const user = result.user;
-        console.log('✅ Usuario devuelto del backend:', user);
-
-        // 👉 Comprobamos si hay roles válidos
-        if (Array.isArray(user.roles)) {
-          console.log('🎭 Guardando roles:', user.roles);
-          localStorage.setItem('userRoles', JSON.stringify(user.roles));
-        } else {
-          console.warn('⚠️ Usuario no tiene roles válidos. Guardando array vacío');
-          localStorage.setItem('userRoles', JSON.stringify([]));
-        }
-
-        // Guardar otros datos
-        localStorage.setItem('user', JSON.stringify(user));
-        localStorage.setItem('userID', user._id);
-        localStorage.setItem('username', user.username);
-        localStorage.setItem('profilePhoto', user.profilePhoto || '');
-
-        console.log('✅ Roles guardados:', localStorage.getItem('userRoles'));
-
-        const prevPage = document.referrer;
-        if (!prevPage || prevPage.includes('login.html') || prevPage.includes('register.html')) {
-          window.location.href = `${window.location.origin}/index.html`;
-        } else {
-          window.location.href = prevPage;
-        }
-      } else {
-        showToast(result.message || 'Error en login');
+      if (!emailInput || !passwordInput) {
+        console.error('Campos no encontrados');
+        return;
       }
-    } catch (error) {
-      console.error('Error en login:', error);
-      showToast('Error en login');
-    }
-  });
-}
+
+      const email = emailInput.value.trim().toLowerCase();
+      const password = passwordInput.value;
+
+      try {
+        console.log('📤 Enviando datos:', { email, password });
+        const response = await fetch(`${API_BASE}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ email, password }),
+        });
+
+        const result = await response.json();
+        console.log('🧾 Resultado del login:', result);
+
+        if (response.ok) {
+          const user = result.user;
+          console.log('✅ Usuario devuelto del backend:', user);
+
+          // 👉 Comprobamos si hay roles válidos
+          if (Array.isArray(user.roles)) {
+            console.log('🎭 Guardando roles:', user.roles);
+            localStorage.setItem('userRoles', JSON.stringify(user.roles));
+          } else {
+            console.warn('⚠️ Usuario no tiene roles válidos. Guardando array vacío');
+            localStorage.setItem('userRoles', JSON.stringify([]));
+          }
+
+          // Guardar otros datos
+          localStorage.setItem('user', JSON.stringify(user));
+          localStorage.setItem('userID', user._id);
+          localStorage.setItem('username', user.username);
+          localStorage.setItem('profilePhoto', user.profilePhoto || '');
+
+          console.log('✅ Roles guardados:', localStorage.getItem('userRoles'));
+
+          const prevPage = document.referrer;
+          if (!prevPage || prevPage.includes('login.html') || prevPage.includes('register.html')) {
+            window.location.href = `${window.location.origin}/index.html`;
+          } else {
+            window.location.href = prevPage;
+          }
+        } else {
+          showToast(result.message || 'Error en login');
+        }
+      } catch (error) {
+        console.error('Error en login:', error);
+        showToast('Error en login');
+      }
+    });
+  }
 
 
 // Validar confirmación de password y feedback para registro
