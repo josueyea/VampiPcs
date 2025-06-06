@@ -55,8 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
           localStorage.setItem('username', result.user.username);
           localStorage.setItem('profilePhoto', result.user.profilePhoto || '');
 
-          const roles = ['tecnico', 'admin', 'moderador', 'vendedor', 'soporte', 'usuario']; // Ejemplo, pon los roles reales
-          localStorage.setItem('userRoles', JSON.stringify(roles));
+          localStorage.setItem('userRoles', JSON.stringify(u.roles));
 
 
           console.log(localStorage.getItem('userID')); // ✅ Debería imprimir el ID
