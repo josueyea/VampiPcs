@@ -68,6 +68,21 @@ subChatItems.forEach(item => {
     const roomType = item.getAttribute('data-room');
     if (!roomType || roomType === currentRoomType) return;
 
+    // ⛔ Controlar el acceso según el tipo de sala y rol
+    const restrictedRooms = {
+      'tecnico': ['tecnico', 'admin'],           // Solo técnicos y admins
+      'moderadores': ['moderador', 'admin'],
+      'admins': ['admin'],
+      // Si quieres que usuarios también entren a "vendedores" o "soporte-general", déjalo fuera
+    };
+
+    const allowedRoles = restrictedRooms[roomType];
+
+    if (allowedRoles && !allowedRoles.includes(userRole)) {
+      alert('⛔ No tienes permiso para entrar a esta sala.');
+      return;
+    }
+
     currentRoomType = roomType;
 
     const supportRooms = ['soporte-general', 'tecnico', 'vendedores', 'moderadores', 'admins'];
