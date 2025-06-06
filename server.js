@@ -309,24 +309,51 @@ io.on('connection', socket => {
   });
 
   socket.on('joinPrivateRoom', async ({ withUserID }) => {
-    const roomName = [socket.user._id.toString(), withUserID].sort().join('_');
-    socket.join(roomName);
+    try {
+      const ids = [socket.user._id.toString(), withUserID].sort();
+      const room = `private-${ids[0]}-${ids[1]}`;
 
-    const lastMessages = await MessageModel.find({ room: roomName })
-      .sort({ timestamp: 1 })
-      .limit(50)
-      .populate('sender', 'username profilePhoto');
+      socket.join(room);
 
-    socket.emit('chatHistory', lastMessages.map(msg => ({
-      message: msg.message,
+      const withUser = await User.findById(withUserID).select('username profilePhoto');
+
+      socket.emit('joinedPrivateRoom', { room, type: 'private', withUser });
+
+      const messages = await Message.find({ room }).sort({ timestamp: 1 }).populate('sender', 'username profilePhoto').lean();
+      socket.emit('roomMessages', messages);
+
+    } catch (error) {
+      console.error('Error uniendo a sala privada:', error);
+      socket.emit('errorMessage', 'No se pudo unir a la sala privada.');
+    }
+  });
+
+  // Escuchar mensajes y reenviarlos a todos los que están en la sala
+  socket.on('chatMessage', async ({ room, message }) => {
+    if (!room || !message) return;
+
+    const newMessage = new Message({
+      room,
+      message,
+      sender: socket.user._id,
+      timestamp: new Date()
+    });
+
+    await newMessage.save();
+
+    // Populamos sender para enviar info completa a los clientes
+    await newMessage.populate('sender', 'username profilePhoto').execPopulate();
+
+    io.to(room).emit('message', {
+      room,
+      message: newMessage.message,
       sender: {
-        _id: msg.sender._id,
-        username: msg.sender.username,
-        profilePhoto: msg.sender.profilePhoto || null
+        _id: newMessage.sender._id,
+        username: newMessage.sender.username,
+        profilePhoto: newMessage.sender.profilePhoto || null
       },
-      timestamp: msg.timestamp,
-      room: msg.room
-    })));
+      timestamp: newMessage.timestamp
+    });
   });
 
   socket.on('joinPublicRoom', async (room) => {

@@ -90,8 +90,21 @@
     socket.emit('joinSupportRoom', 'tecnico');
   });
 
-  socket.on('joinedPrivateRoom', data => {
-    console.log('👥 Técnico unido a salas:', data);
+  socket.on('joinedPrivateRoom', ({ room, type, withUser }) => {
+    salaActual = room;
+    document.getElementById('sala-actual').textContent = `Sala: ${withUser.username || withUser}`;
+    document.getElementById('messages').innerHTML = '';
+
+    console.log(`✅ Técnico unido a la sala privada ${room} con ${withUser.username || withUser}`);
+
+    // Solicitar historial si no lo envía el backend automáticamente
+    socket.emit('getRoomMessages', room);
+  });
+
+  // Listener para cargar historial recibido
+  socket.on('roomMessages', msgs => {
+    document.getElementById('messages').innerHTML = ''; // Limpia mensajes previos
+    msgs.forEach(msg => mostrarMensaje(msg));
   });
 
   socket.on('notificacionSoporte', ({ room, username }) => {
@@ -140,7 +153,9 @@
     document.querySelectorAll('.btn-atender').forEach(btn => {
       btn.addEventListener('click', () => {
         const userID = btn.dataset.user;
-        socket.emit('joinSupportRoom', 'tecnico'); // técnico entra a todas
+
+        // No es necesario volver a unirse a la sala de técnico
+        // Solo unirse a la sala privada con el usuario seleccionado
         socket.emit('joinPrivateRoom', { withUserID: userID });
       });
     });
