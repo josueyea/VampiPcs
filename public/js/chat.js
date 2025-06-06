@@ -171,7 +171,7 @@ socket.on('roomMessages', messages => {
 });
 
 window.addEventListener('DOMContentLoaded', () => {
-  if (userRole === 'tecnico') {
+  if (userRoles === 'tecnico') {
     socket.emit('joinSupportRoom', 'tecnico');
   } else {
     // Para usuarios normales, unirse al chat-general o al primer sub-chat automáticamente
