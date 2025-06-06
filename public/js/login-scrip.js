@@ -8,11 +8,19 @@ registerBtn.addEventListener('click', () => {
     container.classList.add('active');
 });
 
-loginBtn.addEventListener('click', () => {
-    container.classList.remove('active');
-});
+document.addEventListener('DOMContentLoaded', () => {
+
+  const loginBtn = document.getElementById('loginBtn');
+  const container = document.querySelector('.container'); // Asegúrate de tener este elemento también
+
+  if (loginBtn && container) {
+    loginBtn.addEventListener('click', () => {
+      container.classList.remove('active');
+    });
+  }
 
   const loginForm = document.getElementById('loginForm');
+
   if (loginForm) {
     loginForm.addEventListener('submit', async function (e) {
       e.preventDefault();
@@ -30,6 +38,7 @@ loginBtn.addEventListener('click', () => {
 
       try {
         console.log('📤 Enviando datos:', { email, password });
+
         const response = await fetch(`${API_BASE}/auth/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -44,7 +53,6 @@ loginBtn.addEventListener('click', () => {
           const user = result.user;
           console.log('✅ Usuario devuelto del backend:', user);
 
-          // 👉 Comprobamos si hay roles válidos
           if (Array.isArray(user.roles)) {
             console.log('🎭 Guardando roles:', user.roles);
             localStorage.setItem('userRoles', JSON.stringify(user.roles));
@@ -53,7 +61,6 @@ loginBtn.addEventListener('click', () => {
             localStorage.setItem('userRoles', JSON.stringify([]));
           }
 
-          // Guardar otros datos
           localStorage.setItem('user', JSON.stringify(user));
           localStorage.setItem('userID', user._id);
           localStorage.setItem('username', user.username);
@@ -67,15 +74,18 @@ loginBtn.addEventListener('click', () => {
           } else {
             window.location.href = prevPage;
           }
+
         } else {
           showToast(result.message || 'Error en login');
         }
+
       } catch (error) {
-        console.error('Error en login:', error);
+        console.error('❌ Error en login:', error);
         showToast('Error en login');
       }
     });
   }
+});
 
 
 // Validar confirmación de password y feedback para registro
