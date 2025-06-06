@@ -70,7 +70,7 @@ subChatItems.forEach(item => {
 
     // ⛔ Controlar el acceso según el tipo de sala y rol
     const restrictedRooms = {
-      'tecnico': ['tecnico', 'admin'],           // Solo técnicos y admins
+      'tecnico': ['tecnico', 'admin', 'usuario'],           // Solo técnicos y admins
       'moderadores': ['moderador', 'admin'],
       'admins': ['admin'],
       // Si quieres que usuarios también entren a "vendedores" o "soporte-general", déjalo fuera
