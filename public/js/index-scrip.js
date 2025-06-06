@@ -406,8 +406,6 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log('Roles:', roles);
       if (roles.includes('tecnico')) {
         window.location.href = 'tecnico.html';
-      } else if (roles.includes('admin')) {
-        window.location.href = 'admin.html';
       } else {
         window.location.href = 'chat.html';
       }
