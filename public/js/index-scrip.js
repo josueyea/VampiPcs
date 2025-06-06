@@ -392,27 +392,30 @@ async function fetchLoggedUser() {
 
 document.addEventListener('DOMContentLoaded', () => {
   const chatLink = document.getElementById('chatLink');
-  if (chatLink) {
-    chatLink.addEventListener('click', e => {
-      e.preventDefault();
-      console.log('click detectado');
-      const rolesJson = localStorage.getItem('userRoles');
-      let roles = [];
-      try {
-        roles = JSON.parse(rolesJson) || [];
-      } catch {
-        roles = [];
-      }
-      console.log('Roles:', roles);
-      if (roles.includes('tecnico')) {
-        window.location.href = 'tecnico.html';
-      } else {
-        window.location.href = 'chat.html';
-      }
-    });
-  } else {
-    console.log('No se encontró el enlace chatLink');
-  }
+  if (!chatLink) return console.warn('No se encontró el enlace #chatLink');
+
+  chatLink.addEventListener('click', e => {
+    e.preventDefault();
+    console.log('✅ Clic en Chat detectado');
+
+    const rolesJson = localStorage.getItem('userRoles');
+    let roles = [];
+
+    try {
+      const parsed = JSON.parse(rolesJson);
+      if (Array.isArray(parsed)) roles = parsed;
+    } catch (err) {
+      console.warn('❌ Error al parsear userRoles:', err);
+    }
+
+    console.log('🎭 Roles encontrados:', roles);
+
+    if (roles.includes('tecnico')) {
+      window.location.href = 'tecnico.html';
+    } else {
+      window.location.href = 'chat.html';
+    }
+  });
 });
 
 
