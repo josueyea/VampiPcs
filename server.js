@@ -168,7 +168,7 @@ io.use(async (socket, next) => {
     console.error('Error de autenticación socket:', err);
     next(new Error('Error de autenticación'));
   }
-});
+}); 
 
 io.on('connection', socket => {
   console.log('✅ Usuario conectado:', socket.user.username);
@@ -218,23 +218,19 @@ io.on('connection', socket => {
     let roomName;
 
     if (roomType === 'tecnico') {
-      // CORRECCIÓN: Verificamos si roles incluye 'tecnico'
-      if (socket.user.roles && socket.user.roles.includes('tecnico')) {
-        const activeUsers = await getActiveTechRooms(); // función que deberías tener implementada
-        activeUsers.forEach(userID => {
-          socket.join(`tecnico-${userID}`);
-        });
-        return socket.emit('joinedPrivateRoom', { room: null, type: 'tecnico' });
-      } else {
-        // Usuario común solicita soporte técnico
-        roomName = `tecnico-${socket.user._id}`;
-        socket.join(roomName);
+      const roomName = `tecnico-${socket.user._id}`;
+      socket.join(roomName);
 
-        const messages = await getRoomMessages(roomName);
-        socket.emit('joinedPrivateRoom', { room: roomName, type: 'tecnico' });
-        socket.emit('roomMessages', messages);
-        return;
-      }
+      // Notifica a técnicos
+      io.to('tecnico').emit('notificacionSoporte', {
+        room: roomName,
+        username: socket.user.username
+      });
+
+      const messages = await getRoomMessages(roomName);
+      socket.emit('joinedPrivateRoom', { room: roomName, type: 'tecnico' });
+      socket.emit('roomMessages', messages);
+      return;
     }
 
     // Para otras salas
@@ -251,16 +247,12 @@ io.on('connection', socket => {
     socket.join(roomName);
 
     // Notifica a los técnicos conectados
-    const sockets = await io.fetchSockets();
-    sockets.forEach(s => {
-      // CORRECCIÓN: verificar roles array para técnicos
-      if (s.user.roles && s.user.roles.includes('tecnico')) {
-        s.join(roomName);
-        s.emit('notificacionSoporte', {
-          room: roomName,
-          username: socket.user.username
-        });
-      }
+    socket.join(roomName);
+
+    // Notifica a la sala "tecnico"
+    io.to('tecnico').emit('notificacionSoporte', {
+      room: roomName,
+      username: socket.user.username
     });
 
     const messages = await getRoomMessages(roomName);

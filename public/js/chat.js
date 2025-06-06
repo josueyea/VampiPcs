@@ -9,7 +9,8 @@ if (!userID) {
 }
 
 const socket = io('https://vampipcs.onrender.com', {
-  query: { userID }
+  query: { userID },
+  transports: ['polling'] // 👈 Fuerza solo polling
 });
 
 const chatBox = document.getElementById('chatBox');
