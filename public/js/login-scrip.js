@@ -8,20 +8,17 @@ registerBtn.addEventListener('click', () => {
     container.classList.add('active');
 });
 
-document.addEventListener('DOMContentLoaded', () => {
+loginBtn.addEventListener('click', () => {
+    container.classList.remove('active');
+});
 
-  const loginBtn = document.getElementById('loginBtn');
-  const container = document.querySelector('.container'); // Asegúrate de tener este elemento también
 
-  if (loginBtn && container) {
-    loginBtn.addEventListener('click', () => {
-      container.classList.remove('active');
-    });
-  }
+document.getElementById('loginBtn').addEventListener('click', () => {
 
-  const loginForm = document.getElementById('loginForm');
+const loginForm = document.getElementById('loginForm');
 
-  if (loginForm) {
+if (loginForm) {
+  
     loginForm.addEventListener('submit', async function (e) {
       e.preventDefault();
 
@@ -38,54 +35,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
       try {
         console.log('📤 Enviando datos:', { email, password });
-
         const response = await fetch(`${API_BASE}/auth/login`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+          },
           credentials: 'include',
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ email: email.trim(), password }),
         });
 
         const result = await response.json();
+
         console.log('🧾 Resultado del login:', result);
 
         if (response.ok) {
-          const user = result.user;
-          console.log('✅ Usuario devuelto del backend:', user);
 
-          if (Array.isArray(user.roles)) {
-            console.log('🎭 Guardando roles:', user.roles);
-            localStorage.setItem('userRoles', JSON.stringify(user.roles));
-          } else {
-            console.warn('⚠️ Usuario no tiene roles válidos. Guardando array vacío');
-            localStorage.setItem('userRoles', JSON.stringify([]));
-          }
+          console.log('✅ Usuario devuelto del backend:', result.user);
 
-          localStorage.setItem('user', JSON.stringify(user));
-          localStorage.setItem('userID', user._id);
-          localStorage.setItem('username', user.username);
-          localStorage.setItem('profilePhoto', user.profilePhoto || '');
+          localStorage.setItem('user', JSON.stringify(result.user));
+          localStorage.setItem('userID', result.user._id);
+          localStorage.setItem('username', result.user.username);
+          localStorage.setItem('profilePhoto', result.user.profilePhoto || '');
 
-          console.log('✅ Roles guardados:', localStorage.getItem('userRoles'));
+          localStorage.setItem('userRoles', JSON.stringify(user.roles));
 
+
+          console.log(localStorage.getItem('userID')); // ✅ Debería imprimir el ID
           const prevPage = document.referrer;
           if (!prevPage || prevPage.includes('login.html') || prevPage.includes('register.html')) {
             window.location.href = `${window.location.origin}/index.html`;
           } else {
+            // Si hay una página previa distinta, regresa a ella
             window.location.href = prevPage;
           }
-
         } else {
           showToast(result.message || 'Error en login');
         }
-
       } catch (error) {
-        console.error('❌ Error en login:', error);
+        console.error('Error en login:', error);
         showToast('Error en login');
       }
     });
   }
-});
+}); 
 
 
 // Validar confirmación de password y feedback para registro
