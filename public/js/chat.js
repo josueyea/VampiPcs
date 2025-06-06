@@ -70,7 +70,6 @@ subChatItems.forEach(item => {
 
     // ⛔ Controlar el acceso según el tipo de sala y rol
     const restrictedRooms = {
-      'tecnico': ['usuario', 'tecnico', 'admin'],           // Solo técnicos y admins
       'moderadores': ['moderador', 'admin'],
       'admins': ['admin'],
       // Si quieres que usuarios también entren a "vendedores" o "soporte-general", déjalo fuera
@@ -87,6 +86,7 @@ subChatItems.forEach(item => {
 
     const supportRooms = ['soporte-general', 'tecnico', 'vendedores', 'moderadores', 'admins'];
     if (supportRooms.includes(roomType)) {
+      console.log(`📤 Solicitando unirse a sala: ${roomType} (rol: ${userRole})`);  
       socket.emit('joinSupportRoom', roomType);
     } else {
       socket.emit('joinPublicRoom', roomType); // 👈 usa evento nuevo
