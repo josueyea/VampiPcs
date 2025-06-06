@@ -50,8 +50,9 @@
     <!-- Sidebar -->
     <div class="sidebar">
       <h2>Solicitudes de Soporte</h2>
-      <ul class="chat-list" id="lista-salas"></ul>
-      <div id="listaSolicitudes" class="lista-solicitudes"></div>
+      <ul class="chat-list" id="lista-salas">
+        <div id="listaSolicitudes" class="lista-solicitudes"></div>
+      </ul>
     </div>
 
     <!-- Chat principal -->
@@ -76,7 +77,12 @@
   </div>
 
   <script>
-  const socket = io({ withCredentials: true });
+  const socket = io('https://vampipcs.onrender.com', {
+    query: {
+      userID: localStorage.getItem('userID')
+    }
+  });
+
   let salaActual = null;
 
   socket.on('connect', () => {
