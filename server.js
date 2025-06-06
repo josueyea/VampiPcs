@@ -108,14 +108,6 @@ app.use('/presupuesto', require('./routes/presupuesto'));
 app.use('/api', require('./routes/api'));
 app.use('/api/admin', require('./routes/admin'));
 
-// --- Modelo de mensajes ---
-const messageSchema = new mongoose.Schema({
-  room: String,
-  sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  message: String,
-  timestamp: { type: Date, default: Date.now }
-});
-const MessageModel = mongoose.model('Message', messageSchema);
 
 async function getRoomMessages(room) {
   const messages = await MessageModel.find({ room })
