@@ -54,12 +54,12 @@ if (loginForm) {
         localStorage.setItem('profilePhoto', user.profilePhoto || '');
 
         // ✅ Guardar solo los roles reales del usuario
-        if (Array.isArray(user.roles)) {
+       if (Array.isArray(user.roles)) {
           localStorage.setItem('userRoles', JSON.stringify(user.roles));
           console.log('🎭 Roles guardados en localStorage:', user.roles);
         } else {
+          localStorage.setItem('userRoles', JSON.stringify([]));
           console.warn('⚠️ user.roles no es un array válido:', user.roles);
-          localStorage.setItem('userRoles', JSON.stringify([])); // Guarda vacío si no hay roles válidos
         }
 
         console.log(localStorage.getItem('userID')); // ✅ Debería imprimir el ID
