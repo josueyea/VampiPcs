@@ -219,26 +219,22 @@ io.on('connection', socket => {
     }
   });
 
+  if (socket.user.roles && socket.user.roles.includes('tecnico')) {
+    socket.join('tecnico');
+    // Enviar solicitudes pendientes al técnico que se conecta
+    socket.emit('actualizarSolicitudes', solicitudesPendientes);
+  }
+
   socket.on('joinSupportRoom', async (roomType) => {
     const validTypes = ['soporte-general', 'tecnico', 'chat-general', 'intercambios', 'vendedores', 'moderadores', 'admins'];
     if (!validTypes.includes(roomType)) {
       return socket.emit('errorMessage', 'Tipo de soporte no válido');
     }
 
-    let roomName;
-
     if (roomType === 'tecnico') {
-      const roomName = `tecnico-${socket.user._id}`;
-      socket.join(roomName);
-
-      // Notifica a técnicos
-      io.to('tecnico').emit('notificacionSoporte', {
-        room: roomName,
-        username: socket.user.username
-      });
-
-      const messages = await getRoomMessages(roomName);
-      socket.emit('joinedPrivateRoom', { room: roomName, type: 'tecnico' });
+      socket.join('tecnico');
+      socket.emit('joinedPrivateRoom', { room: 'tecnico', type: 'tecnico' });
+      const messages = await getRoomMessages('tecnico');
       socket.emit('roomMessages', messages);
       return;
     }
@@ -259,21 +255,23 @@ io.on('connection', socket => {
     // Agrega la solicitud si aún no está
     const yaExiste = solicitudesPendientes.find(s => s.userId === socket.user._id.toString());
     if (!yaExiste) {
-      solicitudesPendientes.push({
+      const nuevaSolicitud = {
         userId: socket.user._id.toString(),
         username: socket.user.username,
         profilePhoto: socket.user.profilePhoto || '/img/default-user.png'
+      };
+      solicitudesPendientes.push(nuevaSolicitud);
+
+      // Notifica a todos los técnicos en la sala 'tecnico'
+      io.to('tecnico').emit('actualizarSolicitudes', solicitudesPendientes);
+
+      // Notifica específicamente de esta nueva solicitud
+      io.to('tecnico').emit('notificacionSoporte', {
+        room: roomName,
+        username: nuevaSolicitud.username,
+        userId: nuevaSolicitud.userId,
       });
     }
-
-    // Notifica a todos los técnicos conectados
-    const sockets = await io.fetchSockets();
-    sockets.forEach(s => {
-      if (s.user.roles && s.user.roles.includes('tecnico')) {
-        s.join(roomName);
-        s.emit('actualizarSolicitudes', solicitudesPendientes); // 🔥 NUEVO evento
-      }
-    });
 
     const messages = await getRoomMessages(roomName);
     socket.emit('roomMessages', messages);

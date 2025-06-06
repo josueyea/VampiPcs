@@ -126,9 +126,8 @@
     li.style.cursor = 'pointer';
 
     li.onclick = () => {
-      socket.emit('joinPrivateRoom', { withUserID: solicitud.userId });
+      socket.emit('joinPrivateRoom', { withUserID: userId });
     };
-
 
     document.getElementById('lista-salas').appendChild(li);
   });
