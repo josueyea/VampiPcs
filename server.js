@@ -158,7 +158,11 @@ io.use(async (socket, next) => {
   try {
     const user = await User.findById(userID);
     if (!user) return next(new Error('Usuario no encontrado'));
+
     socket.user = user;
+
+    console.log('Roles del usuario en socket:', socket.user.roles); // <-- Aquí
+
     next();
   } catch (err) {
     console.error('Error de autenticación socket:', err);

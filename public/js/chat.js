@@ -1,5 +1,5 @@
 const userID = localStorage.getItem('userID');
-const userRole = localStorage.getItem('userRole');  // Esto es clave
+const userRoles = JSON.parse(localStorage.getItem('userRoles') || '[]');
 const username = localStorage.getItem('username');
 const profilePhoto = localStorage.getItem('profilePhoto') || '/public/img/default.jpg';
 
@@ -77,16 +77,17 @@ subChatItems.forEach(item => {
 
     const allowedRoles = restrictedRooms[roomType];
 
-    if (allowedRoles && !allowedRoles.includes(userRole)) {
+    if (allowedRoles && !allowedRoles.some(role => userRoles.includes(role))) {
       alert('⛔ No tienes permiso para entrar a esta sala.');
       return;
     }
+
 
     currentRoomType = roomType;
 
     const supportRooms = ['soporte-general', 'tecnico', 'vendedores', 'moderadores', 'admins'];
     if (supportRooms.includes(roomType)) {
-      console.log(`📤 Solicitando unirse a sala: ${roomType} (rol: ${userRole})`);  
+      console.log(`📤 Solicitando unirse a sala: ${roomType} (roles: ${userRoles.join(', ')})`);  
       socket.emit('joinSupportRoom', roomType);
     } else {
       socket.emit('joinPublicRoom', roomType); // 👈 usa evento nuevo
