@@ -26,6 +26,9 @@ const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
 
+const Message = require('./models/Message');
+
+
 const techSockets = new Map();  // userID => socket
 const userSockets = new Map();  // userID => socket
 
@@ -316,6 +319,9 @@ io.on('connection', socket => {
       socket.join(room);
 
       const withUser = await User.findById(withUserID).select('username profilePhoto');
+      if (!withUser) {
+        return socket.emit('errorMessage', 'Usuario no encontrado');
+      }
 
       socket.emit('joinedPrivateRoom', { room, type: 'private', withUser });
 
