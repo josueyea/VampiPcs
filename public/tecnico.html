@@ -126,7 +126,7 @@
     li.style.cursor = 'pointer';
 
     li.onclick = () => {
-      socket.emit('joinPrivateRoom', { withUserID: userId });
+      socket.emit('joinPrivateRoom', { withUserID: li.dataset.room }); // <-- Aquí está el fix
     };
 
     document.getElementById('lista-salas').appendChild(li);
