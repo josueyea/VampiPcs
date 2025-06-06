@@ -16,6 +16,7 @@ const nodemailer = require('nodemailer');
 const { storage } = require('./config/cloudinary');
 const multer = require('multer');
 const fs = require('fs');
+const solicitudesPendientes = [];
 
 require('./passport');
 const { isAuthenticated, isAdmin } = require('./middlewares/auth');
@@ -128,6 +129,19 @@ async function getRoomMessages(room) {
     timestamp: msg.timestamp,
     room: msg.room
   }));
+}
+
+async function getActiveTechRooms() {
+  const sockets = await io.fetchSockets(); // obtener todos los sockets conectados
+  const techUserIds = [];
+
+  sockets.forEach(s => {
+    if (s.user && s.user.roles && s.user.roles.includes('tecnico')) {
+      techUserIds.push(s.user._id.toString()); // guardamos solo el ID
+    }
+  });
+
+  return techUserIds;
 }
 
 // --- Socket.IO ---
@@ -246,13 +260,23 @@ io.on('connection', socket => {
     const roomName = `tecnico-${socket.user._id}`;
     socket.join(roomName);
 
-    // Notifica a los técnicos conectados
-    socket.join(roomName);
+    // Agrega la solicitud si aún no está
+    const yaExiste = solicitudesPendientes.find(s => s.userId === socket.user._id.toString());
+    if (!yaExiste) {
+      solicitudesPendientes.push({
+        userId: socket.user._id.toString(),
+        username: socket.user.username,
+        profilePhoto: socket.user.profilePhoto || '/img/default-user.png'
+      });
+    }
 
-    // Notifica a la sala "tecnico"
-    io.to('tecnico').emit('notificacionSoporte', {
-      room: roomName,
-      username: socket.user.username
+    // Notifica a todos los técnicos conectados
+    const sockets = await io.fetchSockets();
+    sockets.forEach(s => {
+      if (s.user.roles && s.user.roles.includes('tecnico')) {
+        s.join(roomName);
+        s.emit('actualizarSolicitudes', solicitudesPendientes); // 🔥 NUEVO evento
+      }
     });
 
     const messages = await getRoomMessages(roomName);

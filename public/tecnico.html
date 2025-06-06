@@ -6,11 +6,50 @@
   <script src="/socket.io/socket.io.js"></script>
   <link rel="stylesheet" href="css/chat.css">  
   <link rel="shortcut icon" href="img/toji.jpg" type="image/x-icon">
+  <style>
+    .lista-solicitudes {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 10px;
+    }
+
+    .solicitud {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #1e1e1e;
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    .solicitud-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .foto-usuario {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+    }
+
+    .btn-atender {
+      background: #22b455;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
   <div class="chat-app">
     <!-- Sidebar -->
     <div class="sidebar">
+      <div id="listaSolicitudes" class="lista-solicitudes"></div>
       <h2>Solicitudes de Soporte</h2>
       <ul class="chat-list" id="lista-salas"></ul>
     </div>
@@ -71,6 +110,34 @@
     };
 
     document.getElementById('lista-salas').appendChild(li);
+  });
+
+  socket.on('actualizarSolicitudes', (solicitudes) => {
+    const contenedor = document.getElementById('listaSolicitudes');
+    contenedor.innerHTML = ''; // Limpia
+
+    solicitudes.forEach(solicitud => {
+      const item = document.createElement('div');
+      item.classList.add('solicitud');
+
+      item.innerHTML = `
+        <div class="solicitud-info">
+          <img src="${solicitud.profilePhoto}" class="foto-usuario" />
+          <strong>${solicitud.username}</strong>
+        </div>
+        <button class="btn-atender" data-user="${solicitud.userId}">Atender</button>
+      `;
+
+      contenedor.appendChild(item);
+    });
+
+    document.querySelectorAll('.btn-atender').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const userID = btn.dataset.user;
+        socket.emit('joinSupportRoom', 'tecnico'); // técnico entra a todas
+        socket.emit('joinPrivateRoom', { withUserID: userID });
+      });
+    });
   });
 
   socket.on('roomMessages', msgs => {
