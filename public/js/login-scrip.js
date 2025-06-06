@@ -47,20 +47,21 @@ if (loginForm) {
 
         console.log('✅ Usuario devuelto del backend:', user);
 
+        // ✅ Guardar solo los roles reales del usuario
+        if (Array.isArray(user.roles)) {
+          localStorage.setItem('userRoles', JSON.stringify(user.roles));
+          console.log('🎭 Roles reales guardados:', user.roles);
+        } else {
+          localStorage.setItem('userRoles', JSON.stringify([]));
+          console.warn('⚠️ El usuario no tiene roles válidos');
+        }
+
         // Guardar datos del usuario en localStorage
         localStorage.setItem('user', JSON.stringify(user));
         localStorage.setItem('userID', user._id);
         localStorage.setItem('username', user.username);
         localStorage.setItem('profilePhoto', user.profilePhoto || '');
 
-        // ✅ Guardar solo los roles reales del usuario
-       if (Array.isArray(user.roles)) {
-          localStorage.setItem('userRoles', JSON.stringify(user.roles));
-          console.log('🎭 Roles guardados en localStorage:', user.roles);
-        } else {
-          localStorage.setItem('userRoles', JSON.stringify([]));
-          console.warn('⚠️ user.roles no es un array válido:', user.roles);
-        }
 
         console.log(localStorage.getItem('userID')); // ✅ Debería imprimir el ID
 
