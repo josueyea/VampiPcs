@@ -341,7 +341,7 @@ io.on('connection', socket => {
     await newMessage.save();
 
     // Populamos sender para enviar info completa a los clientes
-    await newMessage.populate('sender', 'username profilePhoto').execPopulate();
+    await newMessage.populate('sender', 'username profilePhoto');
 
     io.to(room).emit('message', {
       room,
