@@ -13,69 +13,72 @@ loginBtn.addEventListener('click', () => {
 });
 
 
-document.addEventListener('DOMContentLoaded', () => {
-  const loginForm = document.querySelector('.form-box.login form');
+if (loginForm) {
+  loginForm.addEventListener('submit', async function (e) {
+    e.preventDefault();
 
-  if (loginForm) {
-    loginForm.addEventListener('submit', async function (e) {
-      e.preventDefault();
+    const emailInput = loginForm.querySelector('input[name="email"]');
+    const passwordInput = loginForm.querySelector('input[name="password"]');
 
-      const emailInput = loginForm.querySelector('input[name="email"]');
-      const passwordInput = loginForm.querySelector('input[name="password"]');
+    if (!emailInput || !passwordInput) {
+      console.error('Campos no encontrados');
+      return;
+    }
 
-      if (!emailInput || !passwordInput) {
-        console.error('Campos no encontrados');
-        return;
-      }
+    const email = emailInput.value.trim().toLowerCase();
+    const password = passwordInput.value;
 
-      const email = emailInput.value.trim().toLowerCase();
-      const password = passwordInput.value;
+    try {
+      console.log('📤 Enviando datos:', { email, password });
+      const response = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ email, password }),
+      });
 
-      try {
-        console.log('📤 Enviando datos:', { email, password });
-        const response = await fetch(`${API_BASE}/auth/login`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify({ email: email.trim(), password }),
-        });
+      const result = await response.json();
+      console.log('🧾 Resultado del login:', result);
 
-        const result = await response.json();
+      if (response.ok) {
+        const user = result.user; // ✅ Esto es lo que recibes del backend
 
-        console.log('🧾 Resultado del login:', result);
+        console.log('✅ Usuario devuelto del backend:', user);
 
-        if (response.ok) {
+        // Guardar datos del usuario en localStorage
+        localStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem('userID', user._id);
+        localStorage.setItem('username', user.username);
+        localStorage.setItem('profilePhoto', user.profilePhoto || '');
 
-          console.log('✅ Usuario devuelto del backend:', result.user);
-
-          localStorage.setItem('user', JSON.stringify(result.user));
-          localStorage.setItem('userID', result.user._id);
-          localStorage.setItem('username', result.user.username);
-          localStorage.setItem('profilePhoto', result.user.profilePhoto || '');
-
-          localStorage.setItem('userRoles', JSON.stringify(u.roles));
-
-
-          console.log(localStorage.getItem('userID')); // ✅ Debería imprimir el ID
-          const prevPage = document.referrer;
-          if (!prevPage || prevPage.includes('login.html') || prevPage.includes('register.html')) {
-            window.location.href = `${window.location.origin}/index.html`;
-          } else {
-            // Si hay una página previa distinta, regresa a ella
-            window.location.href = prevPage;
-          }
+        // ✅ Guardar solo los roles reales del usuario
+        if (Array.isArray(user.roles)) {
+          localStorage.setItem('userRoles', JSON.stringify(user.roles));
+          console.log('🎭 Roles guardados en localStorage:', user.roles);
         } else {
-          showToast(result.message || 'Error en login');
+          console.warn('⚠️ user.roles no es un array válido:', user.roles);
+          localStorage.setItem('userRoles', JSON.stringify([])); // Guarda vacío si no hay roles válidos
         }
-      } catch (error) {
-        console.error('Error en login:', error);
-        showToast('Error en login');
+
+        console.log(localStorage.getItem('userID')); // ✅ Debería imprimir el ID
+
+        const prevPage = document.referrer;
+        if (!prevPage || prevPage.includes('login.html') || prevPage.includes('register.html')) {
+          window.location.href = `${window.location.origin}/index.html`;
+        } else {
+          window.location.href = prevPage;
+        }
+      } else {
+        showToast(result.message || 'Error en login');
       }
-    });
-  }
-}); 
+    } catch (error) {
+      console.error('Error en login:', error);
+      showToast('Error en login');
+    }
+  });
+}
 
 
 // Validar confirmación de password y feedback para registro
