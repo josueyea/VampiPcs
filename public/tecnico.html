@@ -101,7 +101,7 @@
     document.getElementById('messages').innerHTML = '';
 
     console.log(`✅ Técnico unido a la sala privada ${room} con ${withUser.username}`);
-  });
+  }); 
 
 
 
@@ -162,9 +162,6 @@
     });
   });
 
-  socket.on('roomMessages', msgs => {
-    msgs.forEach(msg => mostrarMensaje(msg));
-  });
 
   socket.on('message', msg => {
     if (msg.room === salaActual) mostrarMensaje(msg);
