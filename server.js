@@ -213,22 +213,33 @@ io.on('connection', socket => {
 
     let roomName;
 
+    // 🔧 Corrección: Usamos socket.user.role en lugar de socket.userRole
     if (roomType === 'tecnico') {
-      if (socket.userRole === 'tecnico') {
+      if (socket.user.role === 'tecnico') {
         const activeUsers = await getActiveTechRooms(); // Implementa esta función si deseas
         activeUsers.forEach(userID => {
           socket.join(`tecnico-${userID}`);
         });
         return socket.emit('joinedPrivateRoom', { room: null, type: 'tecnico' });
-      }
-    } else {
-      roomName = roomType;
-      socket.join(roomName);
-      socket.emit('joinedPrivateRoom', { room: roomName, type: roomType });
+      } else {
+        // ✅ Usuario común solicita soporte técnico
+        roomName = `tecnico-${socket.user._id}`;
+        socket.join(roomName);
 
-      const messages = await getRoomMessages(roomName);
-      socket.emit('roomMessages', messages);
+        const messages = await getRoomMessages(roomName);
+        socket.emit('joinedPrivateRoom', { room: roomName, type: 'tecnico' });
+        socket.emit('roomMessages', messages);
+        return;
+      }
     }
+
+    // Para otras salas
+    roomName = roomType;
+    socket.join(roomName);
+    socket.emit('joinedPrivateRoom', { room: roomName, type: roomType });
+
+    const messages = await getRoomMessages(roomName);
+    socket.emit('roomMessages', messages);
   });
 
   // 🔥 NUEVO: Evento para solicitar soporte y notificar al técnico
