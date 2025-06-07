@@ -252,6 +252,8 @@ io.on('connection', socket => {
     const roomName = `tecnico-${socket.user._id}`;
     socket.join(roomName);
 
+    console.log(`📨 Usuario ${socket.user.username} solicitó soporte (sala: ${roomName})`);
+
     // Agrega la solicitud si aún no está
     const yaExiste = solicitudesPendientes.find(s => s.userId === socket.user._id.toString());
     if (!yaExiste) {
@@ -271,36 +273,40 @@ io.on('connection', socket => {
         username: nuevaSolicitud.username,
         userId: nuevaSolicitud.userId,
       });
+      io.to('tecnico').emit('nuevoSoporte', {
+        userId: socket.user._id,
+        username: socket.user.username,
+        profilePhoto: socket.user.profilePhoto || '/img/default.jpg'
+      });
     }
 
     const messages = await getRoomMessages(roomName);
     socket.emit('roomMessages', messages);
   });
 
-  socket.on('chatMessage', async ({ room, message }) => {
-    if (!room || typeof room !== 'string') return socket.emit('errorMessage', 'Sala no válida');
+  socket.on('aceptarSoporte', async ({ userId }) => {
+    if (!userId) return;
 
-    const newMsg = new Message({
-      room,
-      sender: socket.user._id,
-      message
-    });
+    const roomName = `tecnico-${userId}`;
+    socket.join(roomName);
 
-    await newMsg.save();
+    console.log(`✅ Técnico ${socket.user.username} se unió a la sala ${roomName}`);
 
-    const populatedMsg = await newMsg.populate('sender', 'username profilePhoto');
+    const messages = await getRoomMessages(roomName);
+    socket.emit('roomMessages', messages);
 
-    io.to(room).emit('message', {
-      message: populatedMsg.message,
+    // Notificar al usuario que el técnico se unió (opcional)
+    io.to(roomName).emit('message', {
+      room: roomName,
+      message: `🔧 Técnico ${socket.user.username} se unió al chat.`,
       sender: {
-        _id: populatedMsg.sender._id,
-        username: populatedMsg.sender.username,
-        profilePhoto: populatedMsg.sender.profilePhoto || null
+        username: 'Sistema',
+        profilePhoto: '/img/toji.jpg'
       },
-      timestamp: populatedMsg.timestamp,
-      room: populatedMsg.room
+      timestamp: new Date()
     });
   });
+
 
   socket.on('joinPrivateRoom', async ({ withUserID }) => {
     try {

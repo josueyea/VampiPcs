@@ -162,6 +162,24 @@
     });
   });
 
+  socket.on('nuevoSoporte', ({ userId, username, profilePhoto }) => {
+    // Mostrar solicitud en pantalla (puedes usar un botón)
+    const div = document.createElement('div');
+    div.innerHTML = `
+      <div class="solicitud">
+        <img src="${profilePhoto}" width="30" />
+        <span>${username}</span>
+        <button onclick="aceptarSoporteDeUsuario('${userId}')">Atender</button>
+      </div>
+    `;
+    document.getElementById('solicitudes').appendChild(div);
+  });
+
+  function aceptarSoporteDeUsuario(userId) {
+    if (!userId) return;
+    socket.emit('aceptarSoporte', { userId }); // ⬅️ avisa al backend
+  }
+
 
   socket.on('message', msg => {
     if (msg.room === salaActual) mostrarMensaje(msg);
