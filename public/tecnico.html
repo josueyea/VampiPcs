@@ -155,10 +155,8 @@
     document.querySelectorAll('.btn-atender').forEach(btn => {
       btn.addEventListener('click', () => {
         const userID = btn.dataset.user;
-
-        // No es necesario volver a unirse a la sala de técnico
-        // Solo unirse a la sala privada con el usuario seleccionado
         socket.emit('joinPrivateRoom', { withUserID: userID });
+        aceptarSoporteDeUsuario(userId);
         aceptarSoporteDeUsuario(userID);
       });
     });

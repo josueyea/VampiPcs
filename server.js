@@ -194,6 +194,13 @@ io.on('connection', socket => {
 
       socket.join(room);
 
+      if (!withUserID) return alert('ID de usuario no válido');
+      socket.emit('joinPrivateRoom', { withUserID });
+
+      if (!mongoose.Types.ObjectId.isValid(withUserID)) {
+        return socket.emit('errorMessage', 'ID de usuario inválido');
+      }
+
       const withUser = await User.findById(withUserID).select('username profilePhoto');
       if (!withUser) {
         return socket.emit('errorMessage', 'Usuario no encontrado');
