@@ -159,11 +159,15 @@
         // No es necesario volver a unirse a la sala de técnico
         // Solo unirse a la sala privada con el usuario seleccionado
         socket.emit('joinPrivateRoom', { withUserID: userID });
+        aceptarSoporteDeUsuario(userID);
       });
     });
   });
 
   socket.on('nuevoSoporte', ({ userId, username, profilePhoto }) => {
+    if (document.querySelector(`.btn-atender[data-user="${userId}"]`)) return;
+    const contenedor = document.getElementById('listaSolicitudes');
+
     const item = document.createElement('div');
     item.classList.add('solicitud');
 
@@ -175,15 +179,14 @@
       <button class="btn-atender" data-user="${userId}">Atender</button>
     `;
 
-    const contenedor = document.getElementById('listaSolicitudes');
-    if (contenedor) {
-      contenedor.appendChild(item);
+    contenedor.appendChild(item);
 
-      item.querySelector('.btn-atender').addEventListener('click', () => {
-        socket.emit('joinPrivateRoom', { withUserID: userId });
-      });
-    }
+    // Agrega el listener al botón nuevo
+    item.querySelector('.btn-atender').addEventListener('click', () => {
+      socket.emit('joinPrivateRoom', { withUserID: userId });
+    });
   });
+
 
   function aceptarSoporteDeUsuario(userId) {
     if (!userId) return;

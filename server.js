@@ -187,6 +187,29 @@ io.use(async (socket, next) => {
 io.on('connection', socket => {
   console.log('✅ Usuario conectado:', socket.user.username);
 
+  socket.on('joinPrivateRoom', async ({ withUserID }) => {
+    try {
+      const ids = [socket.user._id.toString(), withUserID].sort();
+      const room = `private-${ids[0]}-${ids[1]}`;
+
+      socket.join(room);
+
+      const withUser = await User.findById(withUserID).select('username profilePhoto');
+      if (!withUser) {
+        return socket.emit('errorMessage', 'Usuario no encontrado');
+      }
+
+      socket.emit('joinedPrivateRoom', { room, type: 'private', withUser });
+
+      const messages = await Message.find({ room }).sort({ timestamp: 1 }).populate('sender', 'username profilePhoto').lean();
+      socket.emit('roomMessages', messages);
+
+    } catch (error) {
+      console.error('Error uniendo a sala privada:', error);
+      socket.emit('errorMessage', 'No se pudo unir a la sala privada.');
+    }
+  });
+
   socket.on('joinRoom', async (room) => {
     if (!publicRooms.includes(room)) return socket.emit('errorMessage', 'Sala no válida');
 
@@ -307,30 +330,6 @@ io.on('connection', socket => {
         },
         timestamp: new Date()
       });
-  });
-
-
-  socket.on('joinPrivateRoom', async ({ withUserID }) => {
-    try {
-      const ids = [socket.user._id.toString(), withUserID].sort();
-      const room = `private-${ids[0]}-${ids[1]}`;
-
-      socket.join(room);
-
-      const withUser = await User.findById(withUserID).select('username profilePhoto');
-      if (!withUser) {
-        return socket.emit('errorMessage', 'Usuario no encontrado');
-      }
-
-      socket.emit('joinedPrivateRoom', { room, type: 'private', withUser });
-
-      const messages = await Message.find({ room }).sort({ timestamp: 1 }).populate('sender', 'username profilePhoto').lean();
-      socket.emit('roomMessages', messages);
-
-    } catch (error) {
-      console.error('Error uniendo a sala privada:', error);
-      socket.emit('errorMessage', 'No se pudo unir a la sala privada.');
-    }
   });
 
   // Escuchar mensajes y reenviarlos a todos los que están en la sala
