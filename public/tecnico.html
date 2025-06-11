@@ -164,16 +164,26 @@
   });
 
   socket.on('nuevoSoporte', ({ userId, username, profilePhoto }) => {
-    // Mostrar solicitud en pantalla (puedes usar un botón)
-    const div = document.createElement('div');
-    div.innerHTML = `
-      <div class="solicitud">
-        <img src="${profilePhoto}" width="30" />
-        <span>${username}</span>
-        <button onclick="aceptarSoporteDeUsuario('${userId}')">Atender</button>
+    const item = document.createElement('div');
+    item.classList.add('solicitud');
+
+    item.innerHTML = `
+      <div class="solicitud-info">
+        <img src="${profilePhoto}" class="foto-usuario" />
+        <strong>${username}</strong>
       </div>
+      <button class="btn-atender" data-user="${userId}">Atender</button>
     `;
-    document.getElementById('solicitudes').appendChild(div);
+
+    const contenedor = document.getElementById('listaSolicitudes');
+    if (contenedor) {
+      contenedor.appendChild(item);
+
+      // También conectamos el botón de atender
+      item.querySelector('.btn-atender').addEventListener('click', () => {
+        socket.emit('joinPrivateRoom', { withUserID: userId });
+      });
+    }
   });
 
   function aceptarSoporteDeUsuario(userId) {
