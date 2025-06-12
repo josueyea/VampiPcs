@@ -314,29 +314,36 @@ io.on('connection', socket => {
     socket.emit('roomMessages', messages);
   });
 
-  socket.on('aceptarSoporte', async ({ userId }) => {
-      if (!userId) return;
+ socket.on('aceptarSoporte', async ({ userId }) => {
+    if (!userId) return;
 
-      const roomName = `tecnico-${userId}`;
-      socket.join(roomName);
+    const roomName = `tecnico-${userId}`;
+    socket.join(roomName);
 
-      console.log(`✅ Técnico ${socket.user.username} se unió a la sala ${roomName}`);
+    console.log(`✅ Técnico ${socket.user.username} se unió a la sala ${roomName}`);
 
-      const messages = await getRoomMessages(roomName);
-      socket.emit('roomMessages', messages);
+    const messages = await getRoomMessages(roomName);
+    socket.emit('roomMessages', messages);
 
-      // ✅ Esta línea es clave para que el técnico tenga currentRoom
-      socket.emit('joinedPrivateRoom', { room: roomName, type: 'tecnico' });
+    // 🔧 Buscar al usuario que solicitó soporte
+    const withUser = await User.findById(userId).select('username profilePhoto _id');
 
-      io.to(roomName).emit('message', {
-        room: roomName,
-        message: `🔧 Técnico ${socket.user.username} se unió al chat.`,
-        sender: {
-          username: 'Sistema',
-          profilePhoto: '/img/toji.jpg'
-        },
-        timestamp: new Date()
-      });
+    // ✅ Enviar información completa al técnico
+    socket.emit('joinedPrivateRoom', {
+      room: roomName,
+      type: 'tecnico',
+      withUser
+    });
+
+    io.to(roomName).emit('message', {
+      room: roomName,
+      message: `🔧 Técnico ${socket.user.username} se unió al chat.`,
+      sender: {
+        username: 'Sistema',
+        profilePhoto: '/img/toji.jpg'
+      },
+      timestamp: new Date()
+    });
   });
 
   // Escuchar mensajes y reenviarlos a todos los que están en la sala
